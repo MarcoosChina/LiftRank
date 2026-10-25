@@ -1,63 +1,46 @@
-/**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://unistyl.es/), etc.
- */
-
 import '@/global.css';
-
-import { Platform } from 'react-native';
 
 export const Colors = {
   light: {
-    text: '#F4F5F7',
-    textSecondary: '#9BA1AB',
-    background: '#0A0B0E',
-    backgroundElement: '#16181D',
-    backgroundSelected: '#23262D',
-    border: '#23262D',
-    accent: '#C6F24E',
-    accentInk: '#0A0B0E',
-    danger: '#FF5C5C',
+    text: '#F5EFE9',
+    textSecondary: '#A89C8F',
+    background: '#0D0A08',
+    backgroundElement: '#171210',
+    backgroundSelected: '#26201B',
+    border: '#2B2119',
+    accent: '#FF6B35',
+    accentInk: '#160B05',
+    danger: '#FF4D4D',
   },
   dark: {
-    text: '#F4F5F7',
-    textSecondary: '#9BA1AB',
-    background: '#0A0B0E',
-    backgroundElement: '#16181D',
-    backgroundSelected: '#23262D',
-    border: '#23262D',
-    accent: '#C6F24E',
-    accentInk: '#0A0B0E',
-    danger: '#FF5C5C',
+    text: '#F5EFE9',
+    textSecondary: '#A89C8F',
+    background: '#0D0A08',
+    backgroundElement: '#171210',
+    backgroundSelected: '#26201B',
+    border: '#2B2119',
+    accent: '#FF6B35',
+    accentInk: '#160B05',
+    danger: '#FF4D4D',
   },
 } as const;
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
-export const Fonts = Platform.select({
-  ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
-    sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
-    serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
-    rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-    mono: 'ui-monospace',
-  },
-  default: {
-    sans: 'normal',
-    serif: 'serif',
-    rounded: 'normal',
-    mono: 'monospace',
-  },
-  web: {
-    sans: 'var(--font-display)',
-    serif: 'var(--font-serif)',
-    rounded: 'var(--font-rounded)',
-    mono: 'var(--font-mono)',
-  },
-});
+export const Fonts = {
+  /** Display condensada — títulos e headings (poster industrial) */
+  display: 'Oswald_600SemiBold',
+  displayBold: 'Oswald_700Bold',
+  displayMedium: 'Oswald_500Medium',
+  /** Corpo — grotesca industrial */
+  body: 'Barlow_400Regular',
+  sans: 'Barlow_500Medium',
+  bodyBold: 'Barlow_600SemiBold',
+  bold: 'Barlow_700Bold',
+  /** Números — monoespaçada de precisão */
+  mono: 'JetBrainsMono_400Regular',
+  monoBold: 'JetBrainsMono_700Bold',
+} as const;
 
 export const Spacing = {
   half: 2,
@@ -69,5 +52,5 @@ export const Spacing = {
   six: 64,
 } as const;
 
-export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
+export const BottomTabInset = 88;
 export const MaxContentWidth = 800;

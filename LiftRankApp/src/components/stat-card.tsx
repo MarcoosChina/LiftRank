@@ -27,10 +27,8 @@ export function StatCard({
       </ThemedText>
       <View style={styles.row}>
         <ThemedText
-          style={[
-            styles.value,
-            { color: accent ? theme.accentInk : theme.text },
-          ]}
+          type="stat"
+          style={{ color: accent ? theme.accentInk : theme.text }}
           numberOfLines={1}
           adjustsFontSizeToFit>
           {formatNumber(value, decimals)}
@@ -55,11 +53,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'baseline',
     gap: 4,
-  },
-  value: {
-    fontSize: 28,
-    fontWeight: '700',
-    lineHeight: 32,
-    flexShrink: 1,
   },
 });

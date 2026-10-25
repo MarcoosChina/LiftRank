@@ -16,7 +16,7 @@ import {
 import { formatNumber, useQuery } from '@/hooks/use-query';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useTheme } from '@/hooks/use-theme';
-import { Spacing } from '@/constants/theme';
+import { Fonts, Spacing } from '@/constants/theme';
 
 export default function HistoricoScreen() {
   const db = useSQLiteContext();
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   subtitle: {
-    color: '#9BA1AB',
+    color: '#A89C8F',
     marginTop: 2,
   },
   sessionCard: {
@@ -167,8 +167,9 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   dayNumber: {
-    fontSize: 28,
-    lineHeight: 32,
+    fontSize: 30,
+    lineHeight: 34,
+    fontFamily: Fonts.monoBold,
   },
   sessionStats: {
     alignItems: 'flex-end',
@@ -176,7 +177,7 @@ const styles = StyleSheet.create({
   detail: {
     gap: Spacing.two,
     borderTopWidth: 1,
-    borderTopColor: '#23262D',
+    borderTopColor: '#2B2119',
     paddingTop: Spacing.two,
   },
   exerciseBlock: {

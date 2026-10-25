@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   subtitle: {
-    color: '#9BA1AB',
+    color: '#A89C8F',
     marginTop: 2,
   },
   statRow: {
@@ -169,8 +169,8 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   chartTitle: {
-    color: '#9BA1AB',
-    letterSpacing: 1,
+    color: '#A89C8F',
+    letterSpacing: 2,
   },
   chart: {
     flexDirection: 'row',
@@ -187,14 +187,14 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   barLabel: {
-    color: '#9BA1AB',
+    color: '#A89C8F',
   },
   rankingSection: {
     gap: Spacing.two,
   },
   rankingTitle: {
-    color: '#9BA1AB',
-    letterSpacing: 1,
+    color: '#A89C8F',
+    letterSpacing: 2,
   },
   rankingRow: {
     flexDirection: 'row',
@@ -202,10 +202,10 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#23262D',
+    borderBottomColor: '#2B2119',
   },
   rankNumber: {
-    color: '#9BA1AB',
+    color: '#A89C8F',
     width: 20,
   },
   rankInfo: {

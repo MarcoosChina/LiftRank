@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   subtitle: {
-    color: '#9BA1AB',
+    color: '#A89C8F',
     marginTop: 2,
   },
   dayCard: {
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#23262D',
+    borderBottomColor: '#2B2119',
   },
   newExerciseRow: {
     flexDirection: 'row',

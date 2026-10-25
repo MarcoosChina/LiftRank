@@ -307,7 +307,7 @@ const styles = StyleSheet.create({
   },
   date: {
     textTransform: 'capitalize',
-    color: '#9BA1AB',
+    color: '#A89C8F',
     marginTop: 2,
   },
   summaryRow: {
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   inputLabel: {
-    color: '#9BA1AB',
+    color: '#A89C8F',
   },
   setsList: {
     gap: Spacing.two,
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     paddingVertical: 4,
     borderBottomWidth: 1,
-    borderBottomColor: '#23262D',
+    borderBottomColor: '#2B2119',
   },
   setWeight: {
     fontWeight: '700',
@@ -357,8 +357,8 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   sectionTitle: {
-    color: '#9BA1AB',
-    letterSpacing: 1,
+    color: '#A89C8F',
+    letterSpacing: 2,
   },
   planChips: {
     flexDirection: 'row',
