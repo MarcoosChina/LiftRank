@@ -1,0 +1,190 @@
+import * as Haptics from 'expo-haptics';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState } from 'react';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import {
+  deleteSession,
+  getSessionDetail,
+  getSessions,
+  strToDate,
+} from '@/db/repo';
+import { formatNumber, useQuery } from '@/hooks/use-query';
+import { useSQLiteContext } from 'expo-sqlite';
+import { useTheme } from '@/hooks/use-theme';
+import { Spacing } from '@/constants/theme';
+
+export default function HistoricoScreen() {
+  const db = useSQLiteContext();
+  const theme = useTheme();
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+
+  const sessions = useQuery(() => getSessions(db));
+  const detail = useQuery(() =>
+    expandedId !== null ? getSessionDetail(db, expandedId) : Promise.resolve(null),
+  );
+
+  const grouped = useQuery(async () => {
+    if (expandedId === null || !detail.data) return null;
+    const byExercise = new Map<string, { volume: number; series: number; rows: string[] }>();
+    for (const set of detail.data.sets) {
+      const key = set.exercise_name;
+      const item = byExercise.get(key) ?? { volume: 0, series: 0, rows: [] };
+      item.series += 1;
+      item.volume += set.weight * set.reps;
+      item.rows.push(`${formatNumber(set.weight, set.weight % 1 === 0 ? 0 : 1)}kg × ${set.reps}`);
+      byExercise.set(key, item);
+    }
+    const cardio = detail.data.cardio.map((c) => ({
+      name: c.exercise_name,
+      minutes: c.minutes,
+    }));
+    return { byExercise: [...byExercise.entries()], cardio };
+  });
+
+  return (
+    <ThemedView style={styles.flex}>
+      <SafeAreaView style={styles.flex}>
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          <View>
+            <ThemedText type="title">Histórico</ThemedText>
+            <ThemedText type="small" style={styles.subtitle}>
+              {sessions.data?.length ?? 0} treinos registrados
+            </ThemedText>
+          </View>
+
+          {(sessions.data ?? []).length === 0 && (
+            <ThemedText type="small" style={{ color: theme.textSecondary }}>
+              Nada por aqui ainda. Registre séries na aba Hoje.
+            </ThemedText>
+          )}
+
+          {(sessions.data ?? []).map((session) => {
+            const expanded = expandedId === session.id;
+            const d = strToDate(session.date);
+            return (
+              <ThemedView key={session.id} type="backgroundElement" style={styles.sessionCard}>
+                <Pressable
+                  onPress={() => {
+                    setExpandedId(expanded ? null : session.id);
+                  }}>
+                  <View style={styles.sessionHeader}>
+                    <View style={styles.sessionDate}>
+                      <ThemedText type="subtitle" style={styles.dayNumber}>
+                        {format(d, 'dd')}
+                      </ThemedText>
+                      <View>
+                        <ThemedText type="smallBold">{format(d, 'MMMM', { locale: ptBR })}</ThemedText>
+                        <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                          {format(d, 'EEEE', { locale: ptBR })}
+                        </ThemedText>
+                      </View>
+                    </View>
+                    <View style={styles.sessionStats}>
+                      <ThemedText type="smallBold">{formatNumber(session.volume)} kg</ThemedText>
+                      <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                        {formatNumber(session.reps)} reps · {formatNumber(session.cardio_minutes, session.cardio_minutes % 1 === 0 ? 0 : 1)} min cardio
+                      </ThemedText>
+                    </View>
+                  </View>
+                </Pressable>
+
+                {expanded && grouped.data && (
+                  <View style={styles.detail}>
+                    {grouped.data.byExercise.map(([name, info]) => (
+                      <View key={name} style={styles.exerciseBlock}>
+                        <View style={styles.exerciseRow}>
+                          <ThemedText type="smallBold">{name}</ThemedText>
+                          <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                            {info.series} séries · {formatNumber(info.volume)} kg
+                          </ThemedText>
+                        </View>
+                        <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                          {info.rows.join('  ·  ')}
+                        </ThemedText>
+                      </View>
+                    ))}
+                    {grouped.data.cardio.map((c) => (
+                      <View key={c.name} style={styles.exerciseRow}>
+                        <ThemedText type="smallBold">⏱ {c.name}</ThemedText>
+                        <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                          {formatNumber(c.minutes, c.minutes % 1 === 0 ? 0 : 1)} min
+                        </ThemedText>
+                      </View>
+                    ))}
+                    <Pressable
+                      hitSlop={6}
+                      onPress={() => {
+                        deleteSession(db, session.id).then(() => {
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+                          setExpandedId(null);
+                          sessions.reload();
+                        });
+                      }}>
+                      <ThemedText type="smallBold" style={{ color: theme.danger }}>
+                        Apagar treino
+                      </ThemedText>
+                    </Pressable>
+                  </View>
+                )}
+              </ThemedView>
+            );
+          })}
+        </ScrollView>
+      </SafeAreaView>
+    </ThemedView>
+  );
+}
+
+const styles = StyleSheet.create({
+  flex: { flex: 1 },
+  content: {
+    paddingHorizontal: Spacing.three,
+    paddingBottom: 120,
+    gap: Spacing.three,
+  },
+  subtitle: {
+    color: '#9BA1AB',
+    marginTop: 2,
+  },
+  sessionCard: {
+    borderRadius: 16,
+    padding: Spacing.three,
+    gap: Spacing.two,
+  },
+  sessionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  sessionDate: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  dayNumber: {
+    fontSize: 28,
+    lineHeight: 32,
+  },
+  sessionStats: {
+    alignItems: 'flex-end',
+  },
+  detail: {
+    gap: Spacing.two,
+    borderTopWidth: 1,
+    borderTopColor: '#23262D',
+    paddingTop: Spacing.two,
+  },
+  exerciseBlock: {
+    gap: 2,
+  },
+  exerciseRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+});
