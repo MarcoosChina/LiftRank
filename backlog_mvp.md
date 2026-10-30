@@ -24,10 +24,10 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** Funções retornam dados corretos para as telas de Hoje, Plano, Histórico e Stats.
 - **Branch Sugerida:** `refactor/camada-repositorio`
 
-### - [ ] **T1.3: API Backend e Camada de Sincronização Cloud**
+### - [x] **T1.3: API Backend e Camada de Sincronização Cloud**
 
 - **Prioridade:** Medium
-- **Status:** pending
+- **Status:** completed
 - **Descrição:** Desenvolvimento/integração de API backend para persistência remota e sincronização de treinos entre o banco local e a nuvem.
 - **Dependências:** Bloco 2 (Autenticação)
 - **Critérios de Aceitação:** Dados de treinos do usuário são sincronizados com o servidor quando online, com resolução de conflitos básica.
@@ -37,19 +37,19 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 
 ## Bloco 2: Autenticação (Cadastro, Login, Logout e Recuperação de Senha)
 
-### - [ ] **T2.1: Telas e Fluxo de Autenticação (UI)**
+### - [x] **T2.1: Telas e Fluxo de Autenticação (UI)**
 
 - **Prioridade:** High
-- **Status:** pending
+- **Status:** completed
 - **Descrição:** Criação das telas de Login, Cadastro (Signup) e Recuperação de Senha utilizando Expo Router.
 - **Dependências:** Nenhuma (independente da nuvem para UI inicial).
 - **Critérios de Aceitação:** Validação de formulários de email/senha com navegação fluida entre as telas de autenticação.
 - **Branch Sugerida:** `feature/telas-autenticacao`
 
-### - [ ] **T2.2: Integração de Autenticação com Backend e Gerenciamento de Sessão**
+### - [x] **T2.2: Integração de Autenticação com Backend e Gerenciamento de Sessão**
 
 - **Prioridade:** High
-- **Status:** pending
+- **Status:** completed
 - **Descrição:** Conectar as telas de autenticação à API de backend, gerenciar tokens de acesso (JWT/Session) e implementar logout seguro.
 - **Dependências:** T2.1, T1.3
 - **Critérios de Aceitação:** Usuário consegue se cadastrar, fazer login, manter sessão ativa e realizar logout com redirecionamento correto.
