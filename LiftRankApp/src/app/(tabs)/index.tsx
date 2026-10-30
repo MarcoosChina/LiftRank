@@ -1,6 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { Link } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Keyboard, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { format } from 'date-fns';
@@ -44,6 +44,27 @@ export default function HojeScreen() {
   const [weightText, setWeightText] = useState('');
   const [repsText, setRepsText] = useState('');
   const [minutesText, setMinutesText] = useState('');
+  const [restSeconds, setRestSeconds] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (restSeconds === null || restSeconds <= 0) return;
+    const interval = setInterval(() => {
+      setRestSeconds((prev) => {
+        if (prev === null || prev <= 1) {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [restSeconds]);
+
+  function formatTime(sec: number) {
+    const mins = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${String(mins).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
 
   const exercises = useQuery(() => listExercises(db));
   const planToday = useQuery(() => getPlan(db, weekday));
@@ -102,6 +123,7 @@ export default function HojeScreen() {
     if (weight <= 0 || !Number.isFinite(reps) || reps <= 0) return;
     await addSet(db, today, selected.id, weight, reps);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setRestSeconds(90);
     sets.reload();
   }
 
@@ -129,6 +151,29 @@ export default function HojeScreen() {
               {format(new Date(), "EEEE, d 'de' MMMM", { locale: ptBR })}
             </ThemedText>
           </View>
+
+          {restSeconds !== null && (
+            <ThemedView type="backgroundElement" style={[styles.timerCard, { borderColor: theme.accent, borderWidth: 1 }]}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <View>
+                  <ThemedText type="small" style={{ color: theme.textSecondary }}>⏱ TEMPO DE DESCANSO</ThemedText>
+                  <ThemedText type="title" style={{ color: theme.accent, fontSize: 28 }}>{formatTime(restSeconds)}</ThemedText>
+                </View>
+                <View style={{ flexDirection: 'row', gap: Spacing.two }}>
+                  <Pressable
+                    style={styles.timerBtn}
+                    onPress={() => setRestSeconds((s) => (s ?? 0) + 30)}>
+                    <ThemedText type="smallBold">+30s</ThemedText>
+                  </Pressable>
+                  <Pressable
+                    style={styles.timerBtn}
+                    onPress={() => setRestSeconds(null)}>
+                    <ThemedText type="smallBold" style={{ color: theme.danger }}>Pular</ThemedText>
+                  </Pressable>
+                </View>
+              </View>
+            </ThemedView>
+          )}
 
           <View style={styles.summaryRow}>
             <StatCard label="Volume" value={summary.volume} unit="kg" />
@@ -364,5 +409,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing.two,
+  },
+  timerCard: {
+    borderRadius: 16,
+    padding: Spacing.three,
+  },
+  timerBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: '#2B2119',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
