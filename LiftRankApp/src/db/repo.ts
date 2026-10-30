@@ -343,3 +343,27 @@ export async function getMaxWeightForExercise(db: SQLiteDatabase, exerciseId: nu
   );
   return result?.maxWeight ?? 0;
 }
+
+export async function exportDatabaseBackup(db: SQLiteDatabase): Promise<string> {
+  const exercises = await db.getAllAsync('SELECT * FROM exercises');
+  const plan = await db.getAllAsync('SELECT * FROM plan');
+  const sessions = await db.getAllAsync('SELECT * FROM sessions');
+  const sets = await db.getAllAsync('SELECT * FROM sets');
+  const cardio = await db.getAllAsync('SELECT * FROM cardio');
+  const users = await db.getAllAsync('SELECT id, name, email, created_at FROM users');
+
+  const backup = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    data: {
+      exercises,
+      plan,
+      sessions,
+      sets,
+      cardio,
+      users,
+    },
+  };
+
+  return JSON.stringify(backup, null, 2);
+}

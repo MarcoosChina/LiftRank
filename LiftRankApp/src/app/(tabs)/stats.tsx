@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { format, startOfWeek, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -9,7 +9,7 @@ import { Segmented } from '@/components/segmented';
 import { StatCard } from '@/components/stat-card';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { getDailyVolume, getStats, todayStr } from '@/db/repo';
+import { exportDatabaseBackup, getDailyVolume, getStats, todayStr } from '@/db/repo';
 import { formatNumber, useQuery } from '@/hooks/use-query';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useTheme } from '@/hooks/use-theme';
@@ -48,6 +48,14 @@ export default function StatsScreen() {
   const fromDate = periodRange(period);
 
   const stats = useQuery(() => getStats(db, fromDate));
+
+  async function handleExportBackup() {
+    const json = await exportDatabaseBackup(db);
+    await Share.share({
+      title: 'LiftRank Backup',
+      message: json,
+    });
+  }
 
   const chart = useQuery(() => {
     const end = new Date();
@@ -143,6 +151,14 @@ export default function StatsScreen() {
               </View>
             ))}
           </View>
+
+          <Pressable
+            style={[styles.logoutButton, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
+            onPress={handleExportBackup}>
+            <ThemedText type="smallBold" style={{ color: theme.accent, textAlign: 'center' }}>
+              Exportar Backup (JSON)
+            </ThemedText>
+          </Pressable>
 
           <Pressable
             style={[styles.logoutButton, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
