@@ -6,7 +6,7 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 
 ## Bloco 1: Backend e Banco de Dados (incluindo Sincronização na Nuvem)
 
-### T1.1: Estrutura do Banco de Dados Local (SQLite)
+### - [x] **T1.1: Estrutura do Banco de Dados Local (SQLite)**
 - **Prioridade:** High
 - **Status:** completed
 - **Descrição:** Criação das tabelas locais (`exercises`, `plan`, `sessions`, `sets`, `cardio`), índices e migrações iniciais com dados padrão (seed).
@@ -14,7 +14,7 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** Banco inicializa corretamente, aplica migrações e insere exercícios padrão sem erros.
 - **Branch Sugerida:** `chore/banco-dados-local`
 
-### T1.2: Camada de Repositório e Consultas Locais
+### - [x] **T1.2: Camada de Repositório e Consultas Locais**
 - **Prioridade:** High
 - **Status:** completed
 - **Descrição:** Implementação de funções CRUD para exercícios, planos semanais, sessões de treino, séries, cardio e agregação de estatísticas.
@@ -22,7 +22,7 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** Funções retornam dados corretos para as telas de Hoje, Plano, Histórico e Stats.
 - **Branch Sugerida:** `refactor/camada-repositorio`
 
-### T1.3: API Backend e Camada de Sincronização Cloud
+### - [ ] **T1.3: API Backend e Camada de Sincronização Cloud**
 - **Prioridade:** Medium
 - **Status:** pending
 - **Descrição:** Desenvolvimento/integração de API backend para persistência remota e sincronização de treinos entre o banco local e a nuvem.
@@ -34,7 +34,7 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 
 ## Bloco 2: Autenticação (Cadastro, Login, Logout e Recuperação de Senha)
 
-### T2.1: Telas e Fluxo de Autenticação (UI)
+### - [ ] **T2.1: Telas e Fluxo de Autenticação (UI)**
 - **Prioridade:** High
 - **Status:** pending
 - **Descrição:** Criação das telas de Login, Cadastro (Signup) e Recuperação de Senha utilizando Expo Router.
@@ -42,7 +42,7 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** Validação de formulários de email/senha com navegação fluida entre as telas de autenticação.
 - **Branch Sugerida:** `feature/telas-autenticacao`
 
-### T2.2: Integração de Autenticação com Backend e Gerenciamento de Sessão
+### - [ ] **T2.2: Integração de Autenticação com Backend e Gerenciamento de Sessão**
 - **Prioridade:** High
 - **Status:** pending
 - **Descrição:** Conectar as telas de autenticação à API de backend, gerenciar tokens de acesso (JWT/Session) e implementar logout seguro.
@@ -54,7 +54,7 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 
 ## Bloco 3: Treinos (Agendamento Semanal, Exercícios, Séries, Pesos, Repetições e Cardio)
 
-### T3.1: Agendamento Semanal de Treinos (Plano)
+### - [x] **T3.1: Agendamento Semanal de Treinos (Plano)**
 - **Prioridade:** High
 - **Status:** completed
 - **Descrição:** Tela de plano semanal permitindo associar exercícios de força e cardio a cada dia da semana.
@@ -62,7 +62,7 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** Usuário visualiza e edita treinos planejados por dia da semana com feedback tátil.
 - **Branch Sugerida:** `feature/agendamento-semanal`
 
-### T3.2: Registro Diário de Treinos (Séries, Pesos, Repetições e Cardio)
+### - [x] **T3.2: Registro Diário de Treinos (Séries, Pesos, Repetições e Cardio)**
 - **Prioridade:** High
 - **Status:** completed
 - **Descrição:** Tela "Hoje" para registro interativo de séries de força (peso × reps) e duração de cardio, com histórico do último treino.
@@ -74,7 +74,7 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 
 ## Bloco 4: Histórico e Estatísticas
 
-### T4.1: Histórico de Treinos e Detalhes por Sessão
+### - [x] **T4.1: Histórico de Treinos e Detalhes por Sessão**
 - **Prioridade:** High
 - **Status:** completed
 - **Descrição:** Listagem cronológica de treinos realizados com expansão de detalhes por exercício e opção de remoção de sessões.
@@ -82,7 +82,7 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** Exibição correta de volume total, repetições, cardio e exclusão segura de sessões.
 - **Branch Sugerida:** `feature/historico-treinos`
 
-### T4.2: Estatísticas e Filtros por Período (Dia, Semana, Mês e Tudo)
+### - [x] **T4.2: Estatísticas e Filtros por Período (Dia, Semana, Mês e Tudo)**
 - **Prioridade:** High
 - **Status:** completed
 - **Descrição:** Dashboard de estatísticas com segmentação por período, gráfico de barras de volume (últimos 14 dias) e ranking de exercícios.
@@ -94,7 +94,7 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 
 ## Bloco 5: Testes em Dispositivos Reais e Preparação para Publicação
 
-### T5.1: Configuração de Build Nativa e Configurações de App (`app.json` / `eas.json`)
+### - [ ] **T5.1: Configuração de Build Nativa e Configurações de App (`app.json` / `eas.json`)**
 - **Prioridade:** High
 - **Status:** pending
 - **Descrição:** Configuração de package name, bundle identifier, ícones, splash screen e perfis de build no EAS.
@@ -102,7 +102,7 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** `npx expo-doctor` passa sem erros críticos e perfis do EAS configurados.
 - **Branch Sugerida:** `chore/configuracao-build`
 
-### T5.2: Testes em Dispositivos Físicos (Android e iOS)
+### - [ ] **T5.2: Testes em Dispositivos Físicos (Android e iOS)**
 - **Prioridade:** High
 - **Status:** pending
 - **Descrição:** Geração de builds de desenvolvimento/preview (`eas build --profile development`) e testes rigorosos em aparelhos físicos.
@@ -114,7 +114,7 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 
 ## Bloco 6: Publicação na Google Play e App Store
 
-### T6.1: Preparação de Assets e Metadados para las Lojas
+### - [ ] **T6.1: Preparação de Assets e Metadados para as Lojas**
 - **Prioridade:** Medium
 - **Status:** pending
 - **Descrição:** Criação de capturas de tela, ícones promocionais, descrição e políticas de privacidade exigidas pelas lojas.
@@ -122,7 +122,7 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** Assets prontos e conformidade com as diretrizes da Apple e Google.
 - **Branch Sugerida:** `chore/assets-lojas`
 
-### T6.2: Submissão e Publicação (Google Play Console e App Store Connect)
+### - [ ] **T6.2: Submissão e Publicação (Google Play Console e App Store Connect)**
 - **Prioridade:** High
 - **Status:** pending
 - **Descrição:** Geração dos pacotes de produção (AAB para Google Play e IPA para App Store via EAS Build) e envio para revisão.
