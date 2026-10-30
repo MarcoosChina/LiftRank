@@ -112,10 +112,10 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** `npx expo-doctor` passa sem erros críticos e perfis do EAS configurados.
 - **Branch Sugerida:** `chore/configuracao-build`
 
-### - [ ] **T5.2: Testes em Dispositivos Físicos (Android e iOS)**
+### - [x] **T5.2: Testes em Dispositivos Físicos (Android e iOS)**
 
 - **Prioridade:** High
-- **Status:** pending
+- **Status:** completed
 - **Descrição:** Geração de builds de desenvolvimento/preview (`eas build --profile development`) e testes rigorosos em aparelhos físicos.
 - **Dependências:** T5.1
 - **Critérios de Aceitação:** Validação de desempenho, toque tátil, layout responsivo e persistência em dispositivos reais.
@@ -125,19 +125,19 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 
 ## Bloco 6: Publicação na Google Play e App Store
 
-### - [ ] **T6.1: Preparação de Assets e Metadados para as Lojas**
+### - [x] **T6.1: Preparação de Assets e Metadados para as Lojas**
 
 - **Prioridade:** Medium
-- **Status:** pending
+- **Status:** completed
 - **Descrição:** Criação de capturas de tela, ícones promocionais, descrição e políticas de privacidade exigidas pelas lojas.
 - **Dependências:** T5.2
 - **Critérios de Aceitação:** Assets prontos e conformidade com as diretrizes da Apple e Google.
 - **Branch Sugerida:** `chore/assets-lojas`
 
-### - [ ] **T6.2: Submissão e Publicação (Google Play Console e App Store Connect)**
+### - [x] **T6.2: Submissão e Publicação (Google Play Console e App Store Connect)**
 
 - **Prioridade:** High
-- **Status:** pending
+- **Status:** completed
 - **Descrição:** Geração dos pacotes de produção (AAB para Google Play e IPA para App Store via EAS Build) e envio para revisão.
 - **Dependências:** T6.1
 - **Critérios de Aceitação:** Aplicativo submetido com sucesso para testes internos/beta ou revisão final nas lojas.
