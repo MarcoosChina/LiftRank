@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { format, startOfWeek, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { router } from 'expo-router';
 
 import { Segmented } from '@/components/segmented';
 import { StatCard } from '@/components/stat-card';
@@ -142,6 +143,14 @@ export default function StatsScreen() {
               </View>
             ))}
           </View>
+
+          <Pressable
+            style={[styles.logoutButton, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
+            onPress={() => router.replace('/(auth)/login')}>
+            <ThemedText type="smallBold" style={{ color: theme.danger, textAlign: 'center' }}>
+              Sair da Conta (Logout)
+            </ThemedText>
+          </Pressable>
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
@@ -210,5 +219,13 @@ const styles = StyleSheet.create({
   },
   rankInfo: {
     flex: 1,
+  },
+  logoutButton: {
+    padding: 16,
+    borderRadius: 14,
+    borderWidth: 1,
+    marginTop: Spacing.two,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

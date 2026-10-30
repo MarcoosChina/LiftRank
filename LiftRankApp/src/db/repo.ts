@@ -52,6 +52,12 @@ export interface Stats {
   }[];
 }
 
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+}
+
 export function todayStr(date = new Date()) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -244,14 +250,14 @@ export async function getStats(db: SQLiteDatabase, fromDate: string | null): Pro
     maxWeight: number;
   }>(
     `SELECT e.name, COUNT(*) AS series,
-       COALESCE(SUM(s.weight * s.reps), 0) AS volume,
-       MAX(s.weight) AS maxWeight
-     FROM sets s
-     JOIN sessions se ON se.id = s.session_id
-     JOIN exercises e ON e.id = s.exercise_id
-     WHERE (? IS NULL OR se.date >= ?)
-     GROUP BY e.id
-     ORDER BY volume DESC`,
+        COALESCE(SUM(s.weight * s.reps), 0) AS volume,
+        MAX(s.weight) AS maxWeight
+      FROM sets s
+      JOIN sessions se ON se.id = s.session_id
+      JOIN exercises e ON e.id = s.exercise_id
+      WHERE (? IS NULL OR se.date >= ?)
+      GROUP BY e.id
+      ORDER BY volume DESC`,
     params,
   );
 
@@ -279,4 +285,53 @@ export async function getDailyVolume(db: SQLiteDatabase, fromDate: string, toDat
     fromDate,
     toDate,
   );
+}
+
+export async function registerUser(
+  db: SQLiteDatabase,
+  name: string,
+  email: string,
+  password: string,
+): Promise<{ success: boolean; error?: string; userId?: number }> {
+  try {
+    const existing = await db.getFirstAsync<{ id: number }>('SELECT id FROM users WHERE email = ? COLLATE NOCASE', email.trim());
+    if (existing) {
+      return { success: false, error: 'E-mail já cadastrado.' };
+    }
+    const result = await db.runAsync(
+      'INSERT INTO users (name, email, password, created_at) VALUES (?, ?, ?, ?)',
+      name.trim(),
+      email.trim().toLowerCase(),
+      password,
+      Date.now(),
+    );
+    return { success: true, userId: result.lastInsertRowId };
+  } catch (e: any) {
+    return { success: false, error: e?.message ?? 'Erro ao cadastrar usuário.' };
+  }
+}
+
+export async function loginUser(
+  db: SQLiteDatabase,
+  email: string,
+  password: string,
+): Promise<{ success: boolean; error?: string; user?: User }> {
+  try {
+    const user = await db.getFirstAsync<User & { password: string }>(
+      'SELECT id, name, email, password FROM users WHERE email = ? COLLATE NOCASE',
+      email.trim().toLowerCase(),
+    );
+    if (!user) {
+      return { success: false, error: 'Usuário não encontrado.' };
+    }
+    if (user.password !== password) {
+      return { success: false, error: 'Senha incorreta.' };
+    }
+    return {
+      success: true,
+      user: { id: user.id, name: user.name, email: user.email },
+    };
+  } catch (e: any) {
+    return { success: false, error: e?.message ?? 'Erro ao realizar login.' };
+  }
 }

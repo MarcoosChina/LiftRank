@@ -1,5 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { Link, router } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,19 +9,26 @@ import { PrimaryButton } from '@/components/primary-button';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { registerUser } from '@/db/repo';
 import { useTheme } from '@/hooks/use-theme';
 import { Spacing } from '@/constants/theme';
 
 export default function SignupScreen() {
+  const db = useSQLiteContext();
   const theme = useTheme();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  function handleSignup() {
+  async function handleSignup() {
     if (!name || !email || !password) {
       setError('Preencha todos os campos.');
+      return;
+    }
+    const res = await registerUser(db, name, email, password);
+    if (!res.success) {
+      setError(res.error ?? 'Erro ao cadastrar.');
       return;
     }
     setError('');

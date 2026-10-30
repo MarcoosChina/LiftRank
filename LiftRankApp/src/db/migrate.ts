@@ -30,7 +30,7 @@ const SEED_EXERCISES: [string, 'strength' | 'cardio'][] = [
   ['Pular Corda', 'cardio'],
 ];
 
-const DATABASE_VERSION = 1;
+const DATABASE_VERSION = 2;
 
 export async function migrateDbIfNeeded(db: SQLiteDatabase) {
   const result = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
@@ -81,6 +81,14 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
         created_at INTEGER NOT NULL
       );
 
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+        password TEXT NOT NULL,
+        created_at INTEGER NOT NULL
+      );
+
       CREATE INDEX IF NOT EXISTS idx_sets_session ON sets(session_id);
       CREATE INDEX IF NOT EXISTS idx_cardio_session ON cardio(session_id);
     `);
@@ -93,6 +101,19 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     }
 
     currentDbVersion = 1;
+  }
+
+  if (currentDbVersion === 1) {
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+        password TEXT NOT NULL,
+        created_at INTEGER NOT NULL
+      );
+    `);
+    currentDbVersion = 2;
   }
 
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);

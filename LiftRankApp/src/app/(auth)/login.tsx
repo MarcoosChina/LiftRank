@@ -1,5 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { Link, router } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,18 +9,25 @@ import { PrimaryButton } from '@/components/primary-button';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { loginUser } from '@/db/repo';
 import { useTheme } from '@/hooks/use-theme';
 import { Spacing } from '@/constants/theme';
 
 export default function LoginScreen() {
+  const db = useSQLiteContext();
   const theme = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  function handleLogin() {
+  async function handleLogin() {
     if (!email || !password) {
       setError('Preencha todos os campos.');
+      return;
+    }
+    const res = await loginUser(db, email, password);
+    if (!res.success) {
+      setError(res.error ?? 'E-mail ou senha inválidos.');
       return;
     }
     setError('');
