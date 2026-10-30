@@ -103,10 +103,10 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 
 ## Bloco 5: Testes em Dispositivos Reais e Preparação para Publicação
 
-### - [ ] **T5.1: Configuração de Build Nativa e Configurações de App (`app.json` / `eas.json`)**
+### - [x] **T5.1: Configuração de Build Nativa e Configurações de App (`app.json` / `eas.json`)**
 
 - **Prioridade:** High
-- **Status:** pending
+- **Status:** completed
 - **Descrição:** Configuração de package name, bundle identifier, ícones, splash screen e perfis de build no EAS.
 - **Dependências:** Blocos 1, 2, 3 e 4.
 - **Critérios de Aceitação:** `npx expo-doctor` passa sem erros críticos e perfis do EAS configurados.
