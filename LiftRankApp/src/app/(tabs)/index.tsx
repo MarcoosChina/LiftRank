@@ -20,6 +20,7 @@ import {
   deleteSet,
   getCardioForDay,
   getLastSet,
+  getMaxWeightForExercise,
   getPlan,
   getSetsForDay,
   listExercises,
@@ -45,6 +46,7 @@ export default function HojeScreen() {
   const [repsText, setRepsText] = useState('');
   const [minutesText, setMinutesText] = useState('');
   const [restSeconds, setRestSeconds] = useState<number | null>(null);
+  const [isNewPr, setIsNewPr] = useState(false);
 
   useEffect(() => {
     if (restSeconds === null || restSeconds <= 0) return;
@@ -121,8 +123,18 @@ export default function HojeScreen() {
     const weight = parseDecimal(weightText);
     const reps = Number.parseInt(repsText, 10);
     if (weight <= 0 || !Number.isFinite(reps) || reps <= 0) return;
+
+    const currentMax = await getMaxWeightForExercise(db, selected.id);
     await addSet(db, today, selected.id, weight, reps);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+    if (weight > currentMax && currentMax > 0) {
+      setIsNewPr(true);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } else {
+      setIsNewPr(false);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+
     setRestSeconds(90);
     sets.reload();
   }
@@ -172,6 +184,14 @@ export default function HojeScreen() {
                   </Pressable>
                 </View>
               </View>
+            </ThemedView>
+          )}
+
+          {isNewPr && (
+            <ThemedView type="backgroundElement" style={[styles.prCard, { borderColor: '#FFD700', borderWidth: 1 }]}>
+              <ThemedText type="smallBold" style={{ color: '#FFD700', textAlign: 'center', letterSpacing: 1 }}>
+                🏆 NOVO RECORDE PESSOAL (PR) ALCANÇADO! 🏆
+              </ThemedText>
             </ThemedView>
           )}
 
@@ -421,5 +441,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#2B2119',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  prCard: {
+    borderRadius: 16,
+    padding: Spacing.three,
   },
 });

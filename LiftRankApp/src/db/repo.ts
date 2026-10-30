@@ -335,3 +335,11 @@ export async function loginUser(
     return { success: false, error: e?.message ?? 'Erro ao realizar login.' };
   }
 }
+
+export async function getMaxWeightForExercise(db: SQLiteDatabase, exerciseId: number): Promise<number> {
+  const result = await db.getFirstAsync<{ maxWeight: number | null }>(
+    'SELECT MAX(weight) AS maxWeight FROM sets WHERE exercise_id = ?',
+    exerciseId,
+  );
+  return result?.maxWeight ?? 0;
+}
