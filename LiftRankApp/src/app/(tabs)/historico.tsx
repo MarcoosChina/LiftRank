@@ -1,7 +1,7 @@
 import * as Haptics from 'expo-haptics';
-import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -12,6 +12,7 @@ import {
   getSessionDetail,
   getSessions,
   strToDate,
+  type SessionDetail,
 } from '@/db/repo';
 import { formatNumber, useQuery } from '@/hooks/use-query';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -22,17 +23,31 @@ export default function HistoricoScreen() {
   const db = useSQLiteContext();
   const theme = useTheme();
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [sessionDetail, setSessionDetail] = useState<SessionDetail | null>(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<{ id: number; date: string } | null>(null);
 
   const sessions = useQuery(() => getSessions(db));
-  const detail = useQuery(() =>
-    expandedId !== null ? getSessionDetail(db, expandedId) : Promise.resolve(null),
-  );
 
-  const grouped = useQuery(async () => {
-    if (expandedId === null || !detail.data) return null;
+  async function toggleExpand(sessionId: number) {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (expandedId === sessionId) {
+      setExpandedId(null);
+      setSessionDetail(null);
+      setLoadingDetail(false);
+      return;
+    }
+    setExpandedId(sessionId);
+    setLoadingDetail(true);
+    const detail = await getSessionDetail(db, sessionId);
+    setSessionDetail(detail);
+    setLoadingDetail(false);
+  }
+
+  const grouped = useMemo(() => {
+    if (expandedId === null || !sessionDetail) return null;
     const byExercise = new Map<string, { volume: number; series: number; rows: string[] }>();
-    for (const set of detail.data.sets) {
+    for (const set of sessionDetail.sets) {
       const key = set.exercise_name;
       const item = byExercise.get(key) ?? { volume: 0, series: 0, rows: [] };
       item.series += 1;
@@ -40,12 +55,12 @@ export default function HistoricoScreen() {
       item.rows.push(`${formatNumber(set.weight, set.weight % 1 === 0 ? 0 : 1)}kg × ${set.reps}`);
       byExercise.set(key, item);
     }
-    const cardio = detail.data.cardio.map((c) => ({
+    const cardio = sessionDetail.cardio.map((c) => ({
       name: c.exercise_name,
       minutes: c.minutes,
     }));
     return { byExercise: [...byExercise.entries()], cardio };
-  });
+  }, [expandedId, sessionDetail]);
 
   return (
     <ThemedView style={styles.flex}>
@@ -70,9 +85,7 @@ export default function HistoricoScreen() {
             return (
               <ThemedView key={session.id} type="backgroundElement" style={styles.sessionCard}>
                 <Pressable
-                  onPress={() => {
-                    setExpandedId(expanded ? null : session.id);
-                  }}>
+                  onPress={() => toggleExpand(session.id)}>
                   <View style={styles.sessionHeader}>
                     <View style={styles.sessionDate}>
                       <ThemedText type="subtitle" style={styles.dayNumber}>
@@ -94,29 +107,36 @@ export default function HistoricoScreen() {
                   </View>
                 </Pressable>
 
-                {expanded && grouped.data && (
+                {expanded && (
                   <View style={styles.detail}>
-                    {grouped.data.byExercise.map(([name, info]) => (
-                      <View key={name} style={styles.exerciseBlock}>
-                        <View style={styles.exerciseRow}>
-                          <ThemedText type="smallBold">{name}</ThemedText>
-                          <ThemedText type="small" style={{ color: theme.textSecondary }}>
-                            {info.series} séries · {formatNumber(info.volume)} kg
-                          </ThemedText>
-                        </View>
-                        <ThemedText type="small" style={{ color: theme.textSecondary }}>
-                          {info.rows.join('  ·  ')}
-                        </ThemedText>
-                      </View>
-                    ))}
-                    {grouped.data.cardio.map((c) => (
-                      <View key={c.name} style={styles.exerciseRow}>
-                        <ThemedText type="smallBold">⏱ {c.name}</ThemedText>
-                        <ThemedText type="small" style={{ color: theme.textSecondary }}>
-                          {formatNumber(c.minutes, c.minutes % 1 === 0 ? 0 : 1)} min
-                        </ThemedText>
-                      </View>
-                    ))}
+                    {loadingDetail && (
+                      <ActivityIndicator color={theme.accent} style={{ marginVertical: 8 }} />
+                    )}
+                    {!loadingDetail && grouped && (
+                      <>
+                        {grouped.byExercise.map(([name, info]) => (
+                          <View key={name} style={styles.exerciseBlock}>
+                            <View style={styles.exerciseRow}>
+                              <ThemedText type="smallBold">{name}</ThemedText>
+                              <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                                {info.series} séries · {formatNumber(info.volume)} kg
+                              </ThemedText>
+                            </View>
+                            <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                              {info.rows.join('  ·  ')}
+                            </ThemedText>
+                          </View>
+                        ))}
+                        {grouped.cardio.map((c) => (
+                          <View key={c.name} style={styles.exerciseRow}>
+                            <ThemedText type="smallBold">⏱ {c.name}</ThemedText>
+                            <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                              {formatNumber(c.minutes, c.minutes % 1 === 0 ? 0 : 1)} min
+                            </ThemedText>
+                          </View>
+                        ))}
+                      </>
+                    )}
                     <Pressable
                       hitSlop={6}
                       onPress={() => {
@@ -166,6 +186,7 @@ export default function HistoricoScreen() {
                   deleteSession(db, confirmDelete.id).then(() => {
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
                     setExpandedId(null);
+                    setSessionDetail(null);
                     setConfirmDelete(null);
                     sessions.reload();
                   });
