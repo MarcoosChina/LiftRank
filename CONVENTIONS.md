@@ -27,6 +27,7 @@ Utilize letras minúsculas e separe as palavras por hífen (kebab-case), seguind
 Toda implementação deve considerar desempenho, escalabilidade e eficiência arquitetural.
 
 ### Diretrizes Gerais
+
 - **Evite renderizações desnecessárias** e atualizações excessivas de estado.
 - **Evite requisições redundantes** e carregamento desnecessário de dados.
 - **Utilize carregamento assíncrono**, cache e paginação quando apropriado.
@@ -35,9 +36,11 @@ Toda implementação deve considerar desempenho, escalabilidade e eficiência ar
 - **Preserve a responsividade da interface**, garantindo feedback visual (como spinners ou haptics) durante operações assíncronas.
 
 ### Banco de Dados e Consultas
+
 - **Otimize consultas ao banco de dados** e certifique-se da utilização de índices quando necessário.
 
 ### Análise e Validação
+
 - **Evite otimizações prematuras:** identifique gargalos reais antes de modificar o código.
 - **Investigue a causa raiz** ao corrigir problemas de desempenho, e não apenas os sintomas.
 - **Avalie possíveis gargalos ou regressões** antes de concluir qualquer tarefa.
