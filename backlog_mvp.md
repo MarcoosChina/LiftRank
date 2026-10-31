@@ -145,10 +145,10 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 
 ## Futuras melhorias
 
-### - [ ] **TF.1: Exportação de Histórico em CSV / Planilha**
+### - [x] **TF.1: Exportação de Histórico em CSV / Planilha**
 
 - **Prioridade:** Low
-- **Status:** pending
+- **Status:** completed
 - **Descrição:** Permitir que o usuário exporte seus dados de treinos em formato CSV para facilitar análise em planilhas (Excel, Google Sheets), complementando o backup JSON técnico.
 - **Dependências:** T4.2
 - **Critérios de Aceitação:** Opção de exportação em CSV disponível na aba Stats/Histórico com formato amigável para planilhas.

@@ -367,3 +367,44 @@ export async function exportDatabaseBackup(db: SQLiteDatabase): Promise<string> 
 
   return JSON.stringify(backup, null, 2);
 }
+
+export async function exportWorkoutsCsv(db: SQLiteDatabase): Promise<string> {
+  const setsData = await db.getAllAsync<{
+    date: string;
+    exercise_name: string;
+    kind: string;
+    weight: number;
+    reps: number;
+  }>(
+    `SELECT se.date, e.name AS exercise_name, e.kind, s.weight, s.reps
+     FROM sets s
+     JOIN sessions se ON se.id = s.session_id
+     JOIN exercises e ON e.id = s.exercise_id
+     ORDER BY se.date DESC, s.created_at ASC`,
+  );
+
+  const cardioData = await db.getAllAsync<{
+    date: string;
+    exercise_name: string;
+    kind: string;
+    minutes: number;
+  }>(
+    `SELECT se.date, e.name AS exercise_name, e.kind, c.minutes
+     FROM cardio c
+     JOIN sessions se ON se.id = c.session_id
+     JOIN exercises e ON e.id = c.exercise_id
+     ORDER BY se.date DESC, c.created_at ASC`,
+  );
+
+  const rows = ['Data,Exercício,Tipo,Peso (kg),Repetições,Duração (min)'];
+
+  for (const row of setsData) {
+    rows.push(`"${row.date}","${row.exercise_name}","${row.kind}",${row.weight},${row.reps},`);
+  }
+
+  for (const row of cardioData) {
+    rows.push(`"${row.date}","${row.exercise_name}","${row.kind}",,,${row.minutes}`);
+  }
+
+  return rows.join('\n');
+}

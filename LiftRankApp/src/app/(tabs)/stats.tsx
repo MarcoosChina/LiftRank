@@ -9,7 +9,7 @@ import { Segmented } from '@/components/segmented';
 import { StatCard } from '@/components/stat-card';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { exportDatabaseBackup, getDailyVolume, getStats, todayStr } from '@/db/repo';
+import { exportDatabaseBackup, exportWorkoutsCsv, getDailyVolume, getStats, todayStr } from '@/db/repo';
 import { formatNumber, useQuery } from '@/hooks/use-query';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useTheme } from '@/hooks/use-theme';
@@ -54,6 +54,14 @@ export default function StatsScreen() {
     await Share.share({
       title: 'LiftRank Backup',
       message: json,
+    });
+  }
+
+  async function handleExportCsv() {
+    const csv = await exportWorkoutsCsv(db);
+    await Share.share({
+      title: 'LiftRank Histórico (CSV)',
+      message: csv,
     });
   }
 
@@ -157,6 +165,14 @@ export default function StatsScreen() {
             onPress={handleExportBackup}>
             <ThemedText type="smallBold" style={{ color: theme.accent, textAlign: 'center' }}>
               Exportar Backup (JSON)
+            </ThemedText>
+          </Pressable>
+
+          <Pressable
+            style={[styles.logoutButton, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
+            onPress={handleExportCsv}>
+            <ThemedText type="smallBold" style={{ color: theme.accent, textAlign: 'center' }}>
+              Exportar Histórico (CSV)
             </ThemedText>
           </Pressable>
 
