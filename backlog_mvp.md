@@ -142,3 +142,14 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Dependências:** T6.1
 - **Critérios de Aceitação:** Aplicativo submetido com sucesso para testes internos/beta ou revisão final nas lojas.
 - **Branch Sugerida:** `release/1-0-0`
+
+## Futuras melhorias
+
+### - [ ] **TF.1: Exportação de Histórico em CSV / Planilha**
+
+- **Prioridade:** Low
+- **Status:** pending
+- **Descrição:** Permitir que o usuário exporte seus dados de treinos em formato CSV para facilitar análise em planilhas (Excel, Google Sheets), complementando o backup JSON técnico.
+- **Dependências:** T4.2
+- **Critérios de Aceitação:** Opção de exportação em CSV disponível na aba Stats/Histórico com formato amigável para planilhas.
+- **Branch Sugerida:** `feature/exportacao-csv`
