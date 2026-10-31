@@ -37,6 +37,7 @@ export default function PlanoScreen() {
 
   const [pickerDay, setPickerDay] = useState<{ label: string; weekday: number } | null>(null);
   const [newExerciseName, setNewExerciseName] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [pickerKind, setPickerKind] = useState<'strength' | 'cardio'>('strength');
 
   const exercises = useQuery(() => listExercises(db));
@@ -79,7 +80,7 @@ export default function PlanoScreen() {
                 <ThemedText type="subtitle" style={styles.dayLabel}>
                   {day.label}
                 </ThemedText>
-                <Pressable hitSlop={8} onPress={() => setPickerDay(day)}>
+                <Pressable hitSlop={8} onPress={() => { setSearchQuery(''); setPickerDay(day); }}>
                   <ThemedText type="smallBold" style={{ color: theme.accent }}>
                     + Adicionar
                   </ThemedText>
@@ -96,6 +97,7 @@ export default function PlanoScreen() {
                       <Chip
                         label={`${entry.kind === 'cardio' ? '⏱ ' : ''}${entry.name}`}
                         onPress={() => {
+                          setSearchQuery('');
                           setPickerDay(day);
                           setPickerKind(entry.kind);
                         }}
@@ -133,13 +135,23 @@ export default function PlanoScreen() {
             </View>
 
             <View style={styles.kindRow}>
-              <Chip label="Musculação" selected={pickerKind === 'strength'} onPress={() => setPickerKind('strength')} />
-              <Chip label="Cardio" selected={pickerKind === 'cardio'} onPress={() => setPickerKind('cardio')} />
+              <Chip label="Musculação" selected={pickerKind === 'strength'} onPress={() => { setPickerKind('strength'); setSearchQuery(''); }} />
+              <Chip label="Cardio" selected={pickerKind === 'cardio'} onPress={() => { setPickerKind('cardio'); setSearchQuery(''); }} />
             </View>
+
+            <TextField
+              placeholder="Buscar exercício..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
 
             <ScrollView style={styles.exerciseList}>
               {(exercises.data ?? [])
-                .filter((e: Exercise) => e.kind === pickerKind)
+                .filter((e: Exercise) => {
+                  if (e.kind !== pickerKind) return false;
+                  if (!searchQuery.trim()) return true;
+                  return e.name.toLowerCase().includes(searchQuery.trim().toLowerCase());
+                })
                 .map((exercise) => (
                   <Pressable
                     key={exercise.id}
