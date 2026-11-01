@@ -46,6 +46,7 @@ export default function HojeScreen() {
   const [repsText, setRepsText] = useState('');
   const [minutesText, setMinutesText] = useState('');
   const [restSeconds, setRestSeconds] = useState<number | null>(null);
+  const [restDuration, setRestDuration] = useState<number>(90);
   const [isNewPr, setIsNewPr] = useState(false);
 
   useEffect(() => {
@@ -135,7 +136,7 @@ export default function HojeScreen() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
 
-    setRestSeconds(90);
+    setRestSeconds(restDuration);
     sets.reload();
   }
 
@@ -183,6 +184,19 @@ export default function HojeScreen() {
                     <ThemedText type="smallBold" style={{ color: theme.danger }}>Pular</ThemedText>
                   </Pressable>
                 </View>
+              </View>
+              <View style={{ flexDirection: 'row', gap: Spacing.two, marginTop: 10 }}>
+                {[60, 90, 120].map((sec) => (
+                  <Chip
+                    key={sec}
+                    label={`${sec}s`}
+                    selected={restDuration === sec}
+                    onPress={() => {
+                      setRestDuration(sec);
+                      setRestSeconds(sec);
+                    }}
+                  />
+                ))}
               </View>
             </ThemedView>
           )}

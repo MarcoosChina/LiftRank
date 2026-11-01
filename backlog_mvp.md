@@ -162,3 +162,12 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Dependências:** T4.2
 - **Critérios de Aceitação:** Visualização gráfica da evolução de peso máximo e volume por exercício nas estatísticas.
 - **Branch Sugerida:** `feature/graficos-evolucao-exercicio`
+
+### - [x] **TF.3: Temporizador de Descanso Customizável**
+
+- **Prioridade:** Low
+- **Status:** completed
+- **Descrição:** Permitir que o usuário escolha a duração padrão do timer de descanso (ex: 60s, 90s, 120s) após registrar uma série.
+- **Dependências:** Timer de descanso
+- **Critérios de Aceitação:** Opção de selecionar a duração do timer na tela Hoje.
+- **Branch Sugerida:** `feature/configuracao-timer`
