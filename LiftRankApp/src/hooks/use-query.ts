@@ -12,6 +12,16 @@ export function useQuery<T>(fn: () => Promise<T>): {
     fnRef.current = fn;
   }, [fn]);
 
+  useEffect(() => {
+    let alive = true;
+    fn().then((result) => {
+      if (alive) setData(result);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [fn]);
+
   useFocusEffect(
     useCallback(() => {
       let alive = true;
