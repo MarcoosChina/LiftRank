@@ -5,11 +5,21 @@ import { format, startOfWeek, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { router } from 'expo-router';
 
+import { Chip } from '@/components/chip';
 import { Segmented } from '@/components/segmented';
 import { StatCard } from '@/components/stat-card';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { exportDatabaseBackup, exportWorkoutsCsv, getDailyVolume, getStats, todayStr } from '@/db/repo';
+import {
+  exportDatabaseBackup,
+  exportWorkoutsCsv,
+  getDailyVolume,
+  getExerciseProgression,
+  getStats,
+  listExercises,
+  todayStr,
+  type Exercise,
+} from '@/db/repo';
 import { formatNumber, useQuery } from '@/hooks/use-query';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useTheme } from '@/hooks/use-theme';
@@ -44,25 +54,29 @@ export default function StatsScreen() {
   const db = useSQLiteContext();
   const theme = useTheme();
   const [period, setPeriod] = useState<Period>('week');
+  const [selectedProgExerciseId, setSelectedProgExerciseId] = useState<number | null>(null);
 
   const fromDate = periodRange(period);
 
   const stats = useQuery(() => getStats(db, fromDate));
+  const exercises = useQuery(() => listExercises(db));
+  const progression = useQuery(() =>
+    selectedProgExerciseId !== null
+      ? getExerciseProgression(db, selectedProgExerciseId)
+      : Promise.resolve([]),
+  );
 
-  async function handleExportBackup() {
-    const json = await exportDatabaseBackup(db);
-    await Share.share({
-      title: 'LiftRank Backup',
-      message: json,
-    });
-  }
+  const strengthExercises = useMemo(
+    () => (exercises.data ?? []).filter((e: Exercise) => e.kind === 'strength'),
+    [exercises.data],
+  );
 
-  async function handleExportCsv() {
-    const csv = await exportWorkoutsCsv(db);
-    await Share.share({
-      title: 'LiftRank Histórico (CSV)',
-      message: csv,
-    });
+  const activeExercise =
+    strengthExercises.find((e) => e.id === selectedProgExerciseId) ?? strengthExercises[0] ?? null;
+
+  // Auto select first strength exercise if none selected
+  if (selectedProgExerciseId === null && activeExercise) {
+    setSelectedProgExerciseId(activeExercise.id);
   }
 
   const chart = useQuery(() => {
@@ -82,6 +96,25 @@ export default function StatsScreen() {
   }, [chart.data]);
 
   const maxVolume = Math.max(...bars.map((b) => b.volume), 1);
+
+  const progData = progression.data ?? [];
+  const maxProgWeight = Math.max(...progData.map((p) => p.maxWeight), 1);
+
+  async function handleExportBackup() {
+    const json = await exportDatabaseBackup(db);
+    await Share.share({
+      title: 'LiftRank Backup',
+      message: json,
+    });
+  }
+
+  async function handleExportCsv() {
+    const csv = await exportWorkoutsCsv(db);
+    await Share.share({
+      title: 'LiftRank Histórico (CSV)',
+      message: csv,
+    });
+  }
 
   return (
     <ThemedView style={styles.flex}>
@@ -133,6 +166,57 @@ export default function StatsScreen() {
                 );
               })}
             </View>
+          </ThemedView>
+
+          {/* Exercise Progression Chart (TF.2) */}
+          <ThemedView type="backgroundElement" style={styles.chartCard}>
+            <ThemedText type="smallBold" style={styles.chartTitle}>
+              PROGRESSÃO DE CARGA ({activeExercise?.name?.toUpperCase() ?? 'EXERCÍCIO'})
+            </ThemedText>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.chipsRow}>
+              {strengthExercises.map((exercise) => (
+                <Chip
+                  key={exercise.id}
+                  label={exercise.name}
+                  selected={activeExercise?.id === exercise.id}
+                  onPress={() => setSelectedProgExerciseId(exercise.id)}
+                />
+              ))}
+            </ScrollView>
+
+            {progData.length === 0 ? (
+              <ThemedText type="small" style={{ color: theme.textSecondary, textAlign: 'center', marginVertical: 12 }}>
+                Sem registros de carga para este exercício.
+              </ThemedText>
+            ) : (
+              <View style={[styles.chart, { marginTop: 8 }]}>
+                {progData.map((item) => {
+                  const height = Math.round((item.maxWeight / maxProgWeight) * 90);
+                  const dt = new Date(item.date + 'T00:00:00');
+                  return (
+                    <View key={item.date} style={styles.barColumn}>
+                      <View style={styles.barArea}>
+                        <View
+                          style={{
+                            width: '100%',
+                            height,
+                            minHeight: 4,
+                            borderRadius: 4,
+                            backgroundColor: theme.accent,
+                          }}
+                        />
+                      </View>
+                      <ThemedText type="code" style={styles.barLabel}>
+                        {format(dt, 'dd/MM')}
+                      </ThemedText>
+                    </View>
+                  );
+                })}
+              </View>
+            )}
           </ThemedView>
 
           <View style={styles.rankingSection}>
@@ -229,6 +313,10 @@ const styles = StyleSheet.create({
   },
   barLabel: {
     color: '#A89C8F',
+  },
+  chipsRow: {
+    gap: Spacing.two,
+    paddingVertical: 2,
   },
   rankingSection: {
     gap: Spacing.two,

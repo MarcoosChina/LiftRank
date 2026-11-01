@@ -408,3 +408,24 @@ export async function exportWorkoutsCsv(db: SQLiteDatabase): Promise<string> {
 
   return rows.join('\n');
 }
+
+export interface ExerciseProgression {
+  date: string;
+  maxWeight: number;
+  totalVolume: number;
+}
+
+export async function getExerciseProgression(
+  db: SQLiteDatabase,
+  exerciseId: number,
+): Promise<ExerciseProgression[]> {
+  return db.getAllAsync<ExerciseProgression>(
+    `SELECT se.date, MAX(s.weight) AS maxWeight, SUM(s.weight * s.reps) AS totalVolume
+     FROM sets s
+     JOIN sessions se ON se.id = s.session_id
+     WHERE s.exercise_id = ?
+     GROUP BY se.date
+     ORDER BY se.date ASC`,
+    exerciseId,
+  );
+}

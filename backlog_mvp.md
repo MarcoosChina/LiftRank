@@ -154,10 +154,10 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** Opção de exportação em CSV disponível na aba Stats/Histórico com formato amigável para planilhas.
 - **Branch Sugerida:** `feature/exportacao-csv`
 
-### - [ ] **TF.2: Gráficos de Evolução de Carga por Exercício**
+### - [x] **TF.2: Gráficos de Evolução de Carga por Exercício**
 
 - **Prioridade:** Medium
-- **Status:** pending
+- **Status:** completed
 - **Descrição:** Adicionar gráficos detalhados de progressão de carga ao longo do tempo para exercícios específicos de musculação.
 - **Dependências:** T4.2
 - **Critérios de Aceitação:** Visualização gráfica da evolução de peso máximo e volume por exercício nas estatísticas.
