@@ -10,6 +10,7 @@ import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { loginUser } from '@/db/repo';
+import { useAuthStore } from '@/store/auth-store';
 import { useTheme } from '@/hooks/use-theme';
 import { Spacing } from '@/constants/theme';
 
@@ -26,10 +27,11 @@ export default function LoginScreen() {
       return;
     }
     const res = await loginUser(db, email, password);
-    if (!res.success) {
+    if (!res.success || !res.user) {
       setError(res.error ?? 'E-mail ou senha inválidos.');
       return;
     }
+    useAuthStore.getState().setSession(res.user);
     setError('');
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     router.replace('/(tabs)');
@@ -114,7 +116,10 @@ export default function LoginScreen() {
 
             <Pressable
               style={styles.guestButton}
-              onPress={() => router.replace('/(tabs)')}>
+              onPress={() => {
+                useAuthStore.getState().setSession({ id: 1, name: 'Convidado', email: 'guest@liftrank.app' });
+                router.replace('/(tabs)');
+              }}>
               <ThemedText type="smallBold" style={{ color: theme.textSecondary, textAlign: 'center' }}>
                 Entrar sem conta (Modo Local)
               </ThemedText>

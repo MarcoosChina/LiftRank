@@ -17,6 +17,7 @@ import {
 } from '@/db/repo';
 import { useQuery } from '@/hooks/use-query';
 import { useSQLiteContext } from 'expo-sqlite';
+import { useAuthStore } from '@/store/auth-store';
 import { useTheme } from '@/hooks/use-theme';
 import { Spacing } from '@/constants/theme';
 
@@ -33,6 +34,7 @@ const DAYS: { label: string; weekday: number }[] = [
 export default function PlanoScreen() {
   const db = useSQLiteContext();
   const theme = useTheme();
+  const userId = useAuthStore((s) => s.userId) ?? 1;
   const todayWeekday = new Date().getDay();
 
   const [pickerDay, setPickerDay] = useState<{ label: string; weekday: number } | null>(null);
@@ -42,13 +44,13 @@ export default function PlanoScreen() {
 
   const exercises = useQuery(() => listExercises(db));
   const planByDay = useQuery(async () => {
-    const entries = await Promise.all(DAYS.map((d) => getPlan(db, d.weekday)));
+    const entries = await Promise.all(DAYS.map((d) => getPlan(db, d.weekday, userId)));
     return DAYS.map((d, i) => ({ ...d, entries: entries[i] }));
   });
 
   async function addExerciseToDay(exerciseId: number) {
     if (!pickerDay) return;
-    await addToPlan(db, pickerDay.weekday, exerciseId);
+    await addToPlan(db, pickerDay.weekday, exerciseId, userId);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     planByDay.reload();
   }

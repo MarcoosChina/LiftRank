@@ -30,7 +30,7 @@ const SEED_EXERCISES: [string, 'strength' | 'cardio'][] = [
   ['Pular Corda', 'cardio'],
 ];
 
-const DATABASE_VERSION = 2;
+const DATABASE_VERSION = 3;
 
 export async function migrateDbIfNeeded(db: SQLiteDatabase) {
   const result = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
@@ -45,6 +45,14 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
       PRAGMA journal_mode = WAL;
       PRAGMA foreign_keys = ON;
 
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+        password TEXT NOT NULL,
+        created_at INTEGER NOT NULL
+      );
+
       CREATE TABLE IF NOT EXISTS exercises (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE COLLATE NOCASE,
@@ -53,15 +61,18 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
 
       CREATE TABLE IF NOT EXISTS plan (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL DEFAULT 1 REFERENCES users(id) ON DELETE CASCADE,
         weekday INTEGER NOT NULL CHECK (weekday BETWEEN 0 AND 6),
         exercise_id INTEGER NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
-        UNIQUE (weekday, exercise_id)
+        UNIQUE (user_id, weekday, exercise_id)
       );
 
       CREATE TABLE IF NOT EXISTS sessions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT NOT NULL UNIQUE,
-        created_at INTEGER NOT NULL
+        user_id INTEGER NOT NULL DEFAULT 1 REFERENCES users(id) ON DELETE CASCADE,
+        date TEXT NOT NULL,
+        created_at INTEGER NOT NULL,
+        UNIQUE (user_id, date)
       );
 
       CREATE TABLE IF NOT EXISTS sets (
@@ -81,16 +92,10 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
         created_at INTEGER NOT NULL
       );
 
-      CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        email TEXT NOT NULL UNIQUE COLLATE NOCASE,
-        password TEXT NOT NULL,
-        created_at INTEGER NOT NULL
-      );
-
       CREATE INDEX IF NOT EXISTS idx_sets_session ON sets(session_id);
       CREATE INDEX IF NOT EXISTS idx_cardio_session ON cardio(session_id);
+      CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+      CREATE INDEX IF NOT EXISTS idx_plan_user ON plan(user_id);
     `);
 
     const count = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM exercises');
@@ -114,6 +119,16 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
       );
     `);
     currentDbVersion = 2;
+  }
+
+  if (currentDbVersion === 2) {
+    await db.execAsync(`
+      ALTER TABLE plan ADD COLUMN user_id INTEGER NOT NULL DEFAULT 1;
+      ALTER TABLE sessions ADD COLUMN user_id INTEGER NOT NULL DEFAULT 1;
+      CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+      CREATE INDEX IF NOT EXISTS idx_plan_user ON plan(user_id);
+    `);
+    currentDbVersion = 3;
   }
 
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);

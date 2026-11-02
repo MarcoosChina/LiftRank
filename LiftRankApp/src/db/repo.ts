@@ -94,28 +94,43 @@ export async function createExercise(db: SQLiteDatabase, name: string, kind: Exe
   return result.lastInsertRowId;
 }
 
-export async function getPlan(db: SQLiteDatabase, weekday: number): Promise<PlanEntry[]> {
+export async function getPlan(db: SQLiteDatabase, weekday: number, userId = 1): Promise<PlanEntry[]> {
   return db.getAllAsync<PlanEntry>(
     `SELECT p.id, p.weekday, p.exercise_id, e.name, e.kind
      FROM plan p JOIN exercises e ON e.id = p.exercise_id
-     WHERE p.weekday = ?
+     WHERE p.weekday = ? AND p.user_id = ?
      ORDER BY e.kind DESC, e.name COLLATE NOCASE ASC`,
     weekday,
+    userId,
   );
 }
 
-export async function addToPlan(db: SQLiteDatabase, weekday: number, exerciseId: number) {
-  await db.runAsync('INSERT OR IGNORE INTO plan (weekday, exercise_id) VALUES (?, ?)', weekday, exerciseId);
+export async function addToPlan(db: SQLiteDatabase, weekday: number, exerciseId: number, userId = 1) {
+  await db.runAsync(
+    'INSERT OR IGNORE INTO plan (user_id, weekday, exercise_id) VALUES (?, ?, ?)',
+    userId,
+    weekday,
+    exerciseId,
+  );
 }
 
 export async function removeFromPlan(db: SQLiteDatabase, planId: number) {
   await db.runAsync('DELETE FROM plan WHERE id = ?', planId);
 }
 
-async function getOrCreateSessionId(db: SQLiteDatabase, date: string): Promise<number> {
-  const existing = await db.getFirstAsync<{ id: number }>('SELECT id FROM sessions WHERE date = ?', date);
+async function getOrCreateSessionId(db: SQLiteDatabase, date: string, userId = 1): Promise<number> {
+  const existing = await db.getFirstAsync<{ id: number }>(
+    'SELECT id FROM sessions WHERE date = ? AND user_id = ?',
+    date,
+    userId,
+  );
   if (existing) return existing.id;
-  const result = await db.runAsync('INSERT INTO sessions (date, created_at) VALUES (?, ?)', date, Date.now());
+  const result = await db.runAsync(
+    'INSERT INTO sessions (user_id, date, created_at) VALUES (?, ?, ?)',
+    userId,
+    date,
+    Date.now(),
+  );
   return result.lastInsertRowId;
 }
 
@@ -125,9 +140,10 @@ export async function addSet(
   exerciseId: number,
   weight: number,
   reps: number,
+  userId = 1,
 ) {
   await db.withTransactionAsync(async () => {
-    const sessionId = await getOrCreateSessionId(db, date);
+    const sessionId = await getOrCreateSessionId(db, date, userId);
     await db.runAsync(
       'INSERT INTO sets (session_id, exercise_id, weight, reps, created_at) VALUES (?, ?, ?, ?, ?)',
       sessionId,
@@ -139,9 +155,9 @@ export async function addSet(
   });
 }
 
-export async function addCardio(db: SQLiteDatabase, date: string, exerciseId: number, minutes: number) {
+export async function addCardio(db: SQLiteDatabase, date: string, exerciseId: number, minutes: number, userId = 1) {
   await db.withTransactionAsync(async () => {
-    const sessionId = await getOrCreateSessionId(db, date);
+    const sessionId = await getOrCreateSessionId(db, date, userId);
     await db.runAsync(
       'INSERT INTO cardio (session_id, exercise_id, minutes, created_at) VALUES (?, ?, ?, ?)',
       sessionId,
@@ -152,23 +168,25 @@ export async function addCardio(db: SQLiteDatabase, date: string, exerciseId: nu
   });
 }
 
-export async function getSetsForDay(db: SQLiteDatabase, date: string): Promise<SetEntry[]> {
+export async function getSetsForDay(db: SQLiteDatabase, date: string, userId = 1): Promise<SetEntry[]> {
   return db.getAllAsync<SetEntry>(
     `SELECT s.id, s.exercise_id, e.name AS exercise_name, s.weight, s.reps
      FROM sets s JOIN exercises e ON e.id = s.exercise_id
-     WHERE s.session_id = (SELECT id FROM sessions WHERE date = ?)
+     WHERE s.session_id = (SELECT id FROM sessions WHERE date = ? AND user_id = ?)
      ORDER BY s.created_at ASC`,
     date,
+    userId,
   );
 }
 
-export async function getCardioForDay(db: SQLiteDatabase, date: string): Promise<CardioEntry[]> {
+export async function getCardioForDay(db: SQLiteDatabase, date: string, userId = 1): Promise<CardioEntry[]> {
   return db.getAllAsync<CardioEntry>(
     `SELECT c.id, c.exercise_id, e.name AS exercise_name, c.minutes
      FROM cardio c JOIN exercises e ON e.id = c.exercise_id
-     WHERE c.session_id = (SELECT id FROM sessions WHERE date = ?)
+     WHERE c.session_id = (SELECT id FROM sessions WHERE date = ? AND user_id = ?)
      ORDER BY c.created_at ASC`,
     date,
+    userId,
   );
 }
 
@@ -180,21 +198,27 @@ export async function deleteCardio(db: SQLiteDatabase, id: number) {
   await db.runAsync('DELETE FROM cardio WHERE id = ?', id);
 }
 
-export async function getLastSet(db: SQLiteDatabase, exerciseId: number) {
+export async function getLastSet(db: SQLiteDatabase, exerciseId: number, userId = 1) {
   return db.getFirstAsync<{ weight: number; reps: number }>(
-    'SELECT weight, reps FROM sets WHERE exercise_id = ? ORDER BY created_at DESC LIMIT 1',
+    `SELECT s.weight, s.reps FROM sets s
+     JOIN sessions se ON se.id = s.session_id
+     WHERE s.exercise_id = ? AND se.user_id = ?
+     ORDER BY s.created_at DESC LIMIT 1`,
     exerciseId,
+    userId,
   );
 }
 
-export async function getSessions(db: SQLiteDatabase): Promise<SessionSummary[]> {
+export async function getSessions(db: SQLiteDatabase, userId = 1): Promise<SessionSummary[]> {
   return db.getAllAsync<SessionSummary>(
     `SELECT s.id, s.date,
        COALESCE((SELECT SUM(weight * reps) FROM sets WHERE session_id = s.id), 0) AS volume,
        COALESCE((SELECT SUM(reps) FROM sets WHERE session_id = s.id), 0) AS reps,
        COALESCE((SELECT SUM(minutes) FROM cardio WHERE session_id = s.id), 0) AS cardio_minutes
      FROM sessions s
+     WHERE s.user_id = ?
      ORDER BY s.date DESC`,
+    userId,
   );
 }
 
@@ -225,22 +249,22 @@ export async function deleteSession(db: SQLiteDatabase, sessionId: number) {
   await db.runAsync('DELETE FROM sessions WHERE id = ?', sessionId);
 }
 
-export async function getStats(db: SQLiteDatabase, fromDate: string | null): Promise<Stats> {
-  const params = [fromDate, fromDate];
+export async function getStats(db: SQLiteDatabase, fromDate: string | null, userId = 1): Promise<Stats> {
+  const params = [fromDate, fromDate, userId];
   const totals = await db.getFirstAsync<{ volume: number; reps: number }>(
     `SELECT COALESCE(SUM(s.weight * s.reps), 0) AS volume, COALESCE(SUM(s.reps), 0) AS reps
      FROM sets s JOIN sessions se ON se.id = s.session_id
-     WHERE (? IS NULL OR se.date >= ?)`,
+     WHERE (? IS NULL OR se.date >= ?) AND se.user_id = ?`,
     params,
   );
   const cardio = await db.getFirstAsync<{ minutes: number }>(
     `SELECT COALESCE(SUM(c.minutes), 0) AS minutes
      FROM cardio c JOIN sessions se ON se.id = c.session_id
-     WHERE (? IS NULL OR se.date >= ?)`,
+     WHERE (? IS NULL OR se.date >= ?) AND se.user_id = ?`,
     params,
   );
   const sessionCount = await db.getFirstAsync<{ n: number }>(
-    'SELECT COUNT(*) AS n FROM sessions WHERE (? IS NULL OR date >= ?)',
+    'SELECT COUNT(*) AS n FROM sessions WHERE (? IS NULL OR date >= ?) AND user_id = ?',
     params,
   );
   const perExercise = await db.getAllAsync<{
@@ -255,7 +279,7 @@ export async function getStats(db: SQLiteDatabase, fromDate: string | null): Pro
       FROM sets s
       JOIN sessions se ON se.id = s.session_id
       JOIN exercises e ON e.id = s.exercise_id
-      WHERE (? IS NULL OR se.date >= ?)
+      WHERE (? IS NULL OR se.date >= ?) AND se.user_id = ?
       GROUP BY e.id
       ORDER BY volume DESC`,
     params,
@@ -275,15 +299,16 @@ export interface DailyVolume {
   volume: number;
 }
 
-export async function getDailyVolume(db: SQLiteDatabase, fromDate: string, toDate: string): Promise<DailyVolume[]> {
+export async function getDailyVolume(db: SQLiteDatabase, fromDate: string, toDate: string, userId = 1): Promise<DailyVolume[]> {
   return db.getAllAsync<DailyVolume>(
     `SELECT se.date, COALESCE(SUM(s.weight * s.reps), 0) AS volume
      FROM sessions se
      LEFT JOIN sets s ON s.session_id = se.id
-     WHERE se.date BETWEEN ? AND ?
+     WHERE se.date BETWEEN ? AND ? AND se.user_id = ?
      GROUP BY se.date`,
     fromDate,
     toDate,
+    userId,
   );
 }
 
@@ -336,24 +361,56 @@ export async function loginUser(
   }
 }
 
-export async function getMaxWeightForExercise(db: SQLiteDatabase, exerciseId: number): Promise<number> {
+export async function getMaxWeightForExercise(db: SQLiteDatabase, exerciseId: number, userId = 1): Promise<number> {
   const result = await db.getFirstAsync<{ maxWeight: number | null }>(
-    'SELECT MAX(weight) AS maxWeight FROM sets WHERE exercise_id = ?',
+    `SELECT MAX(s.weight) AS maxWeight FROM sets s
+     JOIN sessions se ON se.id = s.session_id
+     WHERE s.exercise_id = ? AND se.user_id = ?`,
     exerciseId,
+    userId,
   );
   return result?.maxWeight ?? 0;
 }
 
-export async function exportDatabaseBackup(db: SQLiteDatabase): Promise<string> {
+export interface ExerciseProgression {
+  date: string;
+  maxWeight: number;
+  totalVolume: number;
+}
+
+export async function getExerciseProgression(
+  db: SQLiteDatabase,
+  exerciseId: number,
+  userId = 1,
+): Promise<ExerciseProgression[]> {
+  return db.getAllAsync<ExerciseProgression>(
+    `SELECT se.date, MAX(s.weight) AS maxWeight, SUM(s.weight * s.reps) AS totalVolume
+     FROM sets s
+     JOIN sessions se ON se.id = s.session_id
+     WHERE s.exercise_id = ? AND se.user_id = ?
+     GROUP BY se.date
+     ORDER BY se.date ASC`,
+    exerciseId,
+    userId,
+  );
+}
+
+export async function exportDatabaseBackup(db: SQLiteDatabase, userId = 1): Promise<string> {
   const exercises = await db.getAllAsync('SELECT * FROM exercises');
-  const plan = await db.getAllAsync('SELECT * FROM plan');
-  const sessions = await db.getAllAsync('SELECT * FROM sessions');
-  const sets = await db.getAllAsync('SELECT * FROM sets');
-  const cardio = await db.getAllAsync('SELECT * FROM cardio');
-  const users = await db.getAllAsync('SELECT id, name, email, created_at FROM users');
+  const plan = await db.getAllAsync('SELECT * FROM plan WHERE user_id = ?', userId);
+  const sessions = await db.getAllAsync('SELECT * FROM sessions WHERE user_id = ?', userId);
+  const sets = await db.getAllAsync(
+    `SELECT s.* FROM sets s JOIN sessions se ON se.id = s.session_id WHERE se.user_id = ?`,
+    userId,
+  );
+  const cardio = await db.getAllAsync(
+    `SELECT c.* FROM cardio c JOIN sessions se ON se.id = c.session_id WHERE se.user_id = ?`,
+    userId,
+  );
+  const users = await db.getAllAsync('SELECT id, name, email, created_at FROM users WHERE id = ?', userId);
 
   const backup = {
-    version: 1,
+    version: 2,
     exportedAt: new Date().toISOString(),
     data: {
       exercises,
@@ -368,7 +425,7 @@ export async function exportDatabaseBackup(db: SQLiteDatabase): Promise<string> 
   return JSON.stringify(backup, null, 2);
 }
 
-export async function exportWorkoutsCsv(db: SQLiteDatabase): Promise<string> {
+export async function exportWorkoutsCsv(db: SQLiteDatabase, userId = 1): Promise<string> {
   const setsData = await db.getAllAsync<{
     date: string;
     exercise_name: string;
@@ -380,7 +437,9 @@ export async function exportWorkoutsCsv(db: SQLiteDatabase): Promise<string> {
      FROM sets s
      JOIN sessions se ON se.id = s.session_id
      JOIN exercises e ON e.id = s.exercise_id
+     WHERE se.user_id = ?
      ORDER BY se.date DESC, s.created_at ASC`,
+    userId,
   );
 
   const cardioData = await db.getAllAsync<{
@@ -393,7 +452,9 @@ export async function exportWorkoutsCsv(db: SQLiteDatabase): Promise<string> {
      FROM cardio c
      JOIN sessions se ON se.id = c.session_id
      JOIN exercises e ON e.id = c.exercise_id
+     WHERE se.user_id = ?
      ORDER BY se.date DESC, c.created_at ASC`,
+    userId,
   );
 
   const rows = ['Data,Exercício,Tipo,Peso (kg),Repetições,Duração (min)'];
@@ -407,25 +468,4 @@ export async function exportWorkoutsCsv(db: SQLiteDatabase): Promise<string> {
   }
 
   return rows.join('\n');
-}
-
-export interface ExerciseProgression {
-  date: string;
-  maxWeight: number;
-  totalVolume: number;
-}
-
-export async function getExerciseProgression(
-  db: SQLiteDatabase,
-  exerciseId: number,
-): Promise<ExerciseProgression[]> {
-  return db.getAllAsync<ExerciseProgression>(
-    `SELECT se.date, MAX(s.weight) AS maxWeight, SUM(s.weight * s.reps) AS totalVolume
-     FROM sets s
-     JOIN sessions se ON se.id = s.session_id
-     WHERE s.exercise_id = ?
-     GROUP BY se.date
-     ORDER BY se.date ASC`,
-    exerciseId,
-  );
 }

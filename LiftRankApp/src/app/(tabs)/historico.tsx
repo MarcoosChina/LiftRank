@@ -16,18 +16,20 @@ import {
 } from '@/db/repo';
 import { formatNumber, useQuery } from '@/hooks/use-query';
 import { useSQLiteContext } from 'expo-sqlite';
+import { useAuthStore } from '@/store/auth-store';
 import { useTheme } from '@/hooks/use-theme';
 import { Fonts, Spacing } from '@/constants/theme';
 
 export default function HistoricoScreen() {
   const db = useSQLiteContext();
   const theme = useTheme();
+  const userId = useAuthStore((s) => s.userId) ?? 1;
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [sessionDetail, setSessionDetail] = useState<SessionDetail | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<{ id: number; date: string } | null>(null);
 
-  const sessions = useQuery(() => getSessions(db));
+  const sessions = useQuery(() => getSessions(db, userId));
 
   async function toggleExpand(sessionId: number) {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

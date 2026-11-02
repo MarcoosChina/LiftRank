@@ -22,6 +22,7 @@ import {
 } from '@/db/repo';
 import { formatNumber, useQuery } from '@/hooks/use-query';
 import { useSQLiteContext } from 'expo-sqlite';
+import { useAuthStore } from '@/store/auth-store';
 import { useTheme } from '@/hooks/use-theme';
 import { Spacing } from '@/constants/theme';
 
@@ -53,16 +54,17 @@ const CHART_DAYS = 14;
 export default function StatsScreen() {
   const db = useSQLiteContext();
   const theme = useTheme();
+  const userId = useAuthStore((s) => s.userId) ?? 1;
   const [period, setPeriod] = useState<Period>('week');
   const [selectedProgExerciseId, setSelectedProgExerciseId] = useState<number | null>(null);
 
   const fromDate = periodRange(period);
 
-  const stats = useQuery(() => getStats(db, fromDate));
+  const stats = useQuery(() => getStats(db, fromDate, userId));
   const exercises = useQuery(() => listExercises(db));
   const progression = useQuery(() =>
     selectedProgExerciseId !== null
-      ? getExerciseProgression(db, selectedProgExerciseId)
+      ? getExerciseProgression(db, selectedProgExerciseId, userId)
       : Promise.resolve([]),
   );
 
@@ -82,7 +84,7 @@ export default function StatsScreen() {
   const chart = useQuery(() => {
     const end = new Date();
     const start = subDays(end, CHART_DAYS - 1);
-    return getDailyVolume(db, todayStr(start), todayStr(end));
+    return getDailyVolume(db, todayStr(start), todayStr(end), userId);
   });
 
   const bars = useMemo(() => {
@@ -101,7 +103,7 @@ export default function StatsScreen() {
   const maxProgWeight = Math.max(...progData.map((p) => p.maxWeight), 1);
 
   async function handleExportBackup() {
-    const json = await exportDatabaseBackup(db);
+    const json = await exportDatabaseBackup(db, userId);
     await Share.share({
       title: 'LiftRank Backup',
       message: json,
@@ -109,7 +111,7 @@ export default function StatsScreen() {
   }
 
   async function handleExportCsv() {
-    const csv = await exportWorkoutsCsv(db);
+    const csv = await exportWorkoutsCsv(db, userId);
     await Share.share({
       title: 'LiftRank Histórico (CSV)',
       message: csv,
@@ -262,7 +264,10 @@ export default function StatsScreen() {
 
           <Pressable
             style={[styles.logoutButton, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
-            onPress={() => router.replace('/(auth)/login')}>
+            onPress={() => {
+              useAuthStore.getState().clearSession();
+              router.replace('/(auth)/login');
+            }}>
             <ThemedText type="smallBold" style={{ color: theme.danger, textAlign: 'center' }}>
               Sair da Conta (Logout)
             </ThemedText>

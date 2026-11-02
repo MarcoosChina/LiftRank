@@ -29,6 +29,7 @@ import {
 } from '@/db/repo';
 import { formatNumber, parseDecimal, useQuery } from '@/hooks/use-query';
 import { useSQLiteContext } from 'expo-sqlite';
+import { useAuthStore } from '@/store/auth-store';
 import { useTheme } from '@/hooks/use-theme';
 import { Spacing } from '@/constants/theme';
 
@@ -37,6 +38,7 @@ type Kind = 'strength' | 'cardio';
 export default function HojeScreen() {
   const db = useSQLiteContext();
   const theme = useTheme();
+  const userId = useAuthStore((s) => s.userId) ?? 1;
   const today = todayStr();
   const weekday = new Date().getDay();
 
@@ -70,9 +72,9 @@ export default function HojeScreen() {
   }
 
   const exercises = useQuery(() => listExercises(db));
-  const planToday = useQuery(() => getPlan(db, weekday));
-  const sets = useQuery(() => getSetsForDay(db, today));
-  const cardio = useQuery(() => getCardioForDay(db, today));
+  const planToday = useQuery(() => getPlan(db, weekday, userId));
+  const sets = useQuery(() => getSetsForDay(db, today, userId));
+  const cardio = useQuery(() => getCardioForDay(db, today, userId));
 
   const ordered = useMemo(() => {
     const all = exercises.data ?? [];
@@ -107,7 +109,7 @@ export default function HojeScreen() {
     setSelectedId(id);
     Keyboard.dismiss();
     if (kind === 'strength') {
-      const last = await getLastSet(db, id);
+      const last = await getLastSet(db, id, userId);
       if (last) {
         setWeightText(formatDecimal(last.weight));
         setRepsText(String(last.reps));
@@ -125,8 +127,8 @@ export default function HojeScreen() {
     const reps = Number.parseInt(repsText, 10);
     if (weight <= 0 || !Number.isFinite(reps) || reps <= 0) return;
 
-    const currentMax = await getMaxWeightForExercise(db, selected.id);
-    await addSet(db, today, selected.id, weight, reps);
+    const currentMax = await getMaxWeightForExercise(db, selected.id, userId);
+    await addSet(db, today, selected.id, weight, reps, userId);
 
     if (weight > currentMax && currentMax > 0) {
       setIsNewPr(true);
@@ -144,7 +146,7 @@ export default function HojeScreen() {
     if (!selected) return;
     const minutes = parseDecimal(minutesText);
     if (minutes <= 0) return;
-    await addCardio(db, today, selected.id, minutes);
+    await addCardio(db, today, selected.id, minutes, userId);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     cardio.reload();
   }

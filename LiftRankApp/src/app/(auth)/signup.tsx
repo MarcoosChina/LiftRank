@@ -10,6 +10,7 @@ import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { registerUser } from '@/db/repo';
+import { useAuthStore } from '@/store/auth-store';
 import { useTheme } from '@/hooks/use-theme';
 import { Spacing } from '@/constants/theme';
 
@@ -27,10 +28,11 @@ export default function SignupScreen() {
       return;
     }
     const res = await registerUser(db, name, email, password);
-    if (!res.success) {
+    if (!res.success || !res.userId) {
       setError(res.error ?? 'Erro ao cadastrar.');
       return;
     }
+    useAuthStore.getState().setSession({ id: res.userId, name, email });
     setError('');
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     router.replace('/(tabs)');
