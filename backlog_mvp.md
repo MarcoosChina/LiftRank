@@ -55,6 +55,15 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** Usuário consegue se cadastrar, fazer login, manter sessão ativa e realizar logout com redirecionamento correto.
 - **Branch Sugerida:** `feature/integracao-auth`
 
+### - [ ] **T2.3: Isolamento de Dados por Usuário (Multi-tenant Local)**
+
+- **Prioridade:** High
+- **Status:** pending
+- **Descrição:** Adicionar vínculo de `user_id` nas tabelas locais (planos, sessões, séries, cardio) para garantir que cada usuário logado visualize apenas seus próprios treinos e histórico.
+- **Dependências:** T2.2, T1.1
+- **Critérios de Aceitação:** Dados de treinos e históricos são isolados por usuário, impedindo que contas diferentes compartilhem o mesmo registro no dispositivo.
+- **Branch Sugerida:** `feature/isolamento-dados-usuario`
+
 ---
 
 ## Bloco 3: Treinos (Agendamento Semanal, Exercícios, Séries, Pesos, Repetições e Cardio)
