@@ -40,7 +40,7 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     return;
   }
 
-  if (currentDbVersion === 0) {
+  if (currentDbVersion < 1) {
     await db.execAsync(`
       PRAGMA journal_mode = WAL;
       PRAGMA foreign_keys = ON;
@@ -108,7 +108,7 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     currentDbVersion = 1;
   }
 
-  if (currentDbVersion === 1) {
+  if (currentDbVersion < 2) {
     await db.execAsync(`
       CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -121,13 +121,27 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     currentDbVersion = 2;
   }
 
-  if (currentDbVersion === 2) {
-    await db.execAsync(`
-      ALTER TABLE plan ADD COLUMN user_id INTEGER NOT NULL DEFAULT 1;
-      ALTER TABLE sessions ADD COLUMN user_id INTEGER NOT NULL DEFAULT 1;
-      CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
-      CREATE INDEX IF NOT EXISTS idx_plan_user ON plan(user_id);
-    `);
+  if (currentDbVersion < 3) {
+    const tableInfoPlan = await db.getAllAsync<{ name: string }>('PRAGMA table_info(plan)');
+    const hasUserIdPlan = tableInfoPlan.some((col) => col.name === 'user_id');
+
+    if (!hasUserIdPlan) {
+      await db.execAsync(`
+        ALTER TABLE plan ADD COLUMN user_id INTEGER NOT NULL DEFAULT 1;
+        CREATE INDEX IF NOT EXISTS idx_plan_user ON plan(user_id);
+      `);
+    }
+
+    const tableInfoSessions = await db.getAllAsync<{ name: string }>('PRAGMA table_info(sessions)');
+    const hasUserIdSessions = tableInfoSessions.some((col) => col.name === 'user_id');
+
+    if (!hasUserIdSessions) {
+      await db.execAsync(`
+        ALTER TABLE sessions ADD COLUMN user_id INTEGER NOT NULL DEFAULT 1;
+        CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+      `);
+    }
+
     currentDbVersion = 3;
   }
 
