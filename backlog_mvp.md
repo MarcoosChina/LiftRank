@@ -172,11 +172,26 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** Visualização gráfica da evolução de peso máximo e volume por exercício nas estatísticas.
 - **Branch Sugerida:** `feature/graficos-evolucao-exercicio`
 
-### - [x] **TF.3: Temporizador de Descanso Customizável**
+### - [x] **BF.1: Correção de Layout do Modal de Plano com Teclado Virtual**
 
-- **Prioridade:** Low
+- **Prioridade:** High
 - **Status:** completed
-- **Descrição:** Permitir que o usuário escolha a duração padrão do timer de descanso (ex: 60s, 90s, 120s) após registrar uma série.
-- **Dependências:** Timer de descanso
-- **Critérios de Aceitação:** Opção de selecionar a duração do timer na tela Hoje.
-- **Branch Sugerida:** `feature/configuracao-timer`
+- **Descrição:** Envolver o modal de adição de exercícios em `KeyboardAvoidingView` e ajustar altura da lista (`exerciseList`) para evitar que o teclado cubra os resultados da pesquisa.
+- **Dependências:** T3.1
+- **Critérios de Aceitação:** Modal se ajusta corretamente acima do teclado e resultados da busca permanecem visíveis e roláveis em Android e iOS.
+- **Branch Sugerida:** `bugfix/modal-teclado-plano`
+
+### - [ ] **TF.4: Login Social com Google (OAuth)**
+
+- **Prioridade:** Medium
+- **Status:** pending
+- **Descrição:** Adicionar opção de autenticação/cadastro social via Google OAuth.
+- **Passo-a-passo:**
+    1. Criar projeto no Google Cloud Console e configurar OAuth Consent Screen.
+    2. Gerar credenciais OAuth Client ID para Android e iOS.
+    3. Atualizar `src/hooks/use-google-auth.ts` com as credenciais reais.
+    4. Implementar lógica de `loginOrRegisterGoogleUser` no `src/db/repo.ts`.
+    5. Finalizar a UI de botão nas telas de `signup.tsx` e `login.tsx`.
+- **Dependências:** Nenhuma.
+- **Critérios de Aceitação:** Fluxo de login social funcional, criação/recuperação de conta no banco local e redirecionamento para o app.
+- **Branch Sugerida:** `feature/google-login`

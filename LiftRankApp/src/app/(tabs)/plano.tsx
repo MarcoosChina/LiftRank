@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 
@@ -124,7 +124,9 @@ export default function PlanoScreen() {
       </SafeAreaView>
 
       <Modal visible={pickerDay !== null} animationType="slide" transparent>
-        <View style={[styles.modalOverlay]}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={[styles.modalOverlay]}>
           <Pressable style={styles.modalBackdrop} onPress={() => setPickerDay(null)} />
           <ThemedView type="backgroundElement" style={styles.modalSheet}>
             <View style={styles.modalHeader}>
@@ -182,7 +184,7 @@ export default function PlanoScreen() {
               </Pressable>
             </View>
           </ThemedView>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </ThemedView>
   );
@@ -252,7 +254,8 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   exerciseList: {
-    maxHeight: 300,
+    maxHeight: 220,
+    flexShrink: 1,
     gap: 2,
   },
   exerciseRow: {
