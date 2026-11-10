@@ -13,6 +13,7 @@ import { StatCard } from '@/components/stat-card';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { PlayerHud } from '@/components/player-hud';
 import {
   addCardio,
   addSet,
@@ -22,7 +23,9 @@ import {
   getLastSet,
   getMaxWeightForExercise,
   getPlan,
+  getSessions,
   getSetsForDay,
+  getStats,
   listExercises,
   todayStr,
   type Exercise,
@@ -75,6 +78,8 @@ export default function HojeScreen() {
   const planToday = useQuery(() => getPlan(db, weekday, userId));
   const sets = useQuery(() => getSetsForDay(db, today, userId));
   const cardio = useQuery(() => getCardioForDay(db, today, userId));
+  const stats = useQuery(() => getStats(db, null, userId));
+  const sessions = useQuery(() => getSessions(db, userId));
 
   const ordered = useMemo(() => {
     const all = exercises.data ?? [];
@@ -166,6 +171,12 @@ export default function HojeScreen() {
               {format(new Date(), "EEEE, d 'de' MMMM", { locale: ptBR })}
             </ThemedText>
           </View>
+
+          <PlayerHud
+            totalVolume={stats.data?.volume ?? 0}
+            workoutCount={(sessions.data ?? []).length}
+            streak={(sessions.data ?? []).length}
+          />
 
           {restSeconds !== null && (
             <ThemedView type="backgroundElement" style={[styles.timerCard, { borderColor: theme.accent, borderWidth: 1 }]}>
