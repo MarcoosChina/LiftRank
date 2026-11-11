@@ -181,6 +181,25 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** Modal se ajusta corretamente acima do teclado e resultados da busca permanecem visíveis e roláveis em Android e iOS.
 - **Branch Sugerida:** `bugfix/modal-teclado-plano`
 
+### - [ ] **TF.4: Login Social com Google (OAuth)**
+
+- **Prioridade:** Medium
+- **Status:** pending
+- **Descrição:** Adicionar opção de autenticação/cadastro social via Google OAuth.
+- **Passo-a-passo:**
+    1. Criar projeto no Google Cloud Console e configurar OAuth Consent Screen.
+    2. Gerar credenciais OAuth Client ID para Android e iOS.
+    3. Atualizar `src/hooks/use-google-auth.ts` com as credenciais reais.
+    4. Implementar lógica de `loginOrRegisterGoogleUser` no `src/db/repo.ts`.
+    5. Finalizar a UI de botão nas telas de `signup.tsx` e `login.tsx`.
+- **Dependências:** Nenhuma.
+- **Critérios de Aceitação:** Fluxo de login social funcional, criação/recuperação de conta no banco local e redirecionamento para o app.
+- **Branch Sugerida:** `feature/google-login`
+
+---
+
+## Evolução do Novo Visual de LiftRank (Arcade & RPG)
+
 ### - [x] **TF.5: Identidade Visual Arcade / Gamificação RPG (Fase 1)**
 
 - **Prioridade:** Medium
@@ -198,18 +217,3 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Dependências:** TF.5
 - **Critérios de Aceitação:** Coesão visual arcade em todo o aplicativo sem perda de usabilidade.
 - **Branch Sugerida:** `feature/evolucao-visual-rpg`
-
-### - [ ] **TF.4: Login Social com Google (OAuth)**
-
-- **Prioridade:** Medium
-- **Status:** pending
-- **Descrição:** Adicionar opção de autenticação/cadastro social via Google OAuth.
-- **Passo-a-passo:**
-    1. Criar projeto no Google Cloud Console e configurar OAuth Consent Screen.
-    2. Gerar credenciais OAuth Client ID para Android e iOS.
-    3. Atualizar `src/hooks/use-google-auth.ts` com as credenciais reais.
-    4. Implementar lógica de `loginOrRegisterGoogleUser` no `src/db/repo.ts`.
-    5. Finalizar a UI de botão nas telas de `signup.tsx` e `login.tsx`.
-- **Dependências:** Nenhuma.
-- **Critérios de Aceitação:** Fluxo de login social funcional, criação/recuperação de conta no banco local e redirecionamento para o app.
-- **Branch Sugerida:** `feature/google-login`
