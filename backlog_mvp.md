@@ -181,6 +181,24 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** Modal se ajusta corretamente acima do teclado e resultados da busca permanecem visíveis e roláveis em Android e iOS.
 - **Branch Sugerida:** `bugfix/modal-teclado-plano`
 
+### - [x] **TF.5: Identidade Visual Arcade / Gamificação RPG (Fase 1)**
+
+- **Prioridade:** Medium
+- **Status:** completed
+- **Descrição:** Introduzir tokens de cores temáticos (XP, Mana, HP), criar o componente `PlayerHud` com barra de progresso de nível e integrar na tela Hoje.
+- **Dependências:** Blocos 1, 2, 3 e 4.
+- **Critérios de Aceitação:** Exibição dinâmica do nível do jogador e barra de XP baseada no volume de carga e treinos.
+- **Branch Sugerida:** `feature/identidade-visual-arcade`
+
+### - [x] **TF.6: Evolução Visual Completa - Ficha de Personagem e Quest Log**
+
+- **Prioridade:** Medium
+- **Status:** completed
+- **Descrição:** Expandir a identidade Arcade/RPG para as demais telas (Stats como Ficha de Personagem, Plano como Quest Log, etc.).
+- **Dependências:** TF.5
+- **Critérios de Aceitação:** Coesão visual arcade em todo o aplicativo sem perda de usabilidade.
+- **Branch Sugerida:** `feature/evolucao-visual-rpg`
+
 ### - [ ] **TF.4: Login Social com Google (OAuth)**
 
 - **Prioridade:** Medium

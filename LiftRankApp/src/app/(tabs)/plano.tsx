@@ -67,9 +67,14 @@ export default function PlanoScreen() {
       <SafeAreaView style={styles.flex}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View>
-            <ThemedText type="title">Plano</ThemedText>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <ThemedText type="title">Plano</ThemedText>
+              <View style={{ backgroundColor: '#26201B', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: '#00F0FF' }}>
+                <ThemedText type="code" style={{ color: '#00F0FF', fontSize: 10 }}>[QUEST LOG]</ThemedText>
+              </View>
+            </View>
             <ThemedText type="small" style={styles.subtitle}>
-              Monte seus treinos da semana
+              Missões e treinos da semana
             </ThemedText>
           </View>
 

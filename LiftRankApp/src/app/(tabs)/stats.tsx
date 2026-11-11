@@ -123,9 +123,14 @@ export default function StatsScreen() {
       <SafeAreaView style={styles.flex}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View>
-            <ThemedText type="title">Stats</ThemedText>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <ThemedText type="title">Stats</ThemedText>
+              <View style={{ backgroundColor: '#26201B', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: '#FFD700' }}>
+                <ThemedText type="code" style={{ color: '#FFD700', fontSize: 10 }}>[CHARACTER SHEET]</ThemedText>
+              </View>
+            </View>
             <ThemedText type="small" style={styles.subtitle}>
-              Sua evolução em números
+              Sua evolução de herói em números
             </ThemedText>
           </View>
 
