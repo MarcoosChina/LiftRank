@@ -15,8 +15,8 @@ export function PlayerHud({
 }) {
   const theme = useTheme();
 
-  // Calculate Level and XP (1 level per 10,000 kg volume or 5 workouts)
-  const xpTotal = Math.floor(totalVolume + workoutCount * 500);
+  // Calculate Level and XP (1 level per 5000 XP)
+  const xpTotal = Math.floor(totalVolume / 10 + workoutCount * 500);
   const level = Math.floor(xpTotal / 5000) + 1;
   const xpCurrent = xpTotal % 5000;
   const xpProgress = Math.min(Math.max(xpCurrent / 5000, 0.05), 1);
@@ -24,27 +24,24 @@ export function PlayerHud({
   return (
     <ThemedView type="backgroundElement" style={[styles.container, { borderColor: theme.border }]}>
       <View style={styles.topRow}>
-        <View style={styles.levelBadge}>
-          <ThemedText type="smallBold" style={{ color: theme.xp, fontFamily: 'JetBrainsMono_700Bold' }}>
-            LVL {level}
+        <View style={styles.avatarPlaceholder}>
+          <ThemedText style={{ fontSize: 24 }}>👾</ThemedText>
+        </View>
+        
+        <View style={styles.levelSection}>
+          <ThemedText type="subtitle" style={{ color: theme.text, fontFamily: 'Barlow_700Bold' }}>
+            Nível {level}
           </ThemedText>
         </View>
-        <View style={styles.statsRow}>
-          <View style={styles.statItem}>
-            <ThemedText type="code" style={{ color: theme.textSecondary }}>TREINOS</ThemedText>
-            <ThemedText type="smallBold" style={{ color: theme.mana }}>{workoutCount}</ThemedText>
-          </View>
-          <View style={styles.statItem}>
-            <ThemedText type="code" style={{ color: theme.textSecondary }}>STREAK</ThemedText>
-            <ThemedText type="smallBold" style={{ color: theme.hp }}>🔥 {streak}d</ThemedText>
-          </View>
+
+        <View style={styles.emblemPlaceholder}>
+          <ThemedText type="smallBold" style={{ color: theme.xp }}>★</ThemedText>
         </View>
       </View>
 
       <View style={styles.xpSection}>
         <View style={styles.xpLabels}>
-          <ThemedText type="code" style={{ color: theme.textSecondary }}>XP PROGRESS</ThemedText>
-          <ThemedText type="code" style={{ color: theme.xp }}>{xpCurrent} / 5000 XP</ThemedText>
+          <ThemedText type="code" style={{ color: theme.textSecondary }}>{xpCurrent} / 5000 XP</ThemedText>
         </View>
         <View style={[styles.xpBarBackground, { backgroundColor: theme.backgroundSelected }]}>
           <View
@@ -70,21 +67,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    gap: Spacing.two,
   },
-  levelBadge: {
+  avatarPlaceholder: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#1A1631',
+    borderWidth: 2,
+    borderColor: '#00FF66', // Borda verde-água
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  levelSection: {
+    flex: 1,
+    paddingHorizontal: Spacing.two,
+  },
+  emblemPlaceholder: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: '#26201B',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
     borderWidth: 1,
     borderColor: '#FFD700',
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: Spacing.three,
-  },
-  statItem: {
-    alignItems: 'flex-end',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   xpSection: {
     gap: 4,
@@ -92,11 +99,11 @@ const styles = StyleSheet.create({
   },
   xpLabels: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-end',
   },
   xpBarBackground: {
-    height: 8,
-    borderRadius: 4,
+    height: 10,
+    borderRadius: 5,
     overflow: 'hidden',
   },
   xpBarFill: {

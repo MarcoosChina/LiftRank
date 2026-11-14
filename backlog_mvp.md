@@ -252,3 +252,4 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Status:** pending
 - **Descrição:** Estilizar as telas de Login, Cadastro e criar a tela de comemoração de subida de nível (*Level-Up*) com efeitos visuais e contetes pixelados.
 - **Branch Sugerida:** `feature/ui-auth-celebration`
+
