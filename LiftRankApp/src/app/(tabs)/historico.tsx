@@ -69,9 +69,14 @@ export default function HistoricoScreen() {
       <SafeAreaView style={styles.flex}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View>
-            <ThemedText type="title">Histórico</ThemedText>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <ThemedText type="title">Histórico</ThemedText>
+              <View style={{ backgroundColor: '#26201B', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: '#7C4DFF' }}>
+                <ThemedText type="code" style={{ color: '#7C4DFF', fontSize: 10 }}>[ADVENTURE LOG]</ThemedText>
+              </View>
+            </View>
             <ThemedText type="small" style={styles.subtitle}>
-              {sessions.data?.length ?? 0} treinos registrados
+              {sessions.data?.length ?? 0} jornadas concluídas
             </ThemedText>
           </View>
 

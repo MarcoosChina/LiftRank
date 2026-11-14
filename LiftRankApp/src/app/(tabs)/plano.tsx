@@ -82,13 +82,13 @@ export default function PlanoScreen() {
             <ThemedView
               key={day.weekday}
               type="backgroundElement"
-              style={[styles.dayCard, day.weekday === todayWeekday && { borderColor: theme.accent, borderWidth: 2 }]}>
+              style={[styles.dayCard, { backgroundColor: '#1A1631', borderColor: day.weekday === todayWeekday ? theme.primary : '#3D2F24', borderWidth: 2 }]}>
               <View style={styles.dayHeader}>
                 <ThemedText type="subtitle" style={styles.dayLabel}>
                   {day.label}
                 </ThemedText>
                 <Pressable hitSlop={8} onPress={() => { setSearchQuery(''); setPickerDay(day); }}>
-                  <ThemedText type="smallBold" style={{ color: theme.accent }}>
+                  <ThemedText type="smallBold" style={{ color: theme.primary }}>
                     + Adicionar
                   </ThemedText>
                 </Pressable>

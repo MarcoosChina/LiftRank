@@ -228,6 +228,32 @@ export default function HojeScreen() {
             <StatCard label="Cardio" value={summary.cardioMinutes} unit="min" />
           </View>
 
+          {hasPlan && (
+            <ThemedView
+              type="backgroundElement"
+              style={{
+                backgroundColor: '#1B2150', // Navy blue background from skill.md
+                padding: Spacing.three,
+                borderRadius: 16,
+                gap: Spacing.two,
+                borderWidth: 1,
+                borderColor: theme.border,
+              }}>
+              <View>
+                <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                  TREINO DE HOJE
+                </ThemedText>
+                <ThemedText type="subtitle" style={{ color: theme.text }}>
+                  {(planToday.data ?? [])[0]?.name ?? 'Treino do dia'}
+                </ThemedText>
+                <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                  {(planToday.data ?? []).length} / {(planToday.data ?? []).length} exercícios
+                </ThemedText>
+              </View>
+              <PrimaryButton label="▶ CONTINUAR TREINO" onPress={() => {}} />
+            </ThemedView>
+          )}
+
           {!hasPlan && (
             <Link href="/plano" asChild>
               <Pressable>
