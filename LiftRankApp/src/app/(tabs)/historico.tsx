@@ -65,13 +65,13 @@ export default function HistoricoScreen() {
   }, [expandedId, sessionDetail]);
 
   return (
-    <ThemedView style={styles.flex}>
+    <ThemedView style={[styles.flex, { backgroundColor: '#0E0B1E' }]}>
       <SafeAreaView style={styles.flex}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <ThemedText type="title">Histórico</ThemedText>
-              <View style={{ backgroundColor: '#26201B', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: '#7C4DFF' }}>
+              <View style={{ backgroundColor: '#1A1631', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: '#7C4DFF' }}>
                 <ThemedText type="code" style={{ color: '#7C4DFF', fontSize: 10 }}>[ADVENTURE LOG]</ThemedText>
               </View>
             </View>
@@ -227,6 +227,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: Spacing.three,
     gap: Spacing.two,
+    backgroundColor: '#1A1631',
+    borderWidth: 1,
+    borderColor: 'rgba(124, 77, 255, 0.25)',
   },
   sessionHeader: {
     flexDirection: 'row',
@@ -242,6 +245,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     lineHeight: 34,
     fontFamily: Fonts.monoBold,
+    color: '#FFFFFF',
   },
   sessionStats: {
     alignItems: 'flex-end',
@@ -249,7 +253,7 @@ const styles = StyleSheet.create({
   detail: {
     gap: Spacing.two,
     borderTopWidth: 1,
-    borderTopColor: '#2B2119',
+    borderTopColor: 'rgba(124, 77, 255, 0.25)',
     paddingTop: Spacing.two,
   },
   exerciseBlock: {
