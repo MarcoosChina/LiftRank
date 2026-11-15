@@ -137,15 +137,35 @@ export default function StatsScreen() {
           <Segmented<Period> options={PERIOD_OPTIONS} value={period} onChange={setPeriod} />
 
           <View style={styles.statRow}>
-            <StatCard label="Volume total" value={stats.data?.volume ?? 0} unit="kg" accent />
-            <StatCard label="Reps totais" value={stats.data?.reps ?? 0} unit="reps" />
+            <StatCard 
+              label="Volume total" 
+              value={stats.data?.volume ?? 0} 
+              unit="kg" 
+              style={{ backgroundColor: '#1A1631', borderColor: theme.retroBorder }}
+            />
+            <StatCard 
+              label="Reps totais" 
+              value={stats.data?.reps ?? 0} 
+              unit="reps" 
+              style={{ backgroundColor: '#1A1631', borderColor: theme.retroBorder }}
+            />
           </View>
           <View style={styles.statRow}>
-            <StatCard label="Cardio" value={stats.data?.cardioMinutes ?? 0} unit="min" />
-            <StatCard label="Treinos" value={stats.data?.sessions ?? 0} unit="" />
+            <StatCard 
+              label="Cardio" 
+              value={stats.data?.cardioMinutes ?? 0} 
+              unit="min" 
+              style={{ backgroundColor: '#1A1631', borderColor: theme.retroBorder }}
+            />
+            <StatCard 
+              label="Treinos" 
+              value={stats.data?.sessions ?? 0} 
+              unit="" 
+              style={{ backgroundColor: '#1A1631', borderColor: theme.retroBorder }}
+            />
           </View>
 
-          <ThemedView type="backgroundElement" style={styles.chartCard}>
+          <ThemedView type="backgroundElement" style={[styles.chartCard, { backgroundColor: '#1A1631', borderColor: theme.retroBorder }]}>
             <ThemedText type="smallBold" style={styles.chartTitle}>
               VOLUME — ÚLTIMOS {CHART_DAYS} DIAS
             </ThemedText>
