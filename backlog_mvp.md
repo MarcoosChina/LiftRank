@@ -221,8 +221,7 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 ### - [ ] **TF.7: Refinamento Visual da Aba Início / Hoje (Home HUD & Treino)**
 
 - **Prioridade:** High
-- **Status:** pending
-- **Descrição:** Atualizar a tela inicial (`index.tsx`) para adotar a paleta de cores (`#0E0B1E`, `#1A1631`, `#1B2150`), cartões de perfil com avatar pixel art, **botão CTA em roxo vibrante (`#7C4DFF`) com texto branco** (exceção deliberada ao dourado do `skill.md`, alinhando a Home às demais abas — ver TF.12), métricas rápidas e timer de descanso estilizados.
+- **Status:** pending- **Descrição:** Atualizar a tela inicial (`index.tsx`) para adotar a paleta de cores (`#0E0B1E`, `#1A1631`, `#1B2150`), cartões de perfil com avatar pixel art, botão CTA dourado (`#F5B50A`), métricas rápidas e timer de descanso estilizados conforme o `skill.md`.
 - **Branch Sugerida:** `feature/ui-home-arcade`
 
 ### - [x] **TF.8: Refinamento Visual da Aba Plano (Quest Log Semanal)**
@@ -252,13 +251,4 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Status:** pending
 - **Descrição:** Estilizar as telas de Login, Cadastro e criar a tela de comemoração de subida de nível (*Level-Up*) com efeitos visuais e contetes pixelados.
 - **Branch Sugerida:** `feature/ui-auth-celebration`
-
-### - [ ] **TF.12: Padronizar CTAs e Chips da Aba Hoje para a Paleta Roxa**
-
-- **Prioridade:** High
-- **Status:** pending
-- **Descrição:** Os botões e chips da aba Hoje (`index.tsx`) ainda usam o laranja legado (`theme.accent` = `#FF5500`), divergindo do roxo vibrante (`#7C4DFF`) das abas Plano, Histórico e Estatísticas. Adicionar variante ao `PrimaryButton` (ex.: `tone="primary"`, mantendo o padrão atual para não afetar Login, Cadastro e Recuperação de Senha) e aplicar o roxo em "▶ CONTINUAR TREINO", "REGISTRAR SÉRIE", "REGISTRAR CARDIO", nos chips de exercício/dia e no timer de descanso, com texto branco sobre o roxo.
-- **Dependências:** TF.5, TF.6
-- **Critérios de Aceitação:** Os três CTAs e os chips da aba Hoje ficam em `#7C4DFF` com texto branco; estados pressionado/desabilitado mantêm contraste; nenhuma outra tela muda de cor.
-- **Branch Sugerida:** `bugfix/cta-roxo-aba-hoje`
 
