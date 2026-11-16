@@ -232,10 +232,10 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Descrição:** Reformular a tela de plano semanal (`plano.tsx`) em formato de "Quest Log", com seletor de dias em chips roxo vibrante (`#7C4DFF`), cartões de grupos musculares e listagem de exercícios com marcadores de conclusão em verde (`#22D45F`).
 - **Branch Sugerida:** `feature/ui-plano-arcade`
 
-### - [ ] **TF.9: Refinamento Visual da Aba Histórico (Diário de Aventuras)**
+### - [x] **TF.9: Refinamento Visual da Aba Histórico (Diário de Aventuras)**
 
 - **Prioridade:** Medium
-- **Status:** pending
+- **Status:** completed
 - **Descrição:** Redesenhar a listagem cronológica de sessões no Histórico (`historico.tsx`) com cartões expansíveis em tom azul/roxo escuro (`#1A1631`), exibindo volume, repetições e badges de progresso.
 - **Branch Sugerida:** `feature/ui-historico-arcade`
 

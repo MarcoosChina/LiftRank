@@ -31,6 +31,16 @@ export default function HistoricoScreen() {
 
   const sessions = useQuery(() => getSessions(db, userId));
 
+  const ARCADE_COLORS = {
+    bgApp: '#0E0B1E',
+    bgCard: '#1A1631',
+    primary: '#7C4DFF',
+    success: '#22D45F',
+    textPrimary: '#FFFFFF',
+    textSecondary: '#A9A5C4',
+    border: 'rgba(124, 77, 255, 0.25)'
+  };
+
   async function toggleExpand(sessionId: number) {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (expandedId === sessionId) {
@@ -70,18 +80,18 @@ export default function HistoricoScreen() {
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <ThemedText type="title">Histórico</ThemedText>
-              <View style={{ backgroundColor: '#1A1631', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: '#7C4DFF' }}>
-                <ThemedText type="code" style={{ color: '#7C4DFF', fontSize: 10 }}>[ADVENTURE LOG]</ThemedText>
+              <ThemedText type="title" style={{ color: ARCADE_COLORS.textPrimary }}>Histórico</ThemedText>
+              <View style={{ backgroundColor: ARCADE_COLORS.bgCard, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: ARCADE_COLORS.primary }}>
+                <ThemedText type="code" style={{ color: ARCADE_COLORS.primary, fontSize: 10 }}>[ADVENTURE LOG]</ThemedText>
               </View>
             </View>
-            <ThemedText type="small" style={styles.subtitle}>
+            <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary, marginTop: 2 }}>
               {sessions.data?.length ?? 0} jornadas concluídas
             </ThemedText>
           </View>
 
           {(sessions.data ?? []).length === 0 && (
-            <ThemedText type="small" style={{ color: theme.textSecondary }}>
+            <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary }}>
               Nada por aqui ainda. Registre séries na aba Hoje.
             </ThemedText>
           )}
@@ -89,33 +99,37 @@ export default function HistoricoScreen() {
           {(sessions.data ?? []).map((session) => {
             const expanded = expandedId === session.id;
             const d = strToDate(session.date);
+            const progressPercent = Math.min(100, Math.round(((session.reps ?? 0) / Math.max(session.volume ?? 1, 1)) * 100));
             return (
-              <ThemedView key={session.id} type="backgroundElement" style={styles.sessionCard}>
+              <ThemedView key={session.id} style={[styles.sessionCard, { backgroundColor: ARCADE_COLORS.bgCard, borderColor: ARCADE_COLORS.border }]}>
                 <Pressable
                   onPress={() => toggleExpand(session.id)}>
                   <View style={styles.sessionHeader}>
                     <View style={styles.sessionDate}>
-                      <ThemedText type="subtitle" style={styles.dayNumber}>
+                      <ThemedText type="subtitle" style={[styles.dayNumber, { color: ARCADE_COLORS.textPrimary }]}>
                         {format(d, 'dd')}
                       </ThemedText>
                       <View>
-                        <ThemedText type="smallBold">{format(d, 'MMMM', { locale: ptBR })}</ThemedText>
-                        <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                        <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.textPrimary }}>{format(d, 'MMMM', { locale: ptBR })}</ThemedText>
+                        <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary }}>
                           {format(d, 'EEEE', { locale: ptBR })}
                         </ThemedText>
                       </View>
                     </View>
                     <View style={styles.sessionStats}>
-                      <ThemedText type="smallBold">{formatNumber(session.volume)} kg</ThemedText>
-                      <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                      <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.textPrimary }}>{formatNumber(session.volume)} kg</ThemedText>
+                      <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary }}>
                         {formatNumber(session.reps)} reps · {formatNumber(session.cardio_minutes, session.cardio_minutes % 1 === 0 ? 0 : 1)} min cardio
+                      </ThemedText>
+                      <ThemedText type="code" style={{ color: ARCADE_COLORS.success, fontSize: 10, marginTop: 4 }}>
+                        {progressPercent}% PROGRESSO
                       </ThemedText>
                     </View>
                   </View>
                 </Pressable>
 
                 {expanded && (
-                  <View style={styles.detail}>
+                  <View style={[styles.detail, { borderTopColor: ARCADE_COLORS.border }]}>
                     {loadingDetail && (
                       <ActivityIndicator color={theme.accent} style={{ marginVertical: 8 }} />
                     )}
@@ -124,20 +138,23 @@ export default function HistoricoScreen() {
                         {grouped.byExercise.map(([name, info]) => (
                           <View key={name} style={styles.exerciseBlock}>
                             <View style={styles.exerciseRow}>
-                              <ThemedText type="smallBold">{name}</ThemedText>
-                              <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                              <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.textPrimary }}>{name}</ThemedText>
+                              <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary }}>
                                 {info.series} séries · {formatNumber(info.volume)} kg
                               </ThemedText>
                             </View>
-                            <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                            <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary }}>
                               {info.rows.join('  ·  ')}
                             </ThemedText>
+                            <ThemedView type="backgroundElement" style={[styles.progressTrack, { borderColor: ARCADE_COLORS.border }]}>
+                              <ThemedView type="backgroundElement" style={[styles.progressFill, { width: `${Math.min(100, Math.round((info.volume / session.volume) * 100))}%` }]} />
+                            </ThemedView>
                           </View>
                         ))}
                         {grouped.cardio.map((c) => (
                           <View key={c.name} style={styles.exerciseRow}>
-                            <ThemedText type="smallBold">⏱ {c.name}</ThemedText>
-                            <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                            <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.textPrimary }}>⏱ {c.name}</ThemedText>
+                            <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary }}>
                               {formatNumber(c.minutes, c.minutes % 1 === 0 ? 0 : 1)} min
                             </ThemedText>
                           </View>
@@ -263,6 +280,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  progressTrack: {
+    height: 4,
+    borderRadius: 2,
+    overflow: 'hidden',
+    marginTop: 4,
+    width: '100%',
+  },
+  progressFill: {
+    height: 4,
+    backgroundColor: ARCADE_COLORS.success,
+    borderRadius: 2,
   },
   modalOverlay: {
     flex: 1,
