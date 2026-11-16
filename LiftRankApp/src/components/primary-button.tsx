@@ -8,12 +8,17 @@ export function PrimaryButton({
   label,
   onPress,
   disabled,
+  tone = 'accent',
 }: {
   label: string;
   onPress: () => void;
   disabled?: boolean;
+  /** 'accent' (padrão) mantém o dourado/laranja do tema; 'primary' usa o roxo. */
+  tone?: 'accent' | 'primary';
 }) {
   const theme = useTheme();
+  const backgroundColor = tone === 'primary' ? theme.primary : theme.accent;
+  const labelColor = tone === 'primary' ? '#FFFFFF' : theme.accentInk;
   return (
     <Pressable onPress={onPress} disabled={disabled}>
       {({ pressed }) => (
@@ -21,16 +26,16 @@ export function PrimaryButton({
           style={[
             styles.button,
             {
-              backgroundColor: disabled ? theme.backgroundSelected : theme.accent,
+              backgroundColor: disabled ? theme.backgroundSelected : backgroundColor,
               opacity: pressed ? 0.7 : 1,
-              shadowColor: theme.accent,
+              shadowColor: backgroundColor,
               shadowOpacity: disabled ? 0 : 0.4,
               shadowRadius: 18,
               shadowOffset: { width: 0, height: 6 },
               elevation: disabled ? 0 : 6,
             },
           ]}>
-          <ThemedText type="smallBold" style={{ color: theme.accentInk, letterSpacing: 2 }}>
+          <ThemedText type="smallBold" style={{ color: labelColor, letterSpacing: 2 }}>
             {label}
           </ThemedText>
         </ThemedView>
