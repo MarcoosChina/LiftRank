@@ -1,6 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { Link } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ElementRef } from 'react';
 import { Keyboard, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { format } from 'date-fns';
@@ -34,7 +34,7 @@ import { formatNumber, parseDecimal, useQuery } from '@/hooks/use-query';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useAuthStore } from '@/store/auth-store';
 import { useTheme } from '@/hooks/use-theme';
-import { Spacing } from '@/constants/theme';
+import { ARCADE_COLORS, Spacing } from '@/constants/theme';
 
 type Kind = 'strength' | 'cardio';
 
@@ -53,6 +53,7 @@ export default function HojeScreen() {
   const [restSeconds, setRestSeconds] = useState<number | null>(null);
   const [restDuration, setRestDuration] = useState<number>(90);
   const [isNewPr, setIsNewPr] = useState(false);
+  const scrollRef = useRef<ElementRef<typeof ScrollView>>(null);
 
   useEffect(() => {
     if (restSeconds === null || restSeconds <= 0) return;
@@ -110,6 +111,14 @@ export default function HojeScreen() {
     return (sets.data ?? []).filter((s) => s.exercise_id === selected?.id);
   }, [sets.data, selected]);
 
+  /** Progresso real do treino de hoje: planejados vs. concluídos (com série registrada). */
+  const planProgress = useMemo(() => {
+    const plan = planToday.data ?? [];
+    const doneIds = new Set((sets.data ?? []).map((s) => s.exercise_id));
+    const done = plan.filter((p) => doneIds.has(p.exercise_id)).length;
+    return { total: plan.length, done };
+  }, [planToday.data, sets.data]);
+
   async function selectExercise(id: number) {
     setSelectedId(id);
     Keyboard.dismiss();
@@ -158,10 +167,35 @@ export default function HojeScreen() {
 
   const hasPlan = (planToday.data ?? []).length > 0;
 
+  /** Seleciona o próximo exercício planejado ainda não concluído e rola até o formulário. */
+  async function handleContinueWorkout() {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Keyboard.dismiss();
+
+    const plan = planToday.data ?? [];
+    const doneIds = new Set((sets.data ?? []).map((s) => s.exercise_id));
+    const next = plan.find((p) => !doneIds.has(p.exercise_id)) ?? plan[0];
+
+    if (next) {
+      setKind(next.kind);
+      setSelectedId(next.exercise_id);
+      if (next.kind === 'strength') {
+        const last = await getLastSet(db, next.exercise_id, userId);
+        if (last) {
+          setWeightText(formatDecimal(last.weight));
+          setRepsText(String(last.reps));
+        }
+      }
+    }
+
+    scrollRef.current?.scrollToEnd({ animated: true });
+  }
+
   return (
     <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex}>
         <ScrollView
+          ref={scrollRef}
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
@@ -227,6 +261,41 @@ export default function HojeScreen() {
             <StatCard label="Reps" value={summary.reps} unit="" />
             <StatCard label="Cardio" value={summary.cardioMinutes} unit="min" />
           </View>
+
+          {hasPlan && (
+            <ThemedView
+              style={{
+                backgroundColor: ARCADE_COLORS.bgCardBlue,
+                padding: Spacing.three,
+                borderRadius: 16,
+                gap: Spacing.two,
+                borderWidth: 1,
+                borderColor: ARCADE_COLORS.border,
+              }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}>
+                <View style={{ flex: 1, gap: 2 }}>
+                  <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                    TREINO DE HOJE
+                  </ThemedText>
+                  <ThemedText type="subtitle" style={{ color: '#FFFFFF' }}>
+                    {planToday.data?.[0]?.name ?? 'Treino do dia'}
+                  </ThemedText>
+                  <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                    {planProgress.done} / {planProgress.total} exercícios
+                  </ThemedText>
+                </View>
+                <ThemedText type="title" style={{ color: theme.textSecondary, fontSize: 28 }}>
+                  ›
+                </ThemedText>
+              </View>
+              <PrimaryButton label="▶ CONTINUAR TREINO" tone="gold" onPress={handleContinueWorkout} />
+            </ThemedView>
+          )}
 
           {!hasPlan && (
             <Link href="/plano" asChild>

@@ -3,6 +3,7 @@ import { Pressable, StyleSheet } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/hooks/use-theme';
+import { ARCADE_COLORS, readableTextColor } from '@/constants/theme';
 
 export function PrimaryButton({
   label,
@@ -13,12 +14,16 @@ export function PrimaryButton({
   label: string;
   onPress: () => void;
   disabled?: boolean;
-  /** 'accent' (padrão) mantém o dourado/laranja do tema; 'primary' usa o roxo. */
-  tone?: 'accent' | 'primary';
+  /**
+   * 'accent' (padrão) mantém o dourado/laranja do tema, 'primary' usa o roxo
+   * e 'gold' usa o amarelo-dourado arcade (#F5B50A).
+   */
+  tone?: 'accent' | 'primary' | 'gold';
 }) {
   const theme = useTheme();
-  const backgroundColor = tone === 'primary' ? theme.primary : theme.accent;
-  const labelColor = tone === 'primary' ? '#FFFFFF' : theme.accentInk;
+  const backgroundColor =
+    tone === 'primary' ? theme.primary : tone === 'gold' ? ARCADE_COLORS.accent : theme.accent;
+  const labelColor = tone === 'accent' ? theme.accentInk : readableTextColor(backgroundColor);
   return (
     <Pressable onPress={onPress} disabled={disabled}>
       {({ pressed }) => (
