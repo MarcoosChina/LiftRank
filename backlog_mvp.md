@@ -218,17 +218,17 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** Coesão visual arcade em todo o aplicativo sem perda de usabilidade.
 - **Branch Sugerida:** `feature/evolucao-visual-rpg`
 
-### - [ ] **TF.7: Refinamento Visual da Aba Início / Hoje (Home HUD & Treino)**
+### - [x] **TF.7: Refinamento Visual da Aba Início / Hoje (Home HUD & Treino)**
 
 - **Prioridade:** High
 - **Status:** pending
 - **Descrição:** Atualizar a tela inicial (`index.tsx`) para adotar a paleta de cores (`#0E0B1E`, `#1A1631`, `#1B2150`), cartões de perfil com avatar pixel art, botão CTA dourado (`#F5B50A`), métricas rápidas e timer de descanso estilizados conforme o `skill.md`.
 - **Branch Sugerida:** `feature/ui-home-arcade`
 
-### - [ ] **TF.8: Refinamento Visual da Aba Plano (Quest Log Semanal)**
+### - [x] **TF.8: Refinamento Visual da Aba Plano (Quest Log Semanal)**
 
 - **Prioridade:** High
-- **Status:** pending
+- **Status:** completed
 - **Descrição:** Reformular a tela de plano semanal (`plano.tsx`) em formato de "Quest Log", com seletor de dias em chips roxo vibrante (`#7C4DFF`), cartões de grupos musculares e listagem de exercícios com marcadores de conclusão em verde (`#22D45F`).
 - **Branch Sugerida:** `feature/ui-plano-arcade`
 

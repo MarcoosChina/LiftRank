@@ -21,6 +21,16 @@ import { useAuthStore } from '@/store/auth-store';
 import { useTheme } from '@/hooks/use-theme';
 import { Spacing } from '@/constants/theme';
 
+const ARCADE_COLORS = {
+  bgApp: '#0E0B1E',
+  bgCard: '#1A1631',
+  primary: '#7C4DFF',
+  success: '#22D45F',
+  accent: '#F5B50A',
+  text: '#FFFFFF',
+  textSecondary: '#A9A5C4',
+};
+
 const DAYS: { label: string; weekday: number }[] = [
   { label: 'Segunda', weekday: 1 },
   { label: 'Terça', weekday: 2 },
@@ -63,14 +73,14 @@ export default function PlanoScreen() {
   }
 
   return (
-    <ThemedView style={styles.flex}>
+    <ThemedView style={[styles.flex, { backgroundColor: ARCADE_COLORS.bgApp }]}>
       <SafeAreaView style={styles.flex}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <ThemedText type="title">Plano</ThemedText>
-              <View style={{ backgroundColor: '#26201B', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: '#00F0FF' }}>
-                <ThemedText type="code" style={{ color: '#00F0FF', fontSize: 10 }}>[QUEST LOG]</ThemedText>
+              <ThemedText type="title" style={{ color: ARCADE_COLORS.text }}>Plano</ThemedText>
+              <View style={{ backgroundColor: ARCADE_COLORS.bgCard, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: ARCADE_COLORS.primary }}>
+                <ThemedText type="code" style={{ color: ARCADE_COLORS.primary, fontSize: 10 }}>[QUEST LOG]</ThemedText>
               </View>
             </View>
             <ThemedText type="small" style={styles.subtitle}>
@@ -81,20 +91,22 @@ export default function PlanoScreen() {
           {(planByDay.data ?? []).map((day) => (
             <ThemedView
               key={day.weekday}
-              type="backgroundElement"
-              style={[styles.dayCard, { backgroundColor: '#1A1631', borderColor: day.weekday === todayWeekday ? theme.primary : '#3D2F24', borderWidth: 2 }]}>
+              style={[
+                styles.dayCard, 
+                { backgroundColor: ARCADE_COLORS.bgCard, borderColor: day.weekday === todayWeekday ? ARCADE_COLORS.primary : 'transparent', borderWidth: 2 }
+              ]}>
               <View style={styles.dayHeader}>
-                <ThemedText type="subtitle" style={styles.dayLabel}>
+                <ThemedText type="subtitle" style={[styles.dayLabel, { color: ARCADE_COLORS.text }]}>
                   {day.label}
                 </ThemedText>
                 <Pressable hitSlop={8} onPress={() => { setSearchQuery(''); setPickerDay(day); }}>
-                  <ThemedText type="smallBold" style={{ color: theme.primary }}>
+                  <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.primary }}>
                     + Adicionar
                   </ThemedText>
                 </Pressable>
               </View>
               {day.entries.length === 0 ? (
-                <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary }}>
                   Descanso
                 </ThemedText>
               ) : (
@@ -102,6 +114,7 @@ export default function PlanoScreen() {
                   {day.entries.map((entry) => (
                     <View key={entry.id} style={styles.planChip}>
                       <Chip
+                        style={{ backgroundColor: ARCADE_COLORS.primary }}
                         label={`${entry.kind === 'cardio' ? '⏱ ' : ''}${entry.name}`}
                         onPress={() => {
                           setSearchQuery('');
@@ -109,13 +122,16 @@ export default function PlanoScreen() {
                           setPickerKind(entry.kind);
                         }}
                       />
+                      <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.success, marginLeft: 4 }}>
+                        ✔
+                      </ThemedText>
                       <Pressable
                         hitSlop={10}
                         style={styles.removeChip}
                         onPress={() => {
                           removeFromPlan(db, entry.id).then(() => planByDay.reload());
                         }}>
-                        <ThemedText type="smallBold" style={{ color: theme.danger }}>
+                        <ThemedText type="smallBold" style={{ color: '#FF4D4D', marginLeft: 8 }}>
                           ✕
                         </ThemedText>
                       </Pressable>
@@ -133,19 +149,29 @@ export default function PlanoScreen() {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={[styles.modalOverlay]}>
           <Pressable style={styles.modalBackdrop} onPress={() => setPickerDay(null)} />
-          <ThemedView type="backgroundElement" style={styles.modalSheet}>
+          <ThemedView style={[styles.modalSheet, { backgroundColor: ARCADE_COLORS.bgCard }]}>
             <View style={styles.modalHeader}>
-              <ThemedText type="subtitle">{pickerDay?.label ?? ''}</ThemedText>
+              <ThemedText type="subtitle" style={{ color: ARCADE_COLORS.text }}>{pickerDay?.label ?? ''}</ThemedText>
               <Pressable hitSlop={10} onPress={() => setPickerDay(null)}>
-                <ThemedText type="smallBold" style={{ color: theme.textSecondary }}>
+                <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.textSecondary }}>
                   Fechar
                 </ThemedText>
               </Pressable>
             </View>
 
             <View style={styles.kindRow}>
-              <Chip label="Musculação" selected={pickerKind === 'strength'} onPress={() => { setPickerKind('strength'); setSearchQuery(''); }} />
-              <Chip label="Cardio" selected={pickerKind === 'cardio'} onPress={() => { setPickerKind('cardio'); setSearchQuery(''); }} />
+              <Chip 
+                label="Musculação" 
+                selected={pickerKind === 'strength'} 
+                onPress={() => { setPickerKind('strength'); setSearchQuery(''); }}
+                style={pickerKind === 'strength' ? { backgroundColor: ARCADE_COLORS.primary } : {}}
+              />
+              <Chip 
+                label="Cardio" 
+                selected={pickerKind === 'cardio'} 
+                onPress={() => { setPickerKind('cardio'); setSearchQuery(''); }}
+                style={pickerKind === 'cardio' ? { backgroundColor: ARCADE_COLORS.primary } : {}}
+              />
             </View>
 
             <TextField
@@ -166,8 +192,8 @@ export default function PlanoScreen() {
                     key={exercise.id}
                     style={styles.exerciseRow}
                     onPress={() => addExerciseToDay(exercise.id)}>
-                    <ThemedText type="default">{exercise.name}</ThemedText>
-                    <ThemedText type="smallBold" style={{ color: theme.accent }}>
+                    <ThemedText type="default" style={{ color: ARCADE_COLORS.text }}>{exercise.name}</ThemedText>
+                    <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.accent }}>
                       +
                     </ThemedText>
                   </Pressable>
@@ -183,7 +209,7 @@ export default function PlanoScreen() {
                 onSubmitEditing={addNewExercise}
               />
               <Pressable hitSlop={6} onPress={addNewExercise}>
-                <ThemedText type="smallBold" style={{ color: theme.accent }}>
+                <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.accent }}>
                   Criar
                 </ThemedText>
               </Pressable>
@@ -203,7 +229,7 @@ const styles = StyleSheet.create({
     gap: Spacing.three,
   },
   subtitle: {
-    color: '#A89C8F',
+    color: ARCADE_COLORS.textSecondary,
     marginTop: 2,
   },
   dayCard: {
