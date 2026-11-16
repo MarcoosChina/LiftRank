@@ -368,7 +368,7 @@ export default function HojeScreen() {
                   />
                 </View>
               </View>
-              <PrimaryButton label="REGISTRAR SÉRIE" onPress={registerSet} tone="primary" />
+              <PrimaryButton label="REGISTRAR SÉRIE" onPress={registerSet} tone="gold" />
               <View style={styles.setsList}>
                 {setsByExercise.length === 0 && (
                   <ThemedText type="small" style={{ color: theme.textSecondary }}>
@@ -412,7 +412,7 @@ export default function HojeScreen() {
                   placeholder="0"
                 />
               </View>
-              <PrimaryButton label="REGISTRAR CARDIO" onPress={registerCardio} tone="primary" />
+              <PrimaryButton label="REGISTRAR CARDIO" onPress={registerCardio} tone="gold" />
               <View style={styles.setsList}>
                 {(cardio.data ?? []).length === 0 && (
                   <ThemedText type="small" style={{ color: theme.textSecondary }}>
