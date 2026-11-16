@@ -39,6 +39,27 @@ export const Colors = {
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
+/**
+ * Retorna a cor de texto com melhor contraste para um fundo hex.
+ * Usado em componentes com cor de destaque customizada (chips, segmented).
+ */
+export function readableTextColor(background: string): string {
+  const hex = background.replace('#', '');
+  const normalized =
+    hex.length === 3
+      ? hex
+          .split('')
+          .map((c) => c + c)
+          .join('')
+      : hex;
+  if (normalized.length !== 6) return '#FFFFFF';
+  const r = Number.parseInt(normalized.slice(0, 2), 16);
+  const g = Number.parseInt(normalized.slice(2, 4), 16);
+  const b = Number.parseInt(normalized.slice(4, 6), 16);
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  return yiq >= 145 ? '#1A1200' : '#FFFFFF';
+}
+
 export const Fonts = {
   /** Display condensada — títulos e headings (poster industrial) */
   display: 'Oswald_600SemiBold',

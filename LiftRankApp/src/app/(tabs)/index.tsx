@@ -254,6 +254,7 @@ export default function HojeScreen() {
               setSelectedId(null);
               Keyboard.dismiss();
             }}
+            tint={theme.xp}
           />
 
           <ScrollView
@@ -266,6 +267,7 @@ export default function HojeScreen() {
                 label={exercise.name}
                 selected={selected?.id === exercise.id}
                 onPress={() => selectExercise(exercise.id)}
+                tint={theme.xp}
               />
             ))}
           </ScrollView>

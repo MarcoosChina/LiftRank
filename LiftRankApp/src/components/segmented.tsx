@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/hooks/use-theme';
+import { readableTextColor } from '@/constants/theme';
 
 export function Segmented<T extends string>({
   options,
@@ -18,8 +19,7 @@ export function Segmented<T extends string>({
 }) {
   const theme = useTheme();
   const selectedColor = tint ?? theme.accent;
-  // Texto claro sobre cores escuras/saturadas, escuro sobre o dourado do tema.
-  const selectedTextColor = tint ? '#FFFFFF' : theme.accentInk;
+  const selectedTextColor = tint ? readableTextColor(tint) : theme.accentInk;
 
   return (
     <View style={[styles.track, { backgroundColor: theme.backgroundElement }]}>

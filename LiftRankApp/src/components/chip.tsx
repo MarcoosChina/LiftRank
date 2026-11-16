@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, ViewStyle } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/hooks/use-theme';
+import { readableTextColor } from '@/constants/theme';
 
 export function Chip({
   label,
@@ -34,7 +35,7 @@ export function Chip({
         ]}>
         <ThemedText
           type="smallBold"
-          style={{ color: selected ? (tint ? '#FFFFFF' : theme.accentInk) : theme.text }}
+          style={{ color: selected ? (tint ? readableTextColor(tint) : theme.accentInk) : theme.text }}
           numberOfLines={1}>
           {label}
         </ThemedText>
