@@ -9,13 +9,17 @@ export function Chip({
   selected,
   onPress,
   style,
+  tint,
 }: {
   label: string;
   selected?: boolean;
   onPress?: () => void;
   style?: ViewStyle;
+  /** Cor de destaque quando selecionado. Padrão: acento do tema. */
+  tint?: string;
 }) {
   const theme = useTheme();
+  const selectedColor = tint ?? theme.accent;
   return (
     <Pressable onPress={onPress} hitSlop={4}>
       <ThemedView
@@ -23,14 +27,14 @@ export function Chip({
         style={[
           styles.chip,
           {
-            borderColor: selected ? theme.accent : 'transparent',
-            backgroundColor: selected ? theme.accent : theme.backgroundElement,
+            borderColor: selected ? selectedColor : 'transparent',
+            backgroundColor: selected ? selectedColor : theme.backgroundElement,
           },
           style,
         ]}>
         <ThemedText
           type="smallBold"
-          style={{ color: selected ? theme.accentInk : theme.text }}
+          style={{ color: selected ? (tint ? '#FFFFFF' : theme.accentInk) : theme.text }}
           numberOfLines={1}>
           {label}
         </ThemedText>

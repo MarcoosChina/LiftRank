@@ -67,8 +67,11 @@ export const Spacing = {
 export const ARCADE_COLORS = {
   bgApp: '#0E0B1E',
   bgCard: '#1A1631',
+  bgCardBlue: '#1B2150',
   primary: '#7C4DFF',
   success: '#22D45F',
+  info: '#3B82F6',
+  danger: '#FF4D4D',
   accent: '#F5B50A',
   text: '#FFFFFF',
   textPrimary: '#FFFFFF',

@@ -8,12 +8,19 @@ export function Segmented<T extends string>({
   options,
   value,
   onChange,
+  tint,
 }: {
   options: { value: T; label: string }[];
   value: T;
   onChange: (value: T) => void;
+  /** Cor de destaque do item selecionado. Padrão: acento do tema. */
+  tint?: string;
 }) {
   const theme = useTheme();
+  const selectedColor = tint ?? theme.accent;
+  // Texto claro sobre cores escuras/saturadas, escuro sobre o dourado do tema.
+  const selectedTextColor = tint ? '#FFFFFF' : theme.accentInk;
+
   return (
     <View style={[styles.track, { backgroundColor: theme.backgroundElement }]}>
       {options.map((option) => {
@@ -23,11 +30,11 @@ export function Segmented<T extends string>({
             <ThemedView
               style={[
                 styles.inner,
-                { backgroundColor: selected ? theme.accent : 'transparent' },
+                { backgroundColor: selected ? selectedColor : 'transparent' },
               ]}>
               <ThemedText
                 type="smallBold"
-                style={{ color: selected ? theme.accentInk : theme.textSecondary }}
+                style={{ color: selected ? selectedTextColor : theme.textSecondary }}
                 numberOfLines={1}>
                 {option.label}
               </ThemedText>

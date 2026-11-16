@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { format, startOfWeek, subDays } from 'date-fns';
@@ -6,6 +6,7 @@ import { ptBR } from 'date-fns/locale';
 import { router } from 'expo-router';
 
 import { Chip } from '@/components/chip';
+import { LineChart, type LineChartPoint } from '@/components/line-chart';
 import { Segmented } from '@/components/segmented';
 import { StatCard } from '@/components/stat-card';
 import { ThemedText } from '@/components/themed-text';
@@ -16,6 +17,7 @@ import {
   getDailyVolume,
   getExerciseProgression,
   getStats,
+  getWeeklySummary,
   listExercises,
   todayStr,
   type Exercise,
@@ -23,8 +25,7 @@ import {
 import { formatNumber, useQuery } from '@/hooks/use-query';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useAuthStore } from '@/store/auth-store';
-import { useTheme } from '@/hooks/use-theme';
-import { Spacing } from '@/constants/theme';
+import { ARCADE_COLORS, Spacing } from '@/constants/theme';
 
 type Period = 'day' | 'week' | 'month' | 'all';
 
@@ -51,22 +52,59 @@ function periodRange(period: Period): string | null {
 
 const CHART_DAYS = 14;
 
+function MiniStat({
+  icon,
+  label,
+  value,
+  color,
+}: {
+  icon: string;
+  label: string;
+  value: string;
+  color: string;
+}) {
+  return (
+    <ThemedView style={styles.miniCard}>
+      <ThemedText style={styles.miniIcon}>{icon}</ThemedText>
+      <ThemedText type="smallBold" style={[styles.miniValue, { color }]} numberOfLines={1}>
+        {value}
+      </ThemedText>
+      <ThemedText
+        type="small"
+        style={styles.miniLabel}
+        numberOfLines={1}
+        adjustsFontSizeToFit>
+        {label}
+      </ThemedText>
+    </ThemedView>
+  );
+}
+
 export default function StatsScreen() {
   const db = useSQLiteContext();
-  const theme = useTheme();
   const userId = useAuthStore((s) => s.userId) ?? 1;
   const [period, setPeriod] = useState<Period>('week');
   const [selectedProgExerciseId, setSelectedProgExerciseId] = useState<number | null>(null);
 
   const fromDate = periodRange(period);
+  const weekStart = todayStr(startOfWeek(new Date(), { weekStartsOn: 0 }));
 
-  const stats = useQuery(() => getStats(db, fromDate, userId));
-  const exercises = useQuery(() => listExercises(db));
-  const progression = useQuery(() =>
-    selectedProgExerciseId !== null
-      ? getExerciseProgression(db, selectedProgExerciseId, userId)
-      : Promise.resolve([]),
+  const statsQuery = useCallback(() => getStats(db, fromDate, userId), [db, fromDate, userId]);
+  const exercisesQuery = useCallback(() => listExercises(db), [db]);
+  const weeklyQuery = useCallback(
+    () => getWeeklySummary(db, weekStart, userId),
+    [db, weekStart, userId],
   );
+  const chartQuery = useCallback(() => {
+    const end = new Date();
+    const start = subDays(end, CHART_DAYS - 1);
+    return getDailyVolume(db, todayStr(start), todayStr(end), userId);
+  }, [db, userId]);
+
+  const stats = useQuery(statsQuery);
+  const exercises = useQuery(exercisesQuery);
+  const weekly = useQuery(weeklyQuery);
+  const chart = useQuery(chartQuery);
 
   const strengthExercises = useMemo(
     () => (exercises.data ?? []).filter((e: Exercise) => e.kind === 'strength'),
@@ -75,32 +113,46 @@ export default function StatsScreen() {
 
   const activeExercise =
     strengthExercises.find((e) => e.id === selectedProgExerciseId) ?? strengthExercises[0] ?? null;
+  const activeExerciseId = activeExercise?.id ?? null;
 
-  // Auto select first strength exercise if none selected
-  if (selectedProgExerciseId === null && activeExercise) {
-    setSelectedProgExerciseId(activeExercise.id);
-  }
+  const progressionQuery = useCallback(
+    () =>
+      activeExerciseId !== null
+        ? getExerciseProgression(db, activeExerciseId, userId)
+        : Promise.resolve([]),
+    [db, userId, activeExerciseId],
+  );
+  const progression = useQuery(progressionQuery);
 
-  const chart = useQuery(() => {
-    const end = new Date();
-    const start = subDays(end, CHART_DAYS - 1);
-    return getDailyVolume(db, todayStr(start), todayStr(end), userId);
-  });
-
-  const bars = useMemo(() => {
+  const volumePoints = useMemo<LineChartPoint[]>(() => {
     const map = new Map((chart.data ?? []).map((d) => [d.date, d.volume]));
     const today = new Date();
     return Array.from({ length: CHART_DAYS }, (_, i) => {
       const date = subDays(today, CHART_DAYS - 1 - i);
-      const key = todayStr(date);
-      return { date, key, volume: map.get(key) ?? 0 };
+      return {
+        label: format(date, 'EEEEE', { locale: ptBR }),
+        value: map.get(todayStr(date)) ?? 0,
+      };
     });
   }, [chart.data]);
 
-  const maxVolume = Math.max(...bars.map((b) => b.volume), 1);
+  const progressionPoints = useMemo<LineChartPoint[]>(
+    () =>
+      (progression.data ?? []).map((item) => ({
+        label: format(new Date(item.date + 'T00:00:00'), 'dd/MM'),
+        value: item.maxWeight,
+      })),
+    [progression.data],
+  );
 
-  const progData = progression.data ?? [];
-  const maxProgWeight = Math.max(...progData.map((p) => p.maxWeight), 1);
+  const weeklySummary = weekly.data;
+  const strengthDelta = weeklySummary?.strengthDelta ?? null;
+  const strengthColor =
+    strengthDelta === null
+      ? ARCADE_COLORS.textSecondary
+      : strengthDelta >= 0
+        ? ARCADE_COLORS.success
+        : ARCADE_COLORS.danger;
 
   async function handleExportBackup() {
     const json = await exportDatabaseBackup(db, userId);
@@ -119,14 +171,18 @@ export default function StatsScreen() {
   }
 
   return (
-    <ThemedView style={styles.flex}>
+    <ThemedView style={[styles.flex, { backgroundColor: ARCADE_COLORS.bgApp }]}>
       <SafeAreaView style={styles.flex}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <ThemedText type="title">Stats</ThemedText>
-              <View style={{ backgroundColor: '#26201B', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: '#FFD700' }}>
-                <ThemedText type="code" style={{ color: '#FFD700', fontSize: 10 }}>[CHARACTER SHEET]</ThemedText>
+            <View style={styles.titleRow}>
+              <ThemedText type="title" style={{ color: ARCADE_COLORS.text }}>
+                Stats
+              </ThemedText>
+              <View style={styles.badge}>
+                <ThemedText type="code" style={styles.badgeText}>
+                  [CHARACTER SHEET]
+                </ThemedText>
               </View>
             </View>
             <ThemedText type="small" style={styles.subtitle}>
@@ -134,72 +190,99 @@ export default function StatsScreen() {
             </ThemedText>
           </View>
 
-          <Segmented<Period> options={PERIOD_OPTIONS} value={period} onChange={setPeriod} />
+          <Segmented<Period>
+            options={PERIOD_OPTIONS}
+            value={period}
+            onChange={setPeriod}
+            tint={ARCADE_COLORS.primary}
+          />
 
           <View style={styles.statRow}>
-            <StatCard 
-              label="Volume total" 
-              value={stats.data?.volume ?? 0} 
-              unit="kg" 
-              style={{ backgroundColor: '#1A1631', borderColor: theme.retroBorder }}
+            <StatCard
+              label="Volume total"
+              value={stats.data?.volume ?? 0}
+              unit="kg"
+              style={styles.statCard}
             />
-            <StatCard 
-              label="Reps totais" 
-              value={stats.data?.reps ?? 0} 
-              unit="reps" 
-              style={{ backgroundColor: '#1A1631', borderColor: theme.retroBorder }}
+            <StatCard
+              label="Reps totais"
+              value={stats.data?.reps ?? 0}
+              unit="reps"
+              style={styles.statCard}
             />
           </View>
           <View style={styles.statRow}>
-            <StatCard 
-              label="Cardio" 
-              value={stats.data?.cardioMinutes ?? 0} 
-              unit="min" 
-              style={{ backgroundColor: '#1A1631', borderColor: theme.retroBorder }}
+            <StatCard
+              label="Cardio"
+              value={stats.data?.cardioMinutes ?? 0}
+              unit="min"
+              style={styles.statCard}
             />
-            <StatCard 
-              label="Treinos" 
-              value={stats.data?.sessions ?? 0} 
-              unit="" 
-              style={{ backgroundColor: '#1A1631', borderColor: theme.retroBorder }}
+            <StatCard
+              label="Treinos"
+              value={stats.data?.sessions ?? 0}
+              unit=""
+              style={styles.statCard}
             />
           </View>
 
-          <ThemedView type="backgroundElement" style={[styles.chartCard, { backgroundColor: '#1A1631', borderColor: theme.retroBorder }]}>
-            <ThemedText type="smallBold" style={styles.chartTitle}>
-              VOLUME — ÚLTIMOS {CHART_DAYS} DIAS
+          <View style={styles.section}>
+            <ThemedText type="smallBold" style={styles.sectionTitle}>
+              RESUMO DA SEMANA
             </ThemedText>
-            <View style={styles.chart}>
-              {bars.map((bar) => {
-                const height = Math.round((bar.volume / maxVolume) * 90);
-                const isToday = bar.key === todayStr();
-                return (
-                  <View key={bar.key} style={styles.barColumn}>
-                    <View style={styles.barArea}>
-                      <View
-                        style={{
-                          width: '100%',
-                          height,
-                          minHeight: bar.volume > 0 ? 4 : 2,
-                          borderRadius: 4,
-                          backgroundColor: isToday ? theme.accent : theme.backgroundSelected,
-                        }}
-                      />
-                    </View>
-                    <ThemedText type="code" style={styles.barLabel}>
-                      {format(bar.date, 'EEEEE', { locale: ptBR })}
-                    </ThemedText>
-                  </View>
-                );
-              })}
+            <View style={styles.miniRow}>
+              <MiniStat
+                icon="🏋"
+                label="Treinos"
+                value={formatNumber(weeklySummary?.workouts ?? 0)}
+                color={ARCADE_COLORS.info}
+              />
+              <MiniStat
+                icon="🏆"
+                label="Consistência"
+                value={`${weeklySummary?.consistency ?? 0}%`}
+                color={ARCADE_COLORS.success}
+              />
+              <MiniStat
+                icon="📶"
+                label="Força"
+                value={
+                  strengthDelta === null
+                    ? '—'
+                    : `${strengthDelta > 0 ? '+' : ''}${strengthDelta}%`
+                }
+                color={strengthColor}
+              />
             </View>
+          </View>
+
+          <ThemedView style={[styles.card, styles.chartCard]}>
+            <View style={styles.cardHeader}>
+              <ThemedText type="smallBold" style={styles.cardTitle}>
+                EVOLUÇÃO DE VOLUME
+              </ThemedText>
+              {strengthDelta !== null && (
+                <ThemedText type="code" style={[styles.delta, { color: strengthColor }]}>
+                  {`${strengthDelta >= 0 ? '↑' : '↓'} ${Math.abs(strengthDelta)}%`}
+                </ThemedText>
+              )}
+            </View>
+            <ThemedText type="small" style={styles.cardHint}>
+              Últimos {CHART_DAYS} dias · volume em kg
+            </ThemedText>
+            <LineChart data={volumePoints} />
           </ThemedView>
 
           {/* Exercise Progression Chart (TF.2) */}
-          <ThemedView type="backgroundElement" style={styles.chartCard}>
-            <ThemedText type="smallBold" style={styles.chartTitle}>
-              PROGRESSÃO DE CARGA ({activeExercise?.name?.toUpperCase() ?? 'EXERCÍCIO'})
-            </ThemedText>
+          <ThemedView style={[styles.card, styles.chartCard]}>
+            <View style={styles.cardHeader}>
+              <ThemedText type="smallBold" style={styles.cardTitle}>
+                PROGRESSÃO DE CARGA
+              </ThemedText>
+              <ThemedText type="code" style={styles.delta} numberOfLines={1}>
+                {activeExercise?.name?.toUpperCase() ?? '—'}
+              </ThemedText>
+            </View>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -210,48 +293,23 @@ export default function StatsScreen() {
                   label={exercise.name}
                   selected={activeExercise?.id === exercise.id}
                   onPress={() => setSelectedProgExerciseId(exercise.id)}
+                  tint={ARCADE_COLORS.primary}
                 />
               ))}
             </ScrollView>
 
-            {progData.length === 0 ? (
-              <ThemedText type="small" style={{ color: theme.textSecondary, textAlign: 'center', marginVertical: 12 }}>
-                Sem registros de carga para este exercício.
-              </ThemedText>
-            ) : (
-              <View style={[styles.chart, { marginTop: 8 }]}>
-                {progData.map((item) => {
-                  const height = Math.round((item.maxWeight / maxProgWeight) * 90);
-                  const dt = new Date(item.date + 'T00:00:00');
-                  return (
-                    <View key={item.date} style={styles.barColumn}>
-                      <View style={styles.barArea}>
-                        <View
-                          style={{
-                            width: '100%',
-                            height,
-                            minHeight: 4,
-                            borderRadius: 4,
-                            backgroundColor: theme.accent,
-                          }}
-                        />
-                      </View>
-                      <ThemedText type="code" style={styles.barLabel}>
-                        {format(dt, 'dd/MM')}
-                      </ThemedText>
-                    </View>
-                  );
-                })}
-              </View>
-            )}
+            <LineChart
+              data={progressionPoints}
+              emptyMessage="Sem registros de carga para este exercício."
+            />
           </ThemedView>
 
-          <View style={styles.rankingSection}>
-            <ThemedText type="smallBold" style={styles.rankingTitle}>
+          <View style={styles.section}>
+            <ThemedText type="smallBold" style={styles.sectionTitle}>
               POR EXERCÍCIO
             </ThemedText>
             {(stats.data?.perExercise ?? []).length === 0 && (
-              <ThemedText type="small" style={{ color: theme.textSecondary }}>
+              <ThemedText type="small" style={styles.emptyText}>
                 Sem dados neste período.
               </ThemedText>
             )}
@@ -261,39 +319,44 @@ export default function StatsScreen() {
                   {index + 1}
                 </ThemedText>
                 <View style={styles.rankInfo}>
-                  <ThemedText type="default">{exercise.name}</ThemedText>
-                  <ThemedText type="small" style={{ color: theme.textSecondary }}>
-                    {exercise.series} séries · máx {formatNumber(exercise.maxWeight, exercise.maxWeight % 1 === 0 ? 0 : 1)} kg
+                  <ThemedText type="default" style={{ color: ARCADE_COLORS.text }}>
+                    {exercise.name}
+                  </ThemedText>
+                  <ThemedText type="small" style={styles.rankSubtitle}>
+                    {exercise.series} séries · máx{' '}
+                    {formatNumber(
+                      exercise.maxWeight,
+                      exercise.maxWeight % 1 === 0 ? 0 : 1,
+                    )}{' '}
+                    kg
                   </ThemedText>
                 </View>
-                <ThemedText type="smallBold">{formatNumber(exercise.volume)} kg</ThemedText>
+                <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.text }}>
+                  {formatNumber(exercise.volume)} kg
+                </ThemedText>
               </View>
             ))}
           </View>
 
-          <Pressable
-            style={[styles.logoutButton, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
-            onPress={handleExportBackup}>
-            <ThemedText type="smallBold" style={{ color: theme.accent, textAlign: 'center' }}>
+          <Pressable style={styles.secondaryButton} onPress={handleExportBackup}>
+            <ThemedText type="smallBold" style={styles.secondaryButtonText}>
               Exportar Backup (JSON)
             </ThemedText>
           </Pressable>
 
-          <Pressable
-            style={[styles.logoutButton, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
-            onPress={handleExportCsv}>
-            <ThemedText type="smallBold" style={{ color: theme.accent, textAlign: 'center' }}>
+          <Pressable style={styles.secondaryButton} onPress={handleExportCsv}>
+            <ThemedText type="smallBold" style={styles.secondaryButtonText}>
               Exportar Histórico (CSV)
             </ThemedText>
           </Pressable>
 
           <Pressable
-            style={[styles.logoutButton, { backgroundColor: theme.backgroundElement, borderColor: theme.border }]}
+            style={styles.secondaryButton}
             onPress={() => {
               useAuthStore.getState().clearSession();
               router.replace('/(auth)/login');
             }}>
-            <ThemedText type="smallBold" style={{ color: theme.danger, textAlign: 'center' }}>
+            <ThemedText type="smallBold" style={[styles.secondaryButtonText, styles.dangerText]}>
               Sair da Conta (Logout)
             </ThemedText>
           </Pressable>
@@ -308,52 +371,110 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: Spacing.three,
     paddingBottom: 120,
-    gap: Spacing.three,
+    gap: Spacing.four,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+  },
+  badge: {
+    backgroundColor: ARCADE_COLORS.bgCard,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: ARCADE_COLORS.primary,
+  },
+  badgeText: {
+    color: ARCADE_COLORS.primary,
+    fontSize: 10,
   },
   subtitle: {
-    color: '#A89C8F',
+    color: ARCADE_COLORS.textSecondary,
     marginTop: 2,
   },
   statRow: {
     flexDirection: 'row',
     gap: Spacing.two,
   },
-  chartCard: {
+  statCard: {
+    backgroundColor: ARCADE_COLORS.bgCard,
+    borderColor: ARCADE_COLORS.border,
+    borderWidth: 1,
+  },
+  section: {
+    gap: Spacing.two,
+  },
+  sectionTitle: {
+    color: ARCADE_COLORS.textSecondary,
+    letterSpacing: 2,
+    fontSize: 11,
+  },
+  miniRow: {
+    flexDirection: 'row',
+    gap: Spacing.two,
+  },
+  miniCard: {
+    flex: 1,
+    backgroundColor: ARCADE_COLORS.bgCard,
+    borderColor: ARCADE_COLORS.border,
+    borderWidth: 1,
+    borderRadius: 14,
+    paddingVertical: Spacing.three,
+    paddingHorizontal: Spacing.two,
+    alignItems: 'center',
+    gap: 4,
+    minWidth: 0,
+  },
+  miniIcon: {
+    fontSize: 16,
+  },
+  miniValue: {
+    fontSize: 18,
+    lineHeight: 22,
+  },
+  miniLabel: {
+    color: ARCADE_COLORS.textSecondary,
+    fontSize: 11,
+  },
+  card: {
+    backgroundColor: ARCADE_COLORS.bgCard,
+    borderColor: ARCADE_COLORS.border,
+    borderWidth: 1,
     borderRadius: 16,
     padding: Spacing.three,
-    gap: Spacing.three,
+    gap: Spacing.two,
   },
-  chartTitle: {
-    color: '#A89C8F',
-    letterSpacing: 2,
+  chartCard: {
+    gap: Spacing.two,
   },
-  chart: {
+  cardHeader: {
     flexDirection: 'row',
-    gap: 4,
-  },
-  barColumn: {
-    flex: 1,
     alignItems: 'center',
-    gap: 6,
+    justifyContent: 'space-between',
+    gap: Spacing.two,
   },
-  barArea: {
-    height: 92,
-    width: '100%',
-    justifyContent: 'flex-end',
+  cardTitle: {
+    color: ARCADE_COLORS.textSecondary,
+    letterSpacing: 2,
+    fontSize: 11,
   },
-  barLabel: {
-    color: '#A89C8F',
+  cardHint: {
+    color: ARCADE_COLORS.textSecondary,
+    fontSize: 11,
+  },
+  delta: {
+    color: ARCADE_COLORS.success,
+    fontSize: 11,
+    flexShrink: 1,
   },
   chipsRow: {
     gap: Spacing.two,
     paddingVertical: 2,
   },
-  rankingSection: {
-    gap: Spacing.two,
-  },
-  rankingTitle: {
-    color: '#A89C8F',
-    letterSpacing: 2,
+  emptyText: {
+    color: ARCADE_COLORS.textSecondary,
   },
   rankingRow: {
     flexDirection: 'row',
@@ -361,21 +482,31 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#2B2119',
+    borderBottomColor: ARCADE_COLORS.border,
   },
   rankNumber: {
-    color: '#A89C8F',
+    color: ARCADE_COLORS.primary,
     width: 20,
   },
   rankInfo: {
     flex: 1,
   },
-  logoutButton: {
+  rankSubtitle: {
+    color: ARCADE_COLORS.textSecondary,
+  },
+  secondaryButton: {
     padding: 16,
     borderRadius: 14,
     borderWidth: 1,
-    marginTop: Spacing.two,
+    borderColor: 'rgba(124, 77, 255, 0.35)',
+    backgroundColor: ARCADE_COLORS.bgCard,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  secondaryButtonText: {
+    color: ARCADE_COLORS.primary,
+  },
+  dangerText: {
+    color: ARCADE_COLORS.danger,
   },
 });

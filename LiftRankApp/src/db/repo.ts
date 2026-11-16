@@ -312,6 +312,83 @@ export async function getDailyVolume(db: SQLiteDatabase, fromDate: string, toDat
   );
 }
 
+export interface WeeklySummary {
+  workouts: number;
+  plannedDays: number;
+  /** Percentual 0–100 de dias treinados sobre os dias planejados (fallback: 7 dias). */
+  consistency: number;
+  /** Variação percentual de volume vs semana anterior; `null` quando não há base. */
+  strengthDelta: number | null;
+}
+
+export function computeWeeklySummary({
+  trainedDays,
+  plannedDays,
+  currentVolume,
+  previousVolume,
+}: {
+  trainedDays: number;
+  plannedDays: number;
+  currentVolume: number;
+  previousVolume: number;
+}): WeeklySummary {
+  const goal = plannedDays > 0 ? plannedDays : 7;
+  const consistency = Math.min(Math.round((trainedDays / goal) * 100), 100);
+  const strengthDelta =
+    previousVolume > 0
+      ? Math.round(((currentVolume - previousVolume) / previousVolume) * 100)
+      : null;
+
+  return { workouts: trainedDays, plannedDays, consistency, strengthDelta };
+}
+
+export async function getWeeklySummary(
+  db: SQLiteDatabase,
+  weekStart: string,
+  userId = 1,
+): Promise<WeeklySummary> {
+  const start = strToDate(weekStart);
+  const end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6);
+  const previousStart = new Date(start.getFullYear(), start.getMonth(), start.getDate() - 7);
+  const previousEnd = new Date(start.getFullYear(), start.getMonth(), start.getDate() - 1);
+
+  const [trained, planned, current, previous] = await Promise.all([
+    db.getFirstAsync<{ n: number }>(
+      'SELECT COUNT(DISTINCT date) AS n FROM sessions WHERE date BETWEEN ? AND ? AND user_id = ?',
+      todayStr(start),
+      todayStr(end),
+      userId,
+    ),
+    db.getFirstAsync<{ n: number }>(
+      'SELECT COUNT(DISTINCT weekday) AS n FROM plan WHERE user_id = ?',
+      userId,
+    ),
+    db.getFirstAsync<{ v: number }>(
+      `SELECT COALESCE(SUM(s.weight * s.reps), 0) AS v
+       FROM sets s JOIN sessions se ON se.id = s.session_id
+       WHERE se.date BETWEEN ? AND ? AND se.user_id = ?`,
+      todayStr(start),
+      todayStr(end),
+      userId,
+    ),
+    db.getFirstAsync<{ v: number }>(
+      `SELECT COALESCE(SUM(s.weight * s.reps), 0) AS v
+       FROM sets s JOIN sessions se ON se.id = s.session_id
+       WHERE se.date BETWEEN ? AND ? AND se.user_id = ?`,
+      todayStr(previousStart),
+      todayStr(previousEnd),
+      userId,
+    ),
+  ]);
+
+  return computeWeeklySummary({
+    trainedDays: trained?.n ?? 0,
+    plannedDays: planned?.n ?? 0,
+    currentVolume: current?.v ?? 0,
+    previousVolume: previous?.v ?? 0,
+  });
+}
+
 export async function registerUser(
   db: SQLiteDatabase,
   name: string,
