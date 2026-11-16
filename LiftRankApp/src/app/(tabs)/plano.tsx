@@ -18,18 +18,7 @@ import {
 import { useQuery } from '@/hooks/use-query';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useAuthStore } from '@/store/auth-store';
-import { useTheme } from '@/hooks/use-theme';
-import { Spacing } from '@/constants/theme';
-
-const ARCADE_COLORS = {
-  bgApp: '#0E0B1E',
-  bgCard: '#1A1631',
-  primary: '#7C4DFF',
-  success: '#22D45F',
-  accent: '#F5B50A',
-  text: '#FFFFFF',
-  textSecondary: '#A9A5C4',
-};
+import { ARCADE_COLORS, Spacing } from '@/constants/theme';
 
 const DAYS: { label: string; weekday: number }[] = [
   { label: 'Segunda', weekday: 1 },
@@ -43,7 +32,6 @@ const DAYS: { label: string; weekday: number }[] = [
 
 export default function PlanoScreen() {
   const db = useSQLiteContext();
-  const theme = useTheme();
   const userId = useAuthStore((s) => s.userId) ?? 1;
   const todayWeekday = new Date().getDay();
 

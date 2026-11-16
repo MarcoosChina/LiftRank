@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, ViewStyle } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -10,18 +10,20 @@ export function StatCard({
   value,
   unit,
   accent,
+  style,
 }: {
   label: string;
   value: number;
   unit: string;
   accent?: boolean;
+  style?: ViewStyle;
 }) {
   const theme = useTheme();
   const decimals = value % 1 === 0 ? 0 : 1;
   return (
     <ThemedView
       type="backgroundElement"
-      style={[styles.card, accent && { backgroundColor: theme.accent }]}>
+      style={[styles.card, accent && { backgroundColor: theme.accent }, style]}>
       <ThemedText type="small" style={{ color: accent ? theme.accentInk : theme.textSecondary }}>
         {label}
       </ThemedText>

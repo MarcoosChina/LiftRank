@@ -64,5 +64,17 @@ export const Spacing = {
   six: 64,
 } as const;
 
+export const ARCADE_COLORS = {
+  bgApp: '#0E0B1E',
+  bgCard: '#1A1631',
+  primary: '#7C4DFF',
+  success: '#22D45F',
+  accent: '#F5B50A',
+  text: '#FFFFFF',
+  textPrimary: '#FFFFFF',
+  textSecondary: '#A9A5C4',
+  border: 'rgba(124, 77, 255, 0.25)',
+} as const;
+
 export const BottomTabInset = 88;
 export const MaxContentWidth = 800;

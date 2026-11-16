@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet, ViewStyle } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -8,10 +8,12 @@ export function Chip({
   label,
   selected,
   onPress,
+  style,
 }: {
   label: string;
   selected?: boolean;
   onPress?: () => void;
+  style?: ViewStyle;
 }) {
   const theme = useTheme();
   return (
@@ -24,6 +26,7 @@ export function Chip({
             borderColor: selected ? theme.accent : 'transparent',
             backgroundColor: selected ? theme.accent : theme.backgroundElement,
           },
+          style,
         ]}>
         <ThemedText
           type="smallBold"
