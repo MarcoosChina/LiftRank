@@ -1,0 +1,218 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144" width="144" height="144">
+  <!-- Grade de pixel art 48x48 escalada 3x para preencher exatos 144x144 (cada pixel = 3x3 unidades inteiras) -->
+  <g transform="scale(3)">
+    <!-- CONTORNO PRETO (#090A10) -->
+    <!-- Cabelo -->
+    <rect x="21" y="4" width="2" height="1" fill="#090A10" />
+    <rect x="20" y="5" width="1" height="1" fill="#090A10" /><rect x="23" y="5" width="6" height="1" fill="#090A10" />
+    <rect x="17" y="6" width="3" height="1" fill="#090A10" /><rect x="29" y="6" width="4" height="1" fill="#090A10" />
+    <rect x="16" y="7" width="1" height="1" fill="#090A10" /><rect x="32" y="7" width="2" height="1" fill="#090A10" />
+    <rect x="15" y="8" width="1" height="2" fill="#090A10" /><rect x="31" y="8" width="2" height="1" fill="#090A10" />
+    <rect x="32" y="9" width="2" height="1" fill="#090A10" />
+    <rect x="14" y="10" width="2" height="1" fill="#090A10" /><rect x="33" y="10" width="2" height="1" fill="#090A10" />
+    <rect x="15" y="11" width="1" height="1" fill="#090A10" /><rect x="32" y="11" width="2" height="1" fill="#090A10" />
+    <rect x="14" y="12" width="2" height="2" fill="#090A10" /><rect x="31" y="12" width="2" height="1" fill="#090A10" />
+    <rect x="31" y="13" width="3" height="1" fill="#090A10" />
+    <rect x="15" y="14" width="2" height="2" fill="#090A10" /><rect x="31" y="14" width="2" height="2" fill="#090A10" />
+
+    <!-- Halter Esquerdo (Contorno) -->
+    <rect x="3" y="12" width="4" height="1" fill="#090A10" /><rect x="11" y="12" width="3" height="1" fill="#090A10" />
+    <rect x="2" y="13" width="1" height="1" fill="#090A10" /><rect x="7" y="13" width="4" height="1" fill="#090A10" /><rect x="14" y="13" width="1" height="1" fill="#090A10" />
+    <rect x="1" y="14" width="1" height="5" fill="#090A10" /><rect x="14" y="14" width="1" height="5" fill="#090A10" />
+    <rect x="2" y="19" width="1" height="1" fill="#090A10" /><rect x="13" y="19" width="1" height="1" fill="#090A10" />
+    <rect x="3" y="20" width="4" height="1" fill="#090A10" /><rect x="11" y="20" width="3" height="1" fill="#090A10" />
+
+    <!-- Halter Direito (Contorno) -->
+    <rect x="34" y="12" width="3" height="1" fill="#090A10" /><rect x="41" y="12" width="4" height="1" fill="#090A10" />
+    <rect x="33" y="13" width="1" height="1" fill="#090A10" /><rect x="37" y="13" width="4" height="1" fill="#090A10" /><rect x="45" y="13" width="1" height="1" fill="#090A10" />
+    <rect x="33" y="14" width="1" height="5" fill="#090A10" /><rect x="46" y="14" width="1" height="5" fill="#090A10" />
+    <rect x="34" y="19" width="1" height="1" fill="#090A10" /><rect x="45" y="19" width="1" height="1" fill="#090A10" />
+    <rect x="34" y="20" width="3" height="1" fill="#090A10" /><rect x="41" y="20" width="4" height="1" fill="#090A10" />
+
+    <!-- Rosto, Pescoço, Braços e Tronco (Contorno) -->
+    <rect x="17" y="16" width="1" height="4" fill="#090A10" /><rect x="30" y="16" width="1" height="4" fill="#090A10" />
+    <rect x="18" y="20" width="1" height="2" fill="#090A10" /><rect x="29" y="20" width="1" height="2" fill="#090A10" />
+    <rect x="19" y="22" width="2" height="1" fill="#090A10" /><rect x="27" y="22" width="2" height="1" fill="#090A10" />
+    <rect x="21" y="23" width="6" height="1" fill="#090A10" />
+
+    <!-- Braço Esquerdo Contorno -->
+    <rect x="5" y="21" width="1" height="3" fill="#090A10" /><rect x="10" y="21" width="1" height="4" fill="#090A10" />
+    <rect x="4" y="24" width="1" height="2" fill="#090A10" /><rect x="11" y="24" width="3" height="1" fill="#090A10" />
+    <rect x="3" y="26" width="1" height="5" fill="#090A10" /><rect x="14" y="23" width="3" height="1" fill="#090A10" />
+    <rect x="17" y="22" width="2" height="1" fill="#090A10" />
+    <rect x="4" y="31" width="3" height="1" fill="#090A10" />
+    <rect x="7" y="32" width="5" height="1" fill="#090A10" />
+    <rect x="12" y="33" width="3" height="1" fill="#090A10" />
+    <rect x="15" y="34" width="1" height="2" fill="#090A10" />
+
+    <!-- Braço Direito Contorno -->
+    <rect x="37" y="21" width="1" height="4" fill="#090A10" /><rect x="42" y="21" width="1" height="3" fill="#090A10" />
+    <rect x="34" y="24" width="3" height="1" fill="#090A10" /><rect x="43" y="24" width="1" height="2" fill="#090A10" />
+    <rect x="31" y="23" width="3" height="1" fill="#090A10" /><rect x="44" y="26" width="1" height="5" fill="#090A10" />
+    <rect x="29" y="22" width="2" height="1" fill="#090A10" />
+    <rect x="41" y="31" width="3" height="1" fill="#090A10" />
+    <rect x="36" y="32" width="5" height="1" fill="#090A10" />
+    <rect x="33" y="33" width="3" height="1" fill="#090A10" />
+    <rect x="32" y="34" width="1" height="2" fill="#090A10" />
+
+    <!-- Tronco Lateral Contorno -->
+    <rect x="16" y="36" width="1" height="3" fill="#090A10" /><rect x="31" y="36" width="1" height="3" fill="#090A10" />
+    <rect x="17" y="39" width="1" height="4" fill="#090A10" /><rect x="30" y="39" width="1" height="4" fill="#090A10" />
+
+    <!-- CABELO CASTANHO (#5B2C16 escuro, #8A4523 base, #B86435 luz) -->
+    <!-- Base Castanho (#8A4523) -->
+    <rect x="21" y="5" width="2" height="1" fill="#8A4523" />
+    <rect x="20" y="6" width="9" height="1" fill="#8A4523" />
+    <rect x="17" y="7" width="15" height="1" fill="#8A4523" />
+    <rect x="16" y="8" width="15" height="1" fill="#8A4523" />
+    <rect x="16" y="9" width="16" height="1" fill="#8A4523" />
+    <rect x="16" y="10" width="17" height="1" fill="#8A4523" />
+    <rect x="16" y="11" width="16" height="1" fill="#8A4523" />
+    <rect x="16" y="12" width="15" height="1" fill="#8A4523" />
+    <rect x="16" y="13" width="15" height="1" fill="#8A4523" />
+    <rect x="17" y="14" width="3" height="1" fill="#8A4523" /><rect x="29" y="14" width="2" height="1" fill="#8A4523" />
+
+    <!-- Luz Cabelo (#B86435) -->
+    <rect x="21" y="6" width="2" height="1" fill="#B86435" /><rect x="25" y="6" width="3" height="1" fill="#B86435" />
+    <rect x="18" y="7" width="3" height="1" fill="#B86435" /><rect x="24" y="7" width="6" height="1" fill="#B86435" />
+    <rect x="17" y="8" width="3" height="1" fill="#B86435" /><rect x="23" y="8" width="5" height="1" fill="#B86435" />
+    <rect x="22" y="9" width="5" height="1" fill="#B86435" /><rect x="29" y="9" width="2" height="1" fill="#B86435" />
+    <rect x="17" y="10" width="2" height="1" fill="#B86435" /><rect x="26" y="10" width="4" height="1" fill="#B86435" />
+
+    <!-- Sombra Cabelo e Franja (#5B2C16) -->
+    <rect x="16" y="11" width="2" height="2" fill="#5B2C16" />
+    <rect x="19" y="12" width="2" height="2" fill="#5B2C16" /><rect x="23" y="12" width="2" height="2" fill="#5B2C16" /><rect x="27" y="12" width="3" height="2" fill="#5B2C16" />
+    <rect x="17" y="14" width="2" height="1" fill="#5B2C16" /><rect x="29" y="14" width="2" height="1" fill="#5B2C16" />
+
+    <!-- PELE (#F6AC76 base, #FFD1A6 luz, #C67145 sombra) -->
+    <!-- Rosto e Pescoço -->
+    <rect x="20" y="14" width="9" height="1" fill="#F6AC76" />
+    <rect x="19" y="15" width="11" height="1" fill="#F6AC76" />
+    <rect x="18" y="16" width="12" height="4" fill="#F6AC76" />
+    <rect x="19" y="20" width="10" height="2" fill="#F6AC76" />
+    <rect x="21" y="22" width="6" height="1" fill="#F6AC76" />
+
+    <!-- Orelhas -->
+    <rect x="17" y="17" width="1" height="2" fill="#F6AC76" /><rect x="30" y="17" width="1" height="2" fill="#F6AC76" />
+
+    <!-- Sombra Rosto e Pescoço (#C67145) -->
+    <rect x="20" y="14" width="9" height="1" fill="#C67145" />
+    <rect x="18" y="17" width="1" height="2" fill="#C67145" /><rect x="29" y="17" width="1" height="2" fill="#C67145" />
+    <rect x="20" y="21" width="8" height="1" fill="#C67145" />
+    <rect x="21" y="22" width="6" height="1" fill="#C67145" />
+
+    <!-- Expressão Confiante (Sobrancelhas, Olhos, Nariz, Sorriso) -->
+    <!-- Sobrancelhas -->
+    <rect x="20" y="15" width="3" height="1" fill="#090A10" /><rect x="26" y="15" width="3" height="1" fill="#090A10" />
+    <!-- Olhos -->
+    <rect x="20" y="16" width="1" height="2" fill="#FFFFFF" /><rect x="21" y="16" width="2" height="2" fill="#090A10" />
+    <rect x="26" y="16" width="1" height="2" fill="#FFFFFF" /><rect x="27" y="16" width="2" height="2" fill="#090A10" />
+    <!-- Nariz -->
+    <rect x="25" y="17" width="1" height="2" fill="#C67145" />
+    <rect x="24" y="18" width="1" height="1" fill="#C67145" />
+    <!-- Boca (sorriso confiante de canto) -->
+    <rect x="22" y="19" width="1" height="1" fill="#C67145" />
+    <rect x="23" y="20" width="3" height="1" fill="#C67145" />
+    <rect x="26" y="19" width="1" height="1" fill="#C67145" />
+
+    <!-- Peitoral Superior e Clavícula -->
+    <rect x="19" y="23" width="10" height="5" fill="#F6AC76" />
+    <rect x="20" y="24" width="8" height="1" fill="#C67145" />
+    <rect x="22" y="26" width="4" height="1" fill="#C67145" />
+    <rect x="21" y="25" width="2" height="1" fill="#FFD1A6" /><rect x="25" y="25" width="2" height="1" fill="#FFD1A6" />
+
+    <!-- Braço e Mão Esquerda -->
+    <rect x="7" y="14" width="4" height="5" fill="#F6AC76" />
+    <rect x="8" y="14" width="1" height="3" fill="#C67145" /><rect x="10" y="14" width="1" height="3" fill="#C67145" />
+    <rect x="7" y="17" width="4" height="1" fill="#FFD1A6" />
+    <rect x="6" y="20" width="4" height="4" fill="#F6AC76" />
+    <rect x="6" y="21" width="4" height="1" fill="#C67145" />
+    <!-- Antebraço e Bíceps Esquerdo -->
+    <rect x="5" y="24" width="5" height="7" fill="#F6AC76" />
+    <rect x="4" y="26" width="3" height="5" fill="#F6AC76" />
+    <rect x="5" y="25" width="2" height="4" fill="#FFD1A6" />
+    <rect x="8" y="25" width="2" height="6" fill="#C67145" />
+    <rect x="6" y="30" width="4" height="1" fill="#C67145" />
+    <!-- Ombro e Bíceps Interno Esquerdo -->
+    <rect x="10" y="25" width="8" height="7" fill="#F6AC76" />
+    <rect x="14" y="24" width="4" height="4" fill="#F6AC76" />
+    <rect x="14" y="25" width="3" height="2" fill="#FFD1A6" />
+    <rect x="11" y="27" width="3" height="2" fill="#FFD1A6" />
+    <rect x="10" y="29" width="7" height="3" fill="#C67145" />
+    <rect x="14" y="32" width="3" height="2" fill="#C67145" />
+
+    <!-- Braço e Mão Direita (Simétrico) -->
+    <rect x="37" y="14" width="4" height="5" fill="#F6AC76" />
+    <rect x="37" y="14" width="1" height="3" fill="#C67145" /><rect x="39" y="14" width="1" height="3" fill="#C67145" />
+    <rect x="37" y="17" width="4" height="1" fill="#FFD1A6" />
+    <rect x="38" y="20" width="4" height="4" fill="#F6AC76" />
+    <rect x="38" y="21" width="4" height="1" fill="#C67145" />
+    <!-- Antebraço e Bíceps Direito -->
+    <rect x="38" y="24" width="5" height="7" fill="#F6AC76" />
+    <rect x="41" y="26" width="3" height="5" fill="#F6AC76" />
+    <rect x="41" y="25" width="2" height="4" fill="#FFD1A6" />
+    <rect x="38" y="25" width="2" height="6" fill="#C67145" />
+    <rect x="38" y="30" width="4" height="1" fill="#C67145" />
+    <!-- Ombro e Bíceps Interno Direito -->
+    <rect x="30" y="25" width="8" height="7" fill="#F6AC76" />
+    <rect x="30" y="24" width="4" height="4" fill="#F6AC76" />
+    <rect x="31" y="25" width="3" height="2" fill="#FFD1A6" />
+    <rect x="34" y="27" width="3" height="2" fill="#FFD1A6" />
+    <rect x="31" y="29" width="7" height="3" fill="#C67145" />
+    <rect x="31" y="32" width="3" height="2" fill="#C67145" />
+
+    <!-- REGATA PRETA (#1D202B base, #313647 luz, #090A10 sombra) -->
+    <!-- Alças da Regata -->
+    <rect x="18" y="23" width="2" height="5" fill="#1D202B" />
+    <rect x="28" y="23" width="2" height="5" fill="#1D202B" />
+    <rect x="18" y="23" width="1" height="4" fill="#313647" />
+    <rect x="29" y="23" width="1" height="4" fill="#313647" />
+    <!-- Gola -->
+    <rect x="20" y="27" width="1" height="1" fill="#090A10" /><rect x="27" y="27" width="1" height="1" fill="#090A10" />
+    <rect x="21" y="28" width="6" height="1" fill="#090A10" />
+    <!-- Tronco da Regata -->
+    <rect x="18" y="28" width="12" height="15" fill="#1D202B" />
+    <rect x="17" y="32" width="1" height="7" fill="#1D202B" />
+    <rect x="30" y="32" width="1" height="7" fill="#1D202B" />
+    <!-- Volume Peitoral na Regata -->
+    <rect x="19" y="30" width="4" height="3" fill="#313647" />
+    <rect x="25" y="30" width="4" height="3" fill="#313647" />
+    <rect x="19" y="33" width="4" height="1" fill="#090A10" />
+    <rect x="25" y="33" width="4" height="1" fill="#090A10" />
+    <!-- Sombras Laterais e Dobras -->
+    <rect x="17" y="33" width="2" height="6" fill="#090A10" />
+    <rect x="29" y="33" width="2" height="6" fill="#090A10" />
+    <rect x="18" y="39" width="2" height="4" fill="#090A10" />
+    <rect x="28" y="39" width="2" height="4" fill="#090A10" />
+    <rect x="21" y="37" width="6" height="1" fill="#313647" />
+
+    <!-- HALTERES AZUL / CIANO (#0B4F9E escuro, #1282DB médio, #3AE3FF ciano luz) -->
+    <!-- Halter Esquerdo -->
+    <!-- Anilha Externa -->
+    <rect x="3" y="13" width="4" height="7" fill="#1282DB" />
+    <rect x="4" y="13" width="3" height="2" fill="#3AE3FF" />
+    <rect x="3" y="18" width="4" height="2" fill="#0B4F9E" />
+    <rect x="2" y="15" width="1" height="3" fill="#0B4F9E" />
+    <rect x="3" y="15" width="1" height="2" fill="#3AE3FF" />
+    <!-- Barra Central -->
+    <rect x="7" y="16" width="4" height="1" fill="#0B4F9E" />
+    <!-- Anilha Interna -->
+    <rect x="11" y="13" width="3" height="7" fill="#1282DB" />
+    <rect x="11" y="13" width="3" height="2" fill="#3AE3FF" />
+    <rect x="11" y="18" width="3" height="2" fill="#0B4F9E" />
+
+    <!-- Halter Direito -->
+    <!-- Anilha Interna -->
+    <rect x="34" y="13" width="3" height="7" fill="#1282DB" />
+    <rect x="34" y="13" width="3" height="2" fill="#3AE3FF" />
+    <rect x="34" y="18" width="3" height="2" fill="#0B4F9E" />
+    <!-- Barra Central -->
+    <rect x="37" y="16" width="4" height="1" fill="#0B4F9E" />
+    <!-- Anilha Externa -->
+    <rect x="41" y="13" width="4" height="7" fill="#1282DB" />
+    <rect x="41" y="13" width="3" height="2" fill="#3AE3FF" />
+    <rect x="41" y="18" width="4" height="2" fill="#0B4F9E" />
+    <rect x="45" y="15" width="1" height="3" fill="#0B4F9E" />
+    <rect x="44" y="15" width="1" height="2" fill="#3AE3FF" />
+  </g>
+</svg>
