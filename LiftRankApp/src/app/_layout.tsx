@@ -22,6 +22,7 @@ import {
   JetBrainsMono_400Regular,
   JetBrainsMono_700Bold,
 } from '@expo-google-fonts/jetbrains-mono';
+import { PressStart2P_400Regular } from '@expo-google-fonts/press-start-2p';
 
 import { ThemedView } from '@/components/themed-view';
 import { Colors, Fonts } from '@/constants/theme';
@@ -58,6 +59,7 @@ export default function RootLayout() {
     Barlow_700Bold,
     JetBrainsMono_400Regular,
     JetBrainsMono_700Bold,
+    PressStart2P_400Regular,
   });
 
   useEffect(() => {

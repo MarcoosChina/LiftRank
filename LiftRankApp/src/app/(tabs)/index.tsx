@@ -1,19 +1,20 @@
 import * as Haptics from 'expo-haptics';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState, type ElementRef } from 'react';
-import { Keyboard, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Keyboard, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 import { Chip } from '@/components/chip';
+import { MascoteAvatar } from '@/components/mascote-avatar';
 import { PrimaryButton } from '@/components/primary-button';
 import { Segmented } from '@/components/segmented';
 import { StatCard } from '@/components/stat-card';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { PlayerHud } from '@/components/player-hud';
+import { PlayerHud, computeLevel } from '@/components/player-hud';
 import {
   addCardio,
   addSet,
@@ -34,7 +35,7 @@ import { formatNumber, parseDecimal, useQuery } from '@/hooks/use-query';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useAuthStore } from '@/store/auth-store';
 import { useTheme } from '@/hooks/use-theme';
-import { ARCADE_COLORS, Spacing } from '@/constants/theme';
+import { ARCADE_COLORS, Fonts, Spacing } from '@/constants/theme';
 
 type Kind = 'strength' | 'cardio';
 
@@ -100,13 +101,6 @@ export default function HojeScreen() {
   const selected: Exercise | null =
     visible.find((e) => e.id === selectedId) ?? visible[0] ?? null;
 
-  const summary = useMemo(() => {
-    const volume = (sets.data ?? []).reduce((acc, s) => acc + s.weight * s.reps, 0);
-    const reps = (sets.data ?? []).reduce((acc, s) => acc + s.reps, 0);
-    const cardioMinutes = (cardio.data ?? []).reduce((acc, c) => acc + c.minutes, 0);
-    return { volume, reps, cardioMinutes };
-  }, [sets.data, cardio.data]);
-
   const setsByExercise = useMemo(() => {
     return (sets.data ?? []).filter((s) => s.exercise_id === selected?.id);
   }, [sets.data, selected]);
@@ -167,6 +161,49 @@ export default function HojeScreen() {
 
   const hasPlan = (planToday.data ?? []).length > 0;
 
+  /** Cabeçalho (skill.md §5.2): engrenagem com ações da conta. */
+  function openSettings() {
+    Alert.alert('Configurações', 'O que você deseja fazer?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Sair da Conta',
+        style: 'destructive',
+        onPress: () => {
+          useAuthStore.getState().clearSession();
+          router.replace('/(auth)/login');
+        },
+      },
+    ]);
+  }
+
+  /** Métricas rápidas da Home (skill.md §5.5): treinos, consistência e força. */
+  const quickMetrics = useMemo(() => {
+    const list = sessions.data ?? [];
+    const now = new Date(`${today}T00:00:00`).getTime();
+    const dayMs = 86_400_000;
+    const daysLast7 = new Set<string>();
+    let volLast7 = 0;
+    let volPrev7 = 0;
+    for (const s of list) {
+      const diffDays = Math.floor((now - new Date(`${s.date}T00:00:00`).getTime()) / dayMs);
+      if (diffDays >= 0 && diffDays < 7) {
+        daysLast7.add(s.date);
+        volLast7 += s.volume;
+      } else if (diffDays >= 7 && diffDays < 14) {
+        volPrev7 += s.volume;
+      }
+    }
+    const consistency = Math.round(Math.min(daysLast7.size, 7) * (100 / 7));
+    const strength = volPrev7 > 0 ? Math.round(((volLast7 - volPrev7) / volPrev7) * 100) : 0;
+    return { workouts: list.length, consistency, strength };
+  }, [sessions.data, today]);
+
+  /** Nível/XP do jogador — compartilhado com o PlayerHud. */
+  const playerLevel = useMemo(
+    () => computeLevel(stats.data?.volume ?? 0, (sessions.data ?? []).length),
+    [stats.data, sessions.data],
+  );
+
   /** Seleciona o próximo exercício planejado ainda não concluído e rola até o formulário. */
   async function handleContinueWorkout() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -199,8 +236,18 @@ export default function HojeScreen() {
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
-          <View>
-            <ThemedText type="title">Hoje</ThemedText>
+          <View style={styles.header}>
+            <View style={styles.headerRow}>
+              <ThemedText style={styles.wordmark}>
+                <ThemedText style={{ color: '#FFFFFF' }}>Lift</ThemedText>
+                <ThemedText style={{ color: ARCADE_COLORS.accent }}>Rank</ThemedText>
+              </ThemedText>
+              <Pressable onPress={openSettings} hitSlop={8}>
+                <ThemedText type="subtitle" style={{ fontSize: 20 }}>
+                  ⚙️
+                </ThemedText>
+              </Pressable>
+            </View>
             <ThemedText type="small" style={styles.date}>
               {format(new Date(), "EEEE, d 'de' MMMM", { locale: ptBR })}
             </ThemedText>
@@ -213,17 +260,41 @@ export default function HojeScreen() {
           />
 
           {restSeconds !== null && (
-            <ThemedView type="backgroundElement" style={[styles.timerCard, { borderColor: theme.accent, borderWidth: 1 }]}>
+            <ThemedView
+              type="backgroundElement"
+              style={[
+                styles.timerCard,
+                {
+                  backgroundColor: ARCADE_COLORS.bgCardBlue,
+                  borderColor: ARCADE_COLORS.accent,
+                  borderWidth: 1,
+                },
+              ]}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <View>
-                  <ThemedText type="small" style={{ color: theme.textSecondary }}>⏱ TEMPO DE DESCANSO</ThemedText>
-                  <ThemedText type="title" style={{ color: theme.accent, fontSize: 28 }}>{formatTime(restSeconds)}</ThemedText>
+                  <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                    ⏱ TEMPO DE DESCANSO
+                  </ThemedText>
+                  <ThemedText
+                    type="title"
+                    style={{
+                      color: ARCADE_COLORS.accent,
+                      fontSize: 30,
+                      fontFamily: Fonts.monoBold,
+                      textShadowColor: ARCADE_COLORS.accent,
+                      textShadowOffset: { width: 0, height: 0 },
+                      textShadowRadius: 10,
+                    }}>
+                    {formatTime(restSeconds)}
+                  </ThemedText>
                 </View>
                 <View style={{ flexDirection: 'row', gap: Spacing.two }}>
                   <Pressable
                     style={styles.timerBtn}
                     onPress={() => setRestSeconds((s) => (s ?? 0) + 30)}>
-                    <ThemedText type="smallBold">+30s</ThemedText>
+                    <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.accent }}>
+                      +30s
+                    </ThemedText>
                   </Pressable>
                   <Pressable
                     style={styles.timerBtn}
@@ -238,6 +309,7 @@ export default function HojeScreen() {
                     key={sec}
                     label={`${sec}s`}
                     selected={restDuration === sec}
+                    tint={theme.primary}
                     onPress={() => {
                       setRestDuration(sec);
                       setRestSeconds(sec);
@@ -256,10 +328,36 @@ export default function HojeScreen() {
             </ThemedView>
           )}
 
-          <View style={styles.summaryRow}>
-            <StatCard label="Volume" value={summary.volume} unit="kg" />
-            <StatCard label="Reps" value={summary.reps} unit="" />
-            <StatCard label="Cardio" value={summary.cardioMinutes} unit="min" />
+          <View style={{ gap: Spacing.two }}>
+            <View style={styles.sectionHeader}>
+              <ThemedText type="small" style={{ color: theme.textSecondary, letterSpacing: 1 }}>
+                SEU PROGRESSO
+              </ThemedText>
+              <Link href="/stats" asChild>
+                <Pressable hitSlop={6}>
+                  <ThemedText type="small" style={{ color: ARCADE_COLORS.info }}>
+                    Ver detalhes →
+                  </ThemedText>
+                </Pressable>
+              </Link>
+            </View>
+            <View style={styles.summaryRow}>
+              <StatCard icon="🏋️" label="Treinos" value={quickMetrics.workouts} unit="" />
+              <StatCard icon="🏆" label="Consistência" value={quickMetrics.consistency} unit="%" />
+              <StatCard
+                icon="📈"
+                label="Força"
+                value={quickMetrics.strength}
+                unit="%"
+                valueColor={
+                  quickMetrics.strength > 0
+                    ? ARCADE_COLORS.success
+                    : quickMetrics.strength < 0
+                      ? ARCADE_COLORS.danger
+                      : undefined
+                }
+              />
+            </View>
           </View>
 
           {hasPlan && (
@@ -311,6 +409,73 @@ export default function HojeScreen() {
               </Pressable>
             </Link>
           )}
+
+          {/* Cartão "Sua Evolução" (skill.md §5.6) */}
+          <ThemedView
+            style={{
+              backgroundColor: ARCADE_COLORS.bgCard,
+              borderWidth: 1,
+              borderColor: ARCADE_COLORS.border,
+              borderRadius: 16,
+              padding: Spacing.three,
+              gap: Spacing.two,
+            }}>
+            <ThemedText type="small" style={{ color: theme.textSecondary, letterSpacing: 1 }}>
+              SUA EVOLUÇÃO
+            </ThemedText>
+            <View
+              style={{ flexDirection: 'row', alignItems: 'flex-end', gap: Spacing.three }}>
+              <View style={{ alignItems: 'center' }}>
+                <MascoteAvatar size={44} />
+                {/* plataforma pixel */}
+                <View
+                  style={{
+                    width: 56,
+                    height: 8,
+                    backgroundColor: '#3A2A7A',
+                    borderRadius: 2,
+                    marginTop: 3,
+                  }}
+                />
+              </View>
+              <ThemedText style={{ fontSize: 26 }}>⬆️</ThemedText>
+              <View style={{ flex: 1 }} />
+              {/* selo dourado */}
+              <View
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 22,
+                  backgroundColor: '#26201B',
+                  borderWidth: 1,
+                  borderColor: '#FFD700',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <ThemedText type="subtitle" style={{ color: '#FFD700' }}>
+                  ★
+                </ThemedText>
+              </View>
+            </View>
+            {/* caixa translúcida: próximo nível */}
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                borderRadius: 10,
+                paddingHorizontal: Spacing.three,
+                paddingVertical: 10,
+              }}>
+              <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                PRÓXIMO NÍVEL · Nível {playerLevel.level}
+              </ThemedText>
+              <ThemedText type="smallBold" style={{ color: '#FFD700' }}>
+                {playerLevel.xpRemaining} XP
+              </ThemedText>
+            </View>
+          </ThemedView>
 
           <Segmented<Kind>
             options={[
@@ -467,6 +632,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.three,
     paddingBottom: 120,
     gap: Spacing.three,
+  },
+  header: {
+    gap: 4,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  wordmark: {
+    fontFamily: Fonts.pixel,
+    fontSize: 16,
+    letterSpacing: 1,
+    textShadowColor: 'rgba(0, 0, 0, 0.6)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 0,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   date: {
     textTransform: 'capitalize',

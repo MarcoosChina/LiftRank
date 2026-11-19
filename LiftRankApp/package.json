@@ -6,6 +6,7 @@
     "@expo-google-fonts/barlow": "^0.4.1",
     "@expo-google-fonts/jetbrains-mono": "^0.4.1",
     "@expo-google-fonts/oswald": "^0.4.2",
+    "@expo-google-fonts/press-start-2p": "^0.4.1",
     "@expo/ui": "~58.0.25",
     "@types/jest": "30.0.0",
     "date-fns": "^4.4.0",

@@ -73,6 +73,8 @@ export const Fonts = {
   /** Números — monoespaçada de precisão */
   mono: 'JetBrainsMono_400Regular',
   monoBold: 'JetBrainsMono_700Bold',
+  /** Marca/celebração — fonte pixel arcade (skill.md §1/§3) */
+  pixel: 'PressStart2P_400Regular',
 } as const;
 
 export const Spacing = {

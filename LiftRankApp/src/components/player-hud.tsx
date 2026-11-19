@@ -1,8 +1,18 @@
 import { StyleSheet, View } from 'react-native';
+import { MascoteAvatar } from '@/components/mascote-avatar';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/hooks/use-theme';
 import { Spacing } from '@/constants/theme';
+
+/** XP por nível e cálculo de progresso — usado pelo HUD e pelo cartão "Sua Evolução". */
+export function computeLevel(totalVolume = 0, workoutCount = 0) {
+  const xpTotal = Math.floor(totalVolume / 10 + workoutCount * 500);
+  const level = Math.floor(xpTotal / 5000) + 1;
+  const xpCurrent = xpTotal % 5000;
+  const xpProgress = Math.min(Math.max(xpCurrent / 5000, 0.05), 1);
+  return { xpTotal, level, xpCurrent, xpRemaining: 5000 - xpCurrent, xpProgress };
+}
 
 export function PlayerHud({
   totalVolume = 0,
@@ -15,17 +25,13 @@ export function PlayerHud({
 }) {
   const theme = useTheme();
 
-  // Calculate Level and XP (1 level per 5000 XP)
-  const xpTotal = Math.floor(totalVolume / 10 + workoutCount * 500);
-  const level = Math.floor(xpTotal / 5000) + 1;
-  const xpCurrent = xpTotal % 5000;
-  const xpProgress = Math.min(Math.max(xpCurrent / 5000, 0.05), 1);
+  const { level, xpCurrent, xpProgress } = computeLevel(totalVolume, workoutCount);
 
   return (
     <ThemedView type="backgroundElement" style={[styles.container, { borderColor: theme.border }]}>
       <View style={styles.topRow}>
         <View style={styles.avatarPlaceholder}>
-          <ThemedText style={{ fontSize: 24 }}>👾</ThemedText>
+          <MascoteAvatar size={44} />
         </View>
         
         <View style={styles.levelSection}>
@@ -73,6 +79,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
+    overflow: 'hidden',
     backgroundColor: '#1A1631',
     borderWidth: 2,
     borderColor: '#00FF66', // Borda verde-água

@@ -11,34 +11,64 @@ export function StatCard({
   unit,
   accent,
   style,
+  icon,
+  valueColor,
 }: {
   label: string;
   value: number;
   unit: string;
   accent?: boolean;
   style?: ViewStyle;
+  /** Ícone exibido no topo (skill.md §5.5 — métricas rápidas). */
+  icon?: string;
+  /** Cor customizada do número (ex.: verde/vermelho de variação). */
+  valueColor?: string;
 }) {
   const theme = useTheme();
   const decimals = value % 1 === 0 ? 0 : 1;
+  const number = (
+    <ThemedText
+      type="stat"
+      style={{ color: valueColor ?? (accent ? theme.accentInk : theme.text) }}
+      numberOfLines={1}
+      adjustsFontSizeToFit>
+      {formatNumber(value, decimals)}
+    </ThemedText>
+  );
+  const unitText = (
+    <ThemedText type="small" style={{ color: accent ? theme.accentInk : theme.textSecondary }}>
+      {unit}
+    </ThemedText>
+  );
+  const labelText = (
+    <ThemedText type="small" style={{ color: accent ? theme.accentInk : theme.textSecondary }}>
+      {label}
+    </ThemedText>
+  );
   return (
     <ThemedView
       type="backgroundElement"
       style={[styles.card, accent && { backgroundColor: theme.accent }, style]}>
-      <ThemedText type="small" style={{ color: accent ? theme.accentInk : theme.textSecondary }}>
-        {label}
-      </ThemedText>
-      <View style={styles.row}>
-        <ThemedText
-          type="stat"
-          style={{ color: accent ? theme.accentInk : theme.text }}
-          numberOfLines={1}
-          adjustsFontSizeToFit>
-          {formatNumber(value, decimals)}
-        </ThemedText>
-        <ThemedText type="small" style={{ color: accent ? theme.accentInk : theme.textSecondary }}>
-          {unit}
-        </ThemedText>
-      </View>
+      {icon ? (
+        <>
+          <ThemedText type="subtitle" style={{ fontSize: 18 }}>
+            {icon}
+          </ThemedText>
+          <View style={styles.row}>
+            {number}
+            {unitText}
+          </View>
+          {labelText}
+        </>
+      ) : (
+        <>
+          {labelText}
+          <View style={styles.row}>
+            {number}
+            {unitText}
+          </View>
+        </>
+      )}
     </ThemedView>
   );
 }
