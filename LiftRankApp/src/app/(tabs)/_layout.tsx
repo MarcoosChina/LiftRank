@@ -1,10 +1,17 @@
 import { Tabs } from 'expo-router';
 import type { BottomTabBarProps } from 'expo-router/tabs';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Image, Pressable, StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { useTheme } from '@/hooks/use-theme';
+import { ARCADE_COLORS } from '@/constants/theme';
+
+const TAB_ICONS: Record<string, number> = {
+  index: require('../../../assets/images/icones/ico-home.png'),
+  plano: require('../../../assets/images/icones/ico-plano.png'),
+  historico: require('../../../assets/images/icones/ico-historico.png'),
+  stats: require('../../../assets/images/icones/ico-stats.png'),
+};
 
 const TABS: { name: string; label: string }[] = [
   { name: 'index', label: 'Hoje' },
@@ -14,24 +21,25 @@ const TABS: { name: string; label: string }[] = [
 ];
 
 function TabBar({ state, insets, navigateToTab }: BottomTabBarProps) {
-  const theme = useTheme();
-
   return (
     <ThemedView
       type="backgroundElement"
       style={[styles.tabBar, { paddingBottom: Math.max(insets.bottom, 12) }]}>
       {TABS.map((tab, index) => {
         const focused = state.routes[state.index]?.name === tab.name;
+        // skill.md §5.1: aba ativa em dourado (Início) ou roxo vibrante; inativas cinza-lilás.
+        const tint = focused
+          ? tab.name === 'index'
+            ? ARCADE_COLORS.accent
+            : ARCADE_COLORS.primary
+          : ARCADE_COLORS.textSecondary;
         return (
           <Pressable
             key={tab.name}
             style={styles.tab}
             onPress={() => navigateToTab(state.routes[index].key)}>
-            <View style={[styles.dot, focused && { backgroundColor: theme.accent }]} />
-            <ThemedText
-              type="smallBold"
-              style={{ color: focused ? theme.text : theme.textSecondary }}
-              numberOfLines={1}>
+            <Image source={TAB_ICONS[tab.name]} style={{ width: 24, height: 24, tintColor: tint }} />
+            <ThemedText type="smallBold" style={{ color: tint }} numberOfLines={1}>
               {tab.label}
             </ThemedText>
           </Pressable>
@@ -63,11 +71,5 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     gap: 4,
-  },
-  dot: {
-    width: 18,
-    height: 3,
-    borderRadius: 999,
-    backgroundColor: 'transparent',
   },
 });

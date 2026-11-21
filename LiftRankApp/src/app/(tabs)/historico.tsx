@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Image, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMemo, useState } from 'react';
 import { format } from 'date-fns';
@@ -19,6 +19,8 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useAuthStore } from '@/store/auth-store';
 import { useTheme } from '@/hooks/use-theme';
 import { ARCADE_COLORS, Fonts, Spacing } from '@/constants/theme';
+
+const ICO_HISTORICO = require('../../../assets/images/icones/ico-historico.png');
 
 export default function HistoricoScreen() {
   const db = useSQLiteContext();
@@ -70,6 +72,10 @@ export default function HistoricoScreen() {
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Image
+                source={ICO_HISTORICO}
+                style={{ width: 24, height: 24, tintColor: ARCADE_COLORS.primary }}
+              />
               <ThemedText type="title" style={{ color: ARCADE_COLORS.textPrimary }}>Histórico</ThemedText>
               <View style={{ backgroundColor: ARCADE_COLORS.bgCard, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: ARCADE_COLORS.primary }}>
                 <ThemedText type="code" style={{ color: ARCADE_COLORS.primary, fontSize: 10 }}>[ADVENTURE LOG]</ThemedText>

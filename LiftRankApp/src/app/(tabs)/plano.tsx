@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Image, Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 
@@ -19,6 +19,9 @@ import { useQuery } from '@/hooks/use-query';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useAuthStore } from '@/store/auth-store';
 import { ARCADE_COLORS, Spacing } from '@/constants/theme';
+
+const ICO_PLANO = require('../../../assets/images/icones/ico-plano.png');
+const BANNER_PLANO = require('../../../assets/images/icones/banner-plano.png');
 
 const DAYS: { label: string; weekday: number }[] = [
   { label: 'Segunda', weekday: 1 },
@@ -66,6 +69,10 @@ export default function PlanoScreen() {
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Image
+                source={ICO_PLANO}
+                style={{ width: 24, height: 24, tintColor: ARCADE_COLORS.primary }}
+              />
               <ThemedText type="title" style={{ color: ARCADE_COLORS.text }}>Plano</ThemedText>
               <View style={{ backgroundColor: ARCADE_COLORS.bgCard, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: ARCADE_COLORS.primary }}>
                 <ThemedText type="code" style={{ color: ARCADE_COLORS.primary, fontSize: 10 }}>[QUEST LOG]</ThemedText>
@@ -75,6 +82,13 @@ export default function PlanoScreen() {
               Missões e treinos da semana
             </ThemedText>
           </View>
+
+          {/* Banner de conquista (skill.md §5.7) */}
+          <Image
+            source={BANNER_PLANO}
+            style={{ width: '100%', aspectRatio: 3.75, borderRadius: 12 }}
+            resizeMode="cover"
+          />
 
           {(planByDay.data ?? []).map((day) => (
             <ThemedView

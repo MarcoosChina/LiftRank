@@ -1,4 +1,4 @@
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import { Image, StyleSheet, View, ViewStyle } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -19,8 +19,8 @@ export function StatCard({
   unit: string;
   accent?: boolean;
   style?: ViewStyle;
-  /** Ícone exibido no topo (skill.md §5.5 — métricas rápidas). */
-  icon?: string;
+  /** Ícone exibido no topo (skill.md §5.5 — métricas rápidas): emoji ou PNG. */
+  icon?: string | number;
   /** Cor customizada do número (ex.: verde/vermelho de variação). */
   valueColor?: string;
 }) {
@@ -51,9 +51,13 @@ export function StatCard({
       style={[styles.card, accent && { backgroundColor: theme.accent }, style]}>
       {icon ? (
         <>
-          <ThemedText type="subtitle" style={{ fontSize: 18 }}>
-            {icon}
-          </ThemedText>
+          {typeof icon === 'number' ? (
+            <Image source={icon} style={{ width: 22, height: 22 }} />
+          ) : (
+            <ThemedText type="subtitle" style={{ fontSize: 18 }}>
+              {icon}
+            </ThemedText>
+          )}
           <View style={styles.row}>
             {number}
             {unitText}

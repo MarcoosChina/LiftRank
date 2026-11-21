@@ -1,7 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import { Link, router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState, type ElementRef } from 'react';
-import { Alert, Keyboard, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Image, Keyboard, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -38,6 +38,15 @@ import { useTheme } from '@/hooks/use-theme';
 import { ARCADE_COLORS, Fonts, Spacing } from '@/constants/theme';
 
 type Kind = 'strength' | 'cardio';
+
+// Ícones pixel art / linha (skill.md §6) — rasterizados de assets/images/arquivos-svg
+const ICO_ENGRENAGEM = require('../../../assets/images/icones/ico-engrenagem.png');
+const ICO_CRONOMETRO = require('../../../assets/images/icones/ico-cronometro.png');
+const PXL_HALTERES = require('../../../assets/images/icones/pxl-halteres.png');
+const PXL_TROFEU = require('../../../assets/images/icones/pxl-trofeu.png');
+const PXL_SETA_FORCA = require('../../../assets/images/icones/pxl-seta-forca.png');
+const PXL_MEDALHA = require('../../../assets/images/icones/pxl-medalha.png');
+const PXL_SETA_CIMA = require('../../../assets/images/icones/pxl-seta-cima.png');
 
 export default function HojeScreen() {
   const db = useSQLiteContext();
@@ -243,9 +252,10 @@ export default function HojeScreen() {
                 <ThemedText style={{ color: ARCADE_COLORS.accent }}>Rank</ThemedText>
               </ThemedText>
               <Pressable onPress={openSettings} hitSlop={8}>
-                <ThemedText type="subtitle" style={{ fontSize: 20 }}>
-                  ⚙️
-                </ThemedText>
+                <Image
+                  source={ICO_ENGRENAGEM}
+                  style={{ width: 22, height: 22, tintColor: theme.textSecondary }}
+                />
               </Pressable>
             </View>
             <ThemedText type="small" style={styles.date}>
@@ -272,9 +282,15 @@ export default function HojeScreen() {
               ]}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <View>
-                  <ThemedText type="small" style={{ color: theme.textSecondary }}>
-                    ⏱ TEMPO DE DESCANSO
-                  </ThemedText>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    <Image
+                      source={ICO_CRONOMETRO}
+                      style={{ width: 14, height: 14, tintColor: ARCADE_COLORS.accent }}
+                    />
+                    <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                      TEMPO DE DESCANSO
+                    </ThemedText>
+                  </View>
                   <ThemedText
                     type="title"
                     style={{
@@ -322,9 +338,19 @@ export default function HojeScreen() {
 
           {isNewPr && (
             <ThemedView type="backgroundElement" style={[styles.prCard, { borderColor: '#FFD700', borderWidth: 1 }]}>
-              <ThemedText type="smallBold" style={{ color: '#FFD700', textAlign: 'center', letterSpacing: 1 }}>
-                🏆 NOVO RECORDE PESSOAL (PR) ALCANÇADO! 🏆
-              </ThemedText>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                }}>
+                <Image source={PXL_TROFEU} style={{ width: 18, height: 18 }} />
+                <ThemedText type="smallBold" style={{ color: '#FFD700', letterSpacing: 1 }}>
+                  NOVO RECORDE PESSOAL (PR) ALCANÇADO!
+                </ThemedText>
+                <Image source={PXL_TROFEU} style={{ width: 18, height: 18 }} />
+              </View>
             </ThemedView>
           )}
 
@@ -342,10 +368,10 @@ export default function HojeScreen() {
               </Link>
             </View>
             <View style={styles.summaryRow}>
-              <StatCard icon="🏋️" label="Treinos" value={quickMetrics.workouts} unit="" />
-              <StatCard icon="🏆" label="Consistência" value={quickMetrics.consistency} unit="%" />
+              <StatCard icon={PXL_HALTERES} label="Treinos" value={quickMetrics.workouts} unit="" />
+              <StatCard icon={PXL_TROFEU} label="Consistência" value={quickMetrics.consistency} unit="%" />
               <StatCard
-                icon="📈"
+                icon={PXL_SETA_FORCA}
                 label="Força"
                 value={quickMetrics.strength}
                 unit="%"
@@ -438,7 +464,7 @@ export default function HojeScreen() {
                   }}
                 />
               </View>
-              <ThemedText style={{ fontSize: 26 }}>⬆️</ThemedText>
+              <Image source={PXL_SETA_CIMA} style={{ width: 30, height: 30 }} />
               <View style={{ flex: 1 }} />
               {/* selo dourado */}
               <View
@@ -452,9 +478,7 @@ export default function HojeScreen() {
                   justifyContent: 'center',
                   alignItems: 'center',
                 }}>
-                <ThemedText type="subtitle" style={{ color: '#FFD700' }}>
-                  ★
-                </ThemedText>
+                <Image source={PXL_MEDALHA} style={{ width: 26, height: 26 }} />
               </View>
             </View>
             {/* caixa translúcida: próximo nível */}

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Pressable, ScrollView, Share, StyleSheet, View } from 'react-native';
+import { Image, Pressable, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { format, startOfWeek, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -26,6 +26,11 @@ import { formatNumber, useQuery } from '@/hooks/use-query';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useAuthStore } from '@/store/auth-store';
 import { ARCADE_COLORS, Spacing } from '@/constants/theme';
+
+const ICO_STATS = require('../../../assets/images/icones/ico-stats.png');
+const PXL_HALTERES = require('../../../assets/images/icones/pxl-halteres.png');
+const PXL_TROFEU = require('../../../assets/images/icones/pxl-trofeu.png');
+const PXL_SETA_FORCA = require('../../../assets/images/icones/pxl-seta-forca.png');
 
 type Period = 'day' | 'week' | 'month' | 'all';
 
@@ -58,14 +63,18 @@ function MiniStat({
   value,
   color,
 }: {
-  icon: string;
+  icon: string | number;
   label: string;
   value: string;
   color: string;
 }) {
   return (
     <ThemedView style={styles.miniCard}>
-      <ThemedText style={styles.miniIcon}>{icon}</ThemedText>
+      {typeof icon === 'number' ? (
+        <Image source={icon} style={{ width: 20, height: 20 }} />
+      ) : (
+        <ThemedText style={styles.miniIcon}>{icon}</ThemedText>
+      )}
       <ThemedText type="smallBold" style={[styles.miniValue, { color }]} numberOfLines={1}>
         {value}
       </ThemedText>
@@ -176,6 +185,10 @@ export default function StatsScreen() {
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View>
             <View style={styles.titleRow}>
+              <Image
+                source={ICO_STATS}
+                style={{ width: 24, height: 24, tintColor: ARCADE_COLORS.primary }}
+              />
               <ThemedText type="title" style={{ color: ARCADE_COLORS.text }}>
                 Stats
               </ThemedText>
@@ -232,19 +245,19 @@ export default function StatsScreen() {
             </ThemedText>
             <View style={styles.miniRow}>
               <MiniStat
-                icon="🏋"
+                icon={PXL_HALTERES}
                 label="Treinos"
                 value={formatNumber(weeklySummary?.workouts ?? 0)}
                 color={ARCADE_COLORS.info}
               />
               <MiniStat
-                icon="🏆"
+                icon={PXL_TROFEU}
                 label="Consistência"
                 value={`${weeklySummary?.consistency ?? 0}%`}
                 color={ARCADE_COLORS.success}
               />
               <MiniStat
-                icon="📶"
+                icon={PXL_SETA_FORCA}
                 label="Força"
                 value={
                   strengthDelta === null

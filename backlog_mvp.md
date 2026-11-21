@@ -253,3 +253,13 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Descrição:** Estilizar as telas de Login, Cadastro e criar a tela de comemoração de subida de nível (*Level-Up*) com efeitos visuais e contetes pixelados.
 - **Branch Sugerida:** `feature/ui-auth-celebration`
 
+### - [x] **TF.12: Integrar Ícones e Assets Pixel Art do skill.md**
+
+- **Prioridade:** Medium
+- **Status:** completed
+- **Descrição:** Substituir todos os emoji/placeholders por assets reais conforme o `skill.md`: rasterizar os SVGs autorais (`assets/images/arquivos-svg/`) para PNG sem interpolação; ícones de linha nas 4 abas (ativa dourada na Hoje, roxa nas demais) e nos cabeçalhos das abas; ícones pixel nas métricas (halteres/troféu/seta), medalha no PlayerHud e no selo da Evolução, troféu no banner de PR, cronômetro no timer de descanso, seta no cartão "Sua Evolução", banner de conquista no Plano; e substituir o ícone/splash padrão do Expo pelo logo dos halteres pixel art.
+- **Dependências:** TF.7, TF.8, TF.9, TF.10
+- **Critérios de Aceitação:** Nenhum emoji de UI restante nas abas (chips de cardio mantêm ⏱ por decisão explícita); ícone do app = logo LiftRank; `tsc`, `lint` e `jest` verdes.
+- **Pendências futuras (fora do escopo):** Lote D — ícones pixel por exercício (§5.9) e tela de treino em andamento (§5.10).
+- **Branch Sugerida:** `feature/ico-assets-arcade`
+

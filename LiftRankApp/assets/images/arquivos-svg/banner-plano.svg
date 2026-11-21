@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 96" width="360" height="96">
+  <!-- Grade 90x24 escalada 4x (cada pixel = 4x4 unidades inteiras) -->
+  <g transform="scale(4)">
+    <!-- Céu Noturno Roxo Escuro (#0E0B1E) -->
+    <rect width="90" height="24" fill="#0E0B1E" />
+    
+    <!-- Estrelas Pixeladas -->
+    <rect x="8" y="3" width="1" height="1" fill="#814CD6" />
+    <rect x="19" y="6" width="1" height="1" fill="#EAD1FF" />
+    <rect x="33" y="2" width="1" height="1" fill="#814CD6" />
+    <rect x="46" y="4" width="1" height="1" fill="#FFC93C" />
+    <rect x="57" y="2" width="1" height="1" fill="#EAD1FF" />
+    <rect x="82" y="4" width="1" height="1" fill="#814CD6" />
+
+    <!-- Cordilheira ao Fundo (#19122B) -->
+    <rect x="0" y="15" width="90" height="9" fill="#19122B" />
+    <rect x="10" y="13" width="14" height="2" fill="#19122B" />
+    <rect x="13" y="11" width="8" height="2" fill="#19122B" />
+    <rect x="15" y="10" width="4" height="1" fill="#19122B" />
+    <rect x="38" y="12" width="18" height="3" fill="#19122B" />
+    <rect x="42" y="10" width="10" height="2" fill="#19122B" />
+    <rect x="45" y="9" width="4" height="1" fill="#19122B" />
+
+    <!-- Montanha Média Esquerda (#2B1B4D base, #4C268F luz) -->
+    <rect x="0" y="17" width="36" height="7" fill="#2B1B4D" />
+    <rect x="4" y="15" width="24" height="2" fill="#2B1B4D" />
+    <rect x="8" y="13" width="16" height="2" fill="#2B1B4D" />
+    <rect x="11" y="11" width="10" height="2" fill="#2B1B4D" />
+    <rect x="14" y="10" width="4" height="1" fill="#4C268F" />
+    <rect x="11" y="11" width="4" height="2" fill="#4C268F" />
+    <rect x="8" y="13" width="5" height="2" fill="#4C268F" />
+    <rect x="4" y="15" width="5" height="2" fill="#4C268F" />
+
+    <!-- Montanha Média Central (#2B1B4D base, #4C268F luz) -->
+    <rect x="28" y="18" width="34" height="6" fill="#2B1B4D" />
+    <rect x="34" y="16" width="22" height="2" fill="#2B1B4D" />
+    <rect x="39" y="14" width="12" height="2" fill="#2B1B4D" />
+    <rect x="42" y="13" width="6" height="1" fill="#4C268F" />
+    <rect x="39" y="14" width="4" height="2" fill="#4C268F" />
+    <rect x="34" y="16" width="5" height="2" fill="#4C268F" />
+
+    <!-- Pico Principal à Direita (#3D1E6D sombra, #6E35B8 face iluminada, #EAD1FF neve) -->
+    <rect x="48" y="20" width="42" height="4" fill="#3D1E6D" />
+    <rect x="52" y="18" width="38" height="2" fill="#3D1E6D" />
+    <rect x="55" y="16" width="35" height="2" fill="#3D1E6D" />
+    <rect x="58" y="14" width="32" height="2" fill="#3D1E6D" />
+    <rect x="61" y="12" width="27" height="2" fill="#3D1E6D" />
+    <rect x="64" y="10" width="20" height="2" fill="#3D1E6D" />
+    <rect x="67" y="8" width="13" height="2" fill="#3D1E6D" />
+    <rect x="70" y="7" width="6" height="1" fill="#EAD1FF" />
+
+    <!-- Face Iluminada da Montanha Principal (#6E35B8) -->
+    <rect x="67" y="8" width="6" height="2" fill="#6E35B8" />
+    <rect x="64" y="10" width="9" height="2" fill="#6E35B8" />
+    <rect x="61" y="12" width="11" height="2" fill="#6E35B8" />
+    <rect x="58" y="14" width="13" height="2" fill="#6E35B8" />
+    <rect x="55" y="16" width="15" height="2" fill="#6E35B8" />
+    <rect x="52" y="18" width="17" height="2" fill="#6E35B8" />
+    <rect x="48" y="20" width="20" height="4" fill="#6E35B8" />
+
+    <!-- Neve no Cume (#EAD1FF) -->
+    <rect x="68" y="8" width="5" height="1" fill="#EAD1FF" />
+    <rect x="67" y="9" width="3" height="1" fill="#EAD1FF" />
+    <rect x="72" y="9" width="2" height="1" fill="#EAD1FF" />
+
+    <!-- Bandeira Dourada no Topo (#F5B50A / #FFC93C / #FFFFFF mastro) -->
+    <rect x="72" y="2" width="1" height="5" fill="#FFFFFF" />
+    <rect x="73" y="2" width="5" height="3" fill="#F5B50A" />
+    <rect x="73" y="2" width="4" height="1" fill="#FFC93C" />
+    <rect x="78" y="3" width="1" height="1" fill="#F5B50A" />
+  </g>
+</svg>

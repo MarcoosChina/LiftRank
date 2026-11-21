@@ -1,9 +1,11 @@
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import { MascoteAvatar } from '@/components/mascote-avatar';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { useTheme } from '@/hooks/use-theme';
 import { Spacing } from '@/constants/theme';
+
+const PXL_MEDALHA = require('../../assets/images/icones/pxl-medalha.png');
 
 /** XP por nível e cálculo de progresso — usado pelo HUD e pelo cartão "Sua Evolução". */
 export function computeLevel(totalVolume = 0, workoutCount = 0) {
@@ -41,7 +43,7 @@ export function PlayerHud({
         </View>
 
         <View style={styles.emblemPlaceholder}>
-          <ThemedText type="smallBold" style={{ color: theme.xp }}>★</ThemedText>
+          <Image source={PXL_MEDALHA} style={{ width: 22, height: 22 }} />
         </View>
       </View>
 

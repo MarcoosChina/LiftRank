@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Contorno #090A10 -->
+  <rect x="15" y="4" width="2" height="1" fill="#090A10" />
+  <rect x="13" y="5" width="2" height="2" fill="#090A10" /><rect x="17" y="5" width="2" height="2" fill="#090A10" />
+  <rect x="11" y="7" width="2" height="2" fill="#090A10" /><rect x="19" y="7" width="2" height="2" fill="#090A10" />
+  <rect x="9" y="9" width="2" height="2" fill="#090A10" /><rect x="21" y="9" width="2" height="2" fill="#090A10" />
+  <rect x="7" y="11" width="2" height="3" fill="#090A10" /><rect x="23" y="11" width="2" height="3" fill="#090A10" />
+  <rect x="9" y="14" width="3" height="1" fill="#090A10" /><rect x="20" y="14" width="3" height="1" fill="#090A10" />
+  <rect x="11" y="15" width="1" height="12" fill="#090A10" /><rect x="20" y="15" width="1" height="12" fill="#090A10" />
+  <rect x="12" y="27" width="8" height="1" fill="#090A10" />
+  <!-- Preenchimento Verde (#22D45F base, #7CFF9E luz, #118A3B sombra) -->
+  <rect x="15" y="5" width="2" height="22" fill="#22D45F" />
+  <rect x="13" y="7" width="2" height="20" fill="#22D45F" />
+  <rect x="17" y="7" width="2" height="20" fill="#22D45F" />
+  <rect x="11" y="9" width="2" height="5" fill="#22D45F" />
+  <rect x="19" y="9" width="2" height="5" fill="#118A3B" />
+  <rect x="9" y="11" width="2" height="3" fill="#7CFF9E" />
+  <rect x="21" y="11" width="2" height="3" fill="#118A3B" />
+  <rect x="12" y="14" width="1" height="13" fill="#7CFF9E" />
+  <rect x="19" y="14" width="1" height="13" fill="#118A3B" />
+</svg>
