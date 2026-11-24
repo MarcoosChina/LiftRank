@@ -84,11 +84,13 @@ export default function PlanoScreen() {
           </View>
 
           {/* Banner de conquista (skill.md §5.7) */}
-          <Image
-            source={BANNER_PLANO}
-            style={{ width: '100%', aspectRatio: 3.75, borderRadius: 12 }}
-            resizeMode="cover"
-          />
+          <View style={{ width: '100%', height: 92, borderRadius: 12, overflow: 'hidden' }}>
+            <Image
+              source={BANNER_PLANO}
+              style={{ width: '100%', height: '100%' }}
+              resizeMode="cover"
+            />
+          </View>
 
           {(planByDay.data ?? []).map((day) => (
             <ThemedView
