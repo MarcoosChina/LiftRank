@@ -4,7 +4,21 @@ import { Image, Pressable, StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { TabScreensContext, type TabScreens } from '@/components/tabs-context';
 import { ARCADE_COLORS } from '@/constants/theme';
+
+import HomeScreen from './index';
+import PlanoScreen from './plano';
+import HistoricoScreen from './historico';
+import StatsScreen from './stats';
+
+/** Componentes usados como preview durante o swipe lateral. */
+const TAB_SCREENS: TabScreens = {
+  index: HomeScreen,
+  plano: PlanoScreen,
+  historico: HistoricoScreen,
+  stats: StatsScreen,
+};
 
 const TAB_ICONS: Record<string, number> = {
   index: require('../../../assets/images/icones/ico-home.png'),
@@ -51,12 +65,14 @@ function TabBar({ state, insets, navigateToTab }: BottomTabBarProps) {
 
 export default function TabsLayout() {
   return (
-    <Tabs screenOptions={{ headerShown: false }} tabBar={(props) => <TabBar {...props} />}>
-      <Tabs.Screen name="index" options={{ title: 'Hoje' }} />
-      <Tabs.Screen name="plano" options={{ title: 'Plano' }} />
-      <Tabs.Screen name="historico" options={{ title: 'Histórico' }} />
-      <Tabs.Screen name="stats" options={{ title: 'Stats' }} />
-    </Tabs>
+    <TabScreensContext.Provider value={TAB_SCREENS}>
+      <Tabs screenOptions={{ headerShown: false }} tabBar={(props) => <TabBar {...props} />}>
+        <Tabs.Screen name="index" options={{ title: 'Hoje' }} />
+        <Tabs.Screen name="plano" options={{ title: 'Plano' }} />
+        <Tabs.Screen name="historico" options={{ title: 'Histórico' }} />
+        <Tabs.Screen name="stats" options={{ title: 'Stats' }} />
+      </Tabs>
+    </TabScreensContext.Provider>
   );
 }
 
