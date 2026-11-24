@@ -18,6 +18,7 @@ import {
 import { useQuery } from '@/hooks/use-query';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useAuthStore } from '@/store/auth-store';
+import { SwipeableTabs } from '@/components/swipeable-tabs';
 import { ARCADE_COLORS, Spacing } from '@/constants/theme';
 
 const ICO_PLANO = require('../../../assets/images/icones/ico-plano.png');
@@ -64,7 +65,8 @@ export default function PlanoScreen() {
   }
 
   return (
-    <ThemedView style={[styles.flex, { backgroundColor: ARCADE_COLORS.bgApp }]}>
+    <SwipeableTabs>
+      <ThemedView style={[styles.flex, { backgroundColor: ARCADE_COLORS.bgApp }]}>
       <SafeAreaView style={styles.flex}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View>
@@ -221,7 +223,8 @@ export default function PlanoScreen() {
           </ThemedView>
         </KeyboardAvoidingView>
       </Modal>
-    </ThemedView>
+      </ThemedView>
+    </SwipeableTabs>
   );
 }
 

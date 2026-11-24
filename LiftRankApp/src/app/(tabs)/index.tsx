@@ -36,6 +36,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useAuthStore } from '@/store/auth-store';
 import { useTheme } from '@/hooks/use-theme';
 import { ARCADE_COLORS, Fonts, Spacing } from '@/constants/theme';
+import { SwipeableTabs } from '@/components/swipeable-tabs';
 
 type Kind = 'strength' | 'cardio';
 
@@ -238,7 +239,8 @@ export default function HojeScreen() {
   }
 
   return (
-    <ThemedView style={styles.flex}>
+    <SwipeableTabs>
+      <ThemedView style={styles.flex}>
       <SafeAreaView style={styles.flex}>
         <ScrollView
           ref={scrollRef}
@@ -647,6 +649,7 @@ export default function HojeScreen() {
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
+    </SwipeableTabs>
   );
 }
 

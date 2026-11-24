@@ -25,6 +25,7 @@ import {
 import { formatNumber, useQuery } from '@/hooks/use-query';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useAuthStore } from '@/store/auth-store';
+import { SwipeableTabs } from '@/components/swipeable-tabs';
 import { ARCADE_COLORS, Spacing } from '@/constants/theme';
 
 const ICO_STATS = require('../../../assets/images/icones/ico-stats.png');
@@ -180,7 +181,8 @@ export default function StatsScreen() {
   }
 
   return (
-    <ThemedView style={[styles.flex, { backgroundColor: ARCADE_COLORS.bgApp }]}>
+    <SwipeableTabs>
+      <ThemedView style={[styles.flex, { backgroundColor: ARCADE_COLORS.bgApp }]}>
       <SafeAreaView style={styles.flex}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View>
@@ -376,6 +378,7 @@ export default function StatsScreen() {
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
+    </SwipeableTabs>
   );
 }
 

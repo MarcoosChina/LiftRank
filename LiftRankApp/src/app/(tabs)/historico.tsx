@@ -18,6 +18,7 @@ import { formatNumber, useQuery } from '@/hooks/use-query';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useAuthStore } from '@/store/auth-store';
 import { useTheme } from '@/hooks/use-theme';
+import { SwipeableTabs } from '@/components/swipeable-tabs';
 import { ARCADE_COLORS, Fonts, Spacing } from '@/constants/theme';
 
 const ICO_HISTORICO = require('../../../assets/images/icones/ico-historico.png');
@@ -67,7 +68,8 @@ export default function HistoricoScreen() {
   }, [expandedId, sessionDetail]);
 
   return (
-    <ThemedView style={[styles.flex, { backgroundColor: '#0E0B1E' }]}>
+    <SwipeableTabs>
+      <ThemedView style={[styles.flex, { backgroundColor: '#0E0B1E' }]}>
       <SafeAreaView style={styles.flex}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View>
@@ -221,7 +223,8 @@ export default function HistoricoScreen() {
           </ThemedView>
         </View>
       </Modal>
-    </ThemedView>
+      </ThemedView>
+    </SwipeableTabs>
   );
 }
 
