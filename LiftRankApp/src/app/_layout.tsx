@@ -6,6 +6,7 @@ import { Suspense, useEffect } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { SQLiteProvider } from 'expo-sqlite';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import {
   Oswald_500Medium,
@@ -73,23 +74,25 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider>
-      <SQLiteProvider databaseName="liftrank.db" onInit={migrateDbIfNeeded} useSuspense>
-        <Suspense
-          fallback={
-            <ThemedView style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-              <ActivityIndicator color={Colors.dark.accent} />
-            </ThemedView>
-          }>
-          <ThemeProvider value={navTheme}>
-            <StatusBar style="light" />
-            <Stack>
-              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            </Stack>
-          </ThemeProvider>
-        </Suspense>
-      </SQLiteProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider>
+        <SQLiteProvider databaseName="liftrank.db" onInit={migrateDbIfNeeded} useSuspense>
+          <Suspense
+            fallback={
+              <ThemedView style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <ActivityIndicator color={Colors.dark.accent} />
+              </ThemedView>
+            }>
+            <ThemeProvider value={navTheme}>
+              <StatusBar style="light" />
+              <Stack>
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              </Stack>
+            </ThemeProvider>
+          </Suspense>
+        </SQLiteProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
