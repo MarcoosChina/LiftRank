@@ -41,7 +41,7 @@ import { useAuthStore } from '@/store/auth-store';
 
 const ICO_PLANO = require('../../../assets/images/icones/ico-plano.png');
 const BANNER_PLANO = require('../../../assets/images/icones/banner-plano.png');
-const PXL_BRACO = require('../../../assets/images/icones/pxl-braco.png');
+const PXL_HALTERES = require('../../../assets/images/icones/pxl-halteres.png');
 
 type DayDef = { label: string; short: string; weekday: number };
 
@@ -339,7 +339,7 @@ export default function PlanoScreen() {
             {/* Treino do dia selecionado */}
             <ThemedView style={[styles.dayCard, compact && styles.dayCardCompact]}>
               <View style={styles.cardHeader}>
-                <Image source={PXL_BRACO} style={styles.cardIcon} resizeMode="contain" />
+                <Image source={PXL_HALTERES} style={styles.cardIcon} resizeMode="contain" />
                 <View style={styles.cardHeaderText}>
                   <ThemedText
                     type="subtitle"

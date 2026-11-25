@@ -263,3 +263,12 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Pendências futuras (fora do escopo):** Lote D — ícones pixel por exercício (§5.9) e tela de treino em andamento (§5.10).
 - **Branch Sugerida:** `feature/ico-assets-arcade`
 
+### - [x] **TF.13: Aba Plano — Dias Horizontais, Rascunho e Salvar Alterações**
+
+- **Prioridade:** High
+- **Status:** completed
+- **Descrição:** Reformular a aba Plano (`src/app/(tabs)/plano.tsx`) para exibir os dias da semana em chips horizontais (Seg–Dom) e mostrar apenas o treino do dia selecionado, em um cartão com o ícone pixel art de halteres azul já existente (`pxl-halteres.svg` / `pxl-halteres.png`, reaproveitado no lugar do `pxl-braco`). O cartão lista os exercícios com marcador de concluído baseado nas séries/cardio já registrados no dia, botão tracejado “+ Adicionar Exercício” (modal com busca, criação e toggle) e botão fixo “Salvar Alterações”. As edições ficam em rascunho por dia (chips com indicador de pendência) e são persistidas juntas em uma única transação (`withExclusiveTransactionAsync`). Inclui header “Meu Plano”, layout responsivo a partir de 320dp (breakpoint compacto e ajuste automático de fonte) e `useQuery.reload()` aguardável para evitar flicker ao salvar.
+- **Dependências:** TF.8, T3.1
+- **Critérios de Aceitação:** Dias em uma única linha horizontal; troca de dia preserva rascunhos não salvos; salvar aplica todas as inclusões/remoções pendentes de uma vez; `planDiff` coberto por testes; `tsc`, `lint` e `jest` verdes.
+- **Branch Sugerida:** `feature/plano-dias-horizontais`
+
