@@ -1,5 +1,7 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
+import { hashPassword } from './password';
+
 const SEED_EXERCISES: [string, 'strength' | 'cardio'][] = [
   ['Supino Reto', 'strength'],
   ['Supino Inclinado', 'strength'],
@@ -30,7 +32,7 @@ const SEED_EXERCISES: [string, 'strength' | 'cardio'][] = [
   ['Pular Corda', 'cardio'],
 ];
 
-const DATABASE_VERSION = 3;
+const DATABASE_VERSION = 4;
 
 export async function migrateDbIfNeeded(db: SQLiteDatabase) {
   const result = await db.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
@@ -143,6 +145,41 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase) {
     }
 
     currentDbVersion = 3;
+  }
+
+  if (currentDbVersion < 4) {
+    const tableInfoUsers = await db.getAllAsync<{ name: string }>('PRAGMA table_info(users)');
+    const userColumns = new Set(tableInfoUsers.map((col) => col.name));
+
+    const hashColumns: [string, string][] = [
+      ['password_hash', "TEXT NOT NULL DEFAULT ''"],
+      ['password_salt', "TEXT NOT NULL DEFAULT ''"],
+      ['password_algo', "TEXT NOT NULL DEFAULT ''"],
+    ];
+    for (const [name, definition] of hashColumns) {
+      if (!userColumns.has(name)) {
+        await db.execAsync(`ALTER TABLE users ADD COLUMN ${name} ${definition}`);
+      }
+    }
+
+    // Migra contas antigas de senha em texto puro para hash + salt.
+    // A coluna legada `password` é mantida (vazia) por compatibilidade.
+    const legacyUsers = await db.getAllAsync<{ id: number; password: string }>(
+      "SELECT id, password FROM users WHERE password <> ''",
+    );
+    for (const user of legacyUsers) {
+      const { hash, salt, algo } = await hashPassword(user.password);
+      await db.runAsync(
+        `UPDATE users SET password_hash = ?, password_salt = ?, password_algo = ?, password = ''
+         WHERE id = ?`,
+        hash,
+        salt,
+        algo,
+        user.id,
+      );
+    }
+
+    currentDbVersion = 4;
   }
 
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);

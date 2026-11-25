@@ -1,5 +1,7 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
+import { constantTimeEquals, hashPassword, verifyPassword } from './password';
+
 export type ExerciseKind = 'strength' | 'cardio';
 
 export interface Exercise {
@@ -468,11 +470,16 @@ export async function registerUser(
     if (existing) {
       return { success: false, error: 'E-mail já cadastrado.' };
     }
+    const { hash, salt, algo } = await hashPassword(password);
     const result = await db.runAsync(
-      'INSERT INTO users (name, email, password, created_at) VALUES (?, ?, ?, ?)',
+      `INSERT INTO users (name, email, password, password_hash, password_salt, password_algo, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
       name.trim(),
       email.trim().toLowerCase(),
-      password,
+      '',
+      hash,
+      salt,
+      algo,
       Date.now(),
     );
     return { success: true, userId: result.lastInsertRowId };
@@ -487,14 +494,46 @@ export async function loginUser(
   password: string,
 ): Promise<{ success: boolean; error?: string; user?: User }> {
   try {
-    const user = await db.getFirstAsync<User & { password: string }>(
-      'SELECT id, name, email, password FROM users WHERE email = ? COLLATE NOCASE',
+    const user = await db.getFirstAsync<
+      User & {
+        password: string;
+        password_hash: string;
+        password_salt: string;
+        password_algo: string;
+      }
+    >(
+      `SELECT id, name, email, password, password_hash, password_salt, password_algo
+       FROM users WHERE email = ? COLLATE NOCASE`,
       email.trim().toLowerCase(),
     );
     if (!user) {
       return { success: false, error: 'Usuário não encontrado.' };
     }
-    if (user.password !== password) {
+
+    let valid = false;
+    if (user.password_hash) {
+      valid = await verifyPassword(password, {
+        hash: user.password_hash,
+        salt: user.password_salt,
+        algo: user.password_algo,
+      });
+    } else if (user.password) {
+      // Conta legada que ainda não passou pela migração de hash.
+      valid = constantTimeEquals(user.password, password);
+      if (valid) {
+        const upgraded = await hashPassword(password);
+        await db.runAsync(
+          `UPDATE users SET password_hash = ?, password_salt = ?, password_algo = ?, password = ''
+           WHERE id = ?`,
+          upgraded.hash,
+          upgraded.salt,
+          upgraded.algo,
+          user.id,
+        );
+      }
+    }
+
+    if (!valid) {
       return { success: false, error: 'Senha incorreta.' };
     }
     return {

@@ -216,11 +216,11 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 
 ## Bloco 7: Prontidão para Publicação (Segurança e Conta)
 
-### - [ ] **T7.1: Hash de Senhas Locais (expo-crypto + salt)**
+### - [x] **T7.1: Hash de Senhas Locais (expo-crypto + salt)**
 
 - **Prioridade:** High
-- **Status:** pending
-- **Descrição:** As senhas são gravadas em texto puro na tabela `users` e comparadas diretamente em `repo.ts` (`user.password !== password`). Substituir por hash com salt usando `expo-crypto` (já instalado): salt aleatório de 16 bytes por usuário e SHA-256 sobre `salt + senha`, com constante de iterações documentada. Adicionar as colunas `password_hash`, `password_salt` e `password_algo` (para permitir upgrade futuro de algoritmo) e migrar usuários existentes de forma transparente — rehash na primeira autenticação bem-sucedida com a senha em texto puro ainda presente. Observação: `expo-crypto` não expõe PBKDF2/Argon2, então o modelo de ameaça aqui é proteger backups/extração do SQLite, não resistir a ataque offline dedicado.
+- **Status:** completed
+- **Descrição:** As senhas eram gravadas em texto puro na tabela `users` e comparadas diretamente em `repo.ts` (`user.password !== password`). Implementado hash com salt em `src/db/password.ts` usando `expo-crypto`: salt aleatório de 16 bytes (hex) por usuário e SHA-256 sobre `algo:salt:senha`, com `PASSWORD_ALGO = 'sha256-salt-v1'` para permitir upgrade futuro. A migração v4 adiciona as colunas `password_hash`, `password_salt` e `password_algo` (via `ALTER TABLE`, sem reconstruir a tabela), converte as senhas legadas e esvazia a coluna `password` (mantida por compatibilidade com o schema antigo). `registerUser` grava apenas hash/salt/algo; `loginUser` valida com comparação em tempo constante e ainda aceita, como fallback, uma conta legada em texto puro, rehasheando-a no primeiro login bem-sucedido. Observação: `expo-crypto` não expõe PBKDF2/Argon2, então o modelo de ameaça é proteger backups/extração do SQLite, não resistir a ataque offline dedicado.
 - **Dependências:** T2.1, T2.2
 - **Critérios de Aceitação:** Nenhuma senha em texto puro persistida após o login/migração; `loginUser` valida via hash + salt; usuários antigos continuam entrando sem resetar senha; teste unitário cobrindo `hashPassword`/`verifyPassword` (senha correta, incorreta e salt diferente gerando hash diferente); `tsc`, `lint` e `jest` verdes.
 - **Branch Sugerida:** `fix/auth-senha-hash`
