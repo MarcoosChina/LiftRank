@@ -214,6 +214,44 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** Fluxo de login social funcional, criação/recuperação de conta no banco local e redirecionamento para o app.
 - **Branch Sugerida:** `feature/google-login`
 
+## Bloco 7: Prontidão para Publicação (Segurança e Conta)
+
+### - [ ] **T7.1: Hash de Senhas Locais (expo-crypto + salt)**
+
+- **Prioridade:** High
+- **Status:** pending
+- **Descrição:** As senhas são gravadas em texto puro na tabela `users` e comparadas diretamente em `repo.ts` (`user.password !== password`). Substituir por hash com salt usando `expo-crypto` (já instalado): salt aleatório de 16 bytes por usuário e SHA-256 sobre `salt + senha`, com constante de iterações documentada. Adicionar as colunas `password_hash`, `password_salt` e `password_algo` (para permitir upgrade futuro de algoritmo) e migrar usuários existentes de forma transparente — rehash na primeira autenticação bem-sucedida com a senha em texto puro ainda presente. Observação: `expo-crypto` não expõe PBKDF2/Argon2, então o modelo de ameaça aqui é proteger backups/extração do SQLite, não resistir a ataque offline dedicado.
+- **Dependências:** T2.1, T2.2
+- **Critérios de Aceitação:** Nenhuma senha em texto puro persistida após o login/migração; `loginUser` valida via hash + salt; usuários antigos continuam entrando sem resetar senha; teste unitário cobrindo `hashPassword`/`verifyPassword` (senha correta, incorreta e salt diferente gerando hash diferente); `tsc`, `lint` e `jest` verdes.
+- **Branch Sugerida:** `fix/auth-senha-hash`
+
+### - [ ] **T7.2: Recuperação de Senha Real ou Remoção do Fluxo Falso**
+
+- **Prioridade:** High
+- **Status:** pending
+- **Descrição:** `forgot-password.tsx` exibe “Enviamos instruções de recuperação para …” sem enviar nada, pois não existe backend. Escolher e implementar uma das opções: (a) remover a tela e o link “Esqueceu a senha?” do login; ou (b) implementar recuperação local honesta (ex.: confirmação de e-mail + data de criação da conta para definir nova senha, ou ação explícita de “redefinir dados locais” com aviso de perda do histórico). Em qualquer caso, os textos devem deixar claro que a conta é local ao dispositivo.
+- **Dependências:** T7.1
+- **Critérios de Aceitação:** Nenhuma mensagem de sucesso falsa na interface; fluxo acessível a partir do login (quando aplicável); textos explícitos sobre armazenamento local; `tsc`, `lint` e `jest` verdes.
+- **Branch Sugerida:** `fix/auth-recuperacao-senha`
+
+### - [ ] **T7.3: Remover Código Morto de Sincronização Cloud**
+
+- **Prioridade:** Medium
+- **Status:** pending
+- **Descrição:** `src/db/sync.ts` define `syncLocalDataToCloud` apontando para `https://api.liftrank.app/v1/sync` e nunca é importado por nenhuma tela ou hook. Remover o arquivo e o endpoint fictício para não sugerir transferência de dados ao declarar o *Data safety* na Google Play e para eliminar manutenção desnecessária.
+- **Dependências:** T1.3
+- **Critérios de Aceitação:** `src/db/sync.ts` removido; nenhum import quebrado; nenhuma referência a `api.liftrank.app` no código; `tsc`, `lint` e `jest` verdes.
+- **Branch Sugerida:** `chore/remover-sync-morta`
+
+### - [ ] **T7.4: Definir Modelo de Conta e Acesso para Revisão da Play**
+
+- **Prioridade:** High
+- **Status:** pending
+- **Descrição:** Hoje o app abre direto em `(tabs)` sem exigir login (não há gating no `_layout` raiz) e a tela de login oferece “Convidado”. Formalizar a decisão: (a) conta **opcional** com “continuar como convidado” como padrão — dispensa credenciais de teste no Console; ou (b) login **obrigatório** — exige redirect no layout raiz e credenciais de teste no campo “App access” da Play Console. Ajustar o que for necessário para a opção escolhida (persistência de sessão, textos do login/logout, entrada de convidado) e registrar a decisão no backlog.
+- **Dependências:** T2.1, T2.2
+- **Critérios de Aceitação:** Decisão registrada explicitamente no backlog; se opcional, nenhuma tela bloqueia o uso sem conta e o convidado funciona; se obrigatório, redirect implementado, sessão sobrevive a reload e credenciais de teste documentadas; `tsc`, `lint` e `jest` verdes.
+- **Branch Sugerida:** `chore/modelo-de-conta`
+
 ---
 
 ## Evolução do Novo Visual de LiftRank (Arcade & RPG)
