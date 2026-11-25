@@ -272,3 +272,12 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** Dias em uma única linha horizontal; troca de dia preserva rascunhos não salvos; salvar aplica todas as inclusões/remoções pendentes de uma vez; `planDiff` coberto por testes; `tsc`, `lint` e `jest` verdes.
 - **Branch Sugerida:** `feature/plano-dias-horizontais`
 
+### - [x] **TF.14: Aba Plano — Confirmação ao Remover e Desfazer Imediato**
+
+- **Prioridade:** Medium
+- **Status:** completed
+- **Descrição:** Proteger a remoção de exercícios do plano contra toques acidentais. Ao tocar no ✕ de um exercício, exibir `Alert` nativo de confirmação (“Remover exercício?” com Cancelar/Remover). Após confirmar, mostrar uma barra fixa acima do rodapé com o nome do exercício removido e a ação “Desfazer” (visível por 5 segundos), que devolve o item à posição original no rascunho e reseleciona o dia de origem. A barra é substituída ao remover outro exercício e limpa ao salvar.
+- **Dependências:** TF.13
+- **Critérios de Aceitação:** Cancelar no alerta não altera o rascunho; confirmar remove e exibe a barra; desfazer restaura o exercício no índice original; barra some em 5s e ao salvar; toggle no modal de adicionar continua instantâneo; `tsc`, `lint` e `jest` verdes.
+- **Branch Sugerida:** `feature/plano-remover-com-desfazer`
+

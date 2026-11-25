@@ -1,6 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { useSQLiteContext } from 'expo-sqlite';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Image,
@@ -61,6 +61,16 @@ interface DraftExercise extends PlanDraftItem {
   kind: ExerciseKind;
 }
 
+/** Remoção recente que ainda pode ser desfeita. */
+interface PendingUndo {
+  weekday: number;
+  item: DraftExercise;
+  index: number;
+}
+
+/** Tempo (ms) que a barra de desfazer fica visível. */
+const UNDO_TIMEOUT_MS = 5000;
+
 export default function PlanoScreen() {
   const db = useSQLiteContext();
   const userId = useAuthStore((s) => s.userId) ?? 1;
@@ -73,6 +83,7 @@ export default function PlanoScreen() {
   /** Somente dias editados ficam aqui; os demais são lidos direto do banco. */
   const [draftOverrides, setDraftOverrides] = useState<Record<number, DraftExercise[]>>({});
   const [saving, setSaving] = useState(false);
+  const [pendingUndo, setPendingUndo] = useState<PendingUndo | null>(null);
 
   const [pickerDay, setPickerDay] = useState<DayDef | null>(null);
   const [newExerciseName, setNewExerciseName] = useState('');
@@ -164,17 +175,65 @@ export default function PlanoScreen() {
   );
 
   const removeExercise = useCallback(
-    (weekday: number, exerciseId: number) => {
+    (weekday: number, item: DraftExercise) => {
+      const current = draftByDay[weekday] ?? [];
+      const index = current.findIndex((entry) => entry.exercise_id === item.exercise_id);
+      if (index === -1) return;
+
       setDraftOverrides((prev) => ({
         ...prev,
         [weekday]: (prev[weekday] ?? savedByDay[weekday] ?? []).filter(
-          (item) => item.exercise_id !== exerciseId,
+          (entry) => entry.exercise_id !== item.exercise_id,
         ),
       }));
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      setPendingUndo({ weekday, item: current[index], index });
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     },
-    [savedByDay],
+    [draftByDay, savedByDay],
   );
+
+  /** Confirma antes de remover, evitando exclusões acidentais. */
+  const requestRemove = useCallback(
+    (weekday: number, item: DraftExercise) => {
+      const day = DAYS.find((entry) => entry.weekday === weekday);
+      Alert.alert(
+        'Remover exercício?',
+        `“${item.name}” será removido do treino de ${day?.label ?? 'hoje'}.`,
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          {
+            text: 'Remover',
+            style: 'destructive',
+            onPress: () => removeExercise(weekday, item),
+          },
+        ],
+      );
+    },
+    [removeExercise],
+  );
+
+  const undoRemove = useCallback(() => {
+    if (!pendingUndo) return;
+    const { weekday, item, index } = pendingUndo;
+
+    setDraftOverrides((prev) => {
+      const current = prev[weekday] ?? savedByDay[weekday] ?? [];
+      if (current.some((entry) => entry.exercise_id === item.exercise_id)) return prev;
+      const next = [...current];
+      next.splice(Math.min(index, next.length), 0, item);
+      return { ...prev, [weekday]: next };
+    });
+    setSelectedWeekday(weekday);
+    setPendingUndo(null);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  }, [pendingUndo, savedByDay]);
+
+  // A barra de desfazer desaparece sozinha depois de alguns segundos.
+  useEffect(() => {
+    if (!pendingUndo) return;
+    const timer = setTimeout(() => setPendingUndo(null), UNDO_TIMEOUT_MS);
+    return () => clearTimeout(timer);
+  }, [pendingUndo]);
 
   const dirtyWeekdays = useMemo(
     () => DAYS.map((day) => day.weekday).filter((weekday) => changesByWeekday[weekday]),
@@ -200,6 +259,7 @@ export default function PlanoScreen() {
         for (const weekday of dirtyWeekdays) delete next[weekday];
         return next;
       });
+      setPendingUndo(null);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
@@ -396,7 +456,7 @@ export default function PlanoScreen() {
                           hitSlop={10}
                           accessibilityRole="button"
                           accessibilityLabel={`Remover ${item.name}`}
-                          onPress={() => removeExercise(selectedWeekday, item.exercise_id)}
+                          onPress={() => requestRemove(selectedWeekday, item)}
                           style={styles.removeButton}>
                           <ThemedText type="smallBold" style={styles.removeIcon}>
                             ✕
@@ -438,6 +498,23 @@ export default function PlanoScreen() {
               </Pressable>
             </ThemedView>
           </ScrollView>
+
+          {pendingUndo ? (
+            <View style={styles.undoBar} accessibilityLiveRegion="polite">
+              <ThemedText type="small" numberOfLines={1} style={styles.undoText}>
+                “{pendingUndo.item.name}” removido
+              </ThemedText>
+              <Pressable
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel={`Desfazer remoção de ${pendingUndo.item.name}`}
+                onPress={undoRemove}>
+                <ThemedText type="smallBold" style={styles.undoAction}>
+                  DESFAZER
+                </ThemedText>
+              </Pressable>
+            </View>
+          ) : null}
 
           {dirtyWeekdays.length > 0 ? (
             <View style={styles.footer}>
@@ -738,6 +815,28 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.two,
     paddingBottom: Spacing.two,
     backgroundColor: ARCADE_COLORS.bgApp,
+  },
+  undoBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
+    marginHorizontal: Spacing.three,
+    marginBottom: Spacing.two,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: ARCADE_COLORS.primary,
+    backgroundColor: ARCADE_COLORS.bgCard,
+  },
+  undoText: {
+    flex: 1,
+    minWidth: 0,
+    color: ARCADE_COLORS.text,
+  },
+  undoAction: {
+    color: ARCADE_COLORS.accent,
+    letterSpacing: 1,
   },
   modalOverlay: {
     flex: 1,
