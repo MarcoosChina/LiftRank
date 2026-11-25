@@ -3,7 +3,7 @@ import { useFocusEffect } from 'expo-router';
 
 export function useQuery<T>(fn: () => Promise<T>): {
   data: T | null;
-  reload: () => void;
+  reload: () => Promise<void>;
 } {
   const [data, setData] = useState<T | null>(null);
   const fnRef = useRef(fn);
@@ -35,7 +35,7 @@ export function useQuery<T>(fn: () => Promise<T>): {
   );
 
   const reload = useCallback(() => {
-    fnRef.current().then(setData);
+    return fnRef.current().then(setData);
   }, []);
 
   return { data, reload };

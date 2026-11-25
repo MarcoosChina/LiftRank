@@ -1,4 +1,4 @@
-import { computeWeeklySummary, strToDate, todayStr } from './repo';
+import { computeWeeklySummary, planDiff, strToDate, todayStr } from './repo';
 
 describe('Repo utility functions', () => {
   it('should format date correctly to string YYYY-MM-DD', () => {
@@ -70,5 +70,57 @@ describe('computeWeeklySummary', () => {
     });
 
     expect(summary.strengthDelta).toBeNull();
+  });
+});
+
+describe('planDiff', () => {
+  it('não gera mudanças quando o rascunho é igual ao plano salvo', () => {
+    const original = [
+      { planId: 1, exercise_id: 10 },
+      { planId: 2, exercise_id: 20 },
+    ];
+
+    expect(planDiff(original, original)).toEqual({
+      removedPlanIds: [],
+      addedExerciseIds: [],
+    });
+  });
+
+  it('detecta remoções e adições novas', () => {
+    const original = [
+      { planId: 1, exercise_id: 10 },
+      { planId: 2, exercise_id: 20 },
+    ];
+    const draft = [
+      { planId: 1, exercise_id: 10 },
+      { planId: null, exercise_id: 30 },
+    ];
+
+    expect(planDiff(original, draft)).toEqual({
+      removedPlanIds: [2],
+      addedExerciseIds: [30],
+    });
+  });
+
+  it('remove e re-adiciona o mesmo exercício', () => {
+    const original = [{ planId: 1, exercise_id: 10 }];
+    const draft = [{ planId: null, exercise_id: 10 }];
+
+    expect(planDiff(original, draft)).toEqual({
+      removedPlanIds: [1],
+      addedExerciseIds: [10],
+    });
+  });
+
+  it('ignora itens novos repetidos no rascunho', () => {
+    const draft = [
+      { planId: null, exercise_id: 30 },
+      { planId: null, exercise_id: 30 },
+    ];
+
+    expect(planDiff([], draft)).toEqual({
+      removedPlanIds: [],
+      addedExerciseIds: [30],
+    });
   });
 });

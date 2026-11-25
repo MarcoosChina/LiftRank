@@ -118,6 +118,74 @@ export async function removeFromPlan(db: SQLiteDatabase, planId: number) {
   await db.runAsync('DELETE FROM plan WHERE id = ?', planId);
 }
 
+/** Item do rascunho de um dia: `planId` é `null` quando ainda não foi salvo. */
+export interface PlanDraftItem {
+  planId: number | null;
+  exercise_id: number;
+}
+
+export interface PlanChanges {
+  removedPlanIds: number[];
+  addedExerciseIds: number[];
+}
+
+/** Calcula o que precisa ser removido/inserido para o rascunho virar o plano salvo. */
+export function planDiff(original: PlanDraftItem[], draft: PlanDraftItem[]): PlanChanges {
+  const draftPlanIds = new Set(
+    draft.map((item) => item.planId).filter((id): id is number => id !== null),
+  );
+  const removedPlanIds = original
+    .map((item) => item.planId)
+    .filter((id): id is number => id !== null && !draftPlanIds.has(id));
+
+  // Só consideramos "já presente" o exercício cuja linha continua no rascunho;
+  // remover e re-adicionar o mesmo exercício precisa de um INSERT novo.
+  const keptExerciseIds = new Set(
+    original
+      .filter((item) => item.planId !== null && draftPlanIds.has(item.planId))
+      .map((item) => item.exercise_id),
+  );
+  const addedExerciseIds = [
+    ...new Set(
+      draft
+        .filter((item) => item.planId === null)
+        .map((item) => item.exercise_id)
+        .filter((id) => !keptExerciseIds.has(id)),
+    ),
+  ];
+
+  return { removedPlanIds, addedExerciseIds };
+}
+
+export interface PlanDayChanges {
+  weekday: number;
+  changes: PlanChanges;
+}
+
+/** Aplica as mudanças de vários dias em uma única transação. */
+export async function savePlanChanges(
+  db: SQLiteDatabase,
+  days: PlanDayChanges[],
+  userId = 1,
+): Promise<void> {
+  const pending = days.filter(
+    (day) =>
+      day.changes.removedPlanIds.length > 0 || day.changes.addedExerciseIds.length > 0,
+  );
+  if (pending.length === 0) return;
+
+  await db.withExclusiveTransactionAsync(async (txn) => {
+    for (const { weekday, changes } of pending) {
+      for (const planId of changes.removedPlanIds) {
+        await removeFromPlan(txn, planId);
+      }
+      for (const exerciseId of changes.addedExerciseIds) {
+        await addToPlan(txn, weekday, exerciseId, userId);
+      }
+    }
+  });
+}
+
 async function getOrCreateSessionId(db: SQLiteDatabase, date: string, userId = 1): Promise<number> {
   const existing = await db.getFirstAsync<{ id: number }>(
     'SELECT id FROM sessions WHERE date = ? AND user_id = ?',
