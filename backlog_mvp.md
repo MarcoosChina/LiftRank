@@ -181,6 +181,15 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** Modal se ajusta corretamente acima do teclado e resultados da busca permanecem visíveis e roláveis em Android e iOS.
 - **Branch Sugerida:** `bugfix/modal-teclado-plano`
 
+### - [x] **BF.2: Banner do Plano Estourando Pixels no ScrollView**
+
+- **Prioridade:** Medium
+- **Status:** completed
+- **Descrição:** Corrigir o banner de conquista da aba Plano (`plano.tsx`), que crescia/estourava dentro do `ScrollView`; definir altura fixa de 92dp com `resizeMode="cover"` e `overflow: hidden`.
+- **Dependências:** TF.8
+- **Critérios de Aceitação:** Banner mantém proporção e altura estável em telas de tamanhos diferentes, sem cortar nem esticar o conteúdo.
+- **Branch Sugerida:** `bugfix/banner-plano-altura`
+
 ### - [ ] **TF.4: Login Social com Google (OAuth)**
 
 - **Prioridade:** Medium
@@ -280,4 +289,13 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Dependências:** TF.13
 - **Critérios de Aceitação:** Cancelar no alerta não altera o rascunho; confirmar remove e exibe a barra; desfazer restaura o exercício no índice original; barra some em 5s e ao salvar; toggle no modal de adicionar continua instantâneo; `tsc`, `lint` e `jest` verdes.
 - **Branch Sugerida:** `feature/plano-remover-com-desfazer`
+
+### - [x] **TF.15: Navegação entre Abas por Swipe com Transição Animada e Preview**
+
+- **Prioridade:** Medium
+- **Status:** completed
+- **Descrição:** Implementar navegação horizontal entre as abas (Hoje → Plano → Histórico → Stats) por gesto de swipe, com transição fluida. Inclui `GestureHandlerRootView` na raiz do app (correção do erro de render do gesture handler), uso da API v3 (`Gesture.Pan`) com `activeOffsetX`/`failOffsetY` para preservar o scroll vertical, animação acompanhando o dedo em tempo real via Reanimated, mola ao cancelar, resistência de 35% nas abas extremas e preview real das abas vizinhas montadas lado a lado (`tabs-context.tsx` + registry no `(tabs)/_layout.tsx`), com `pointerEvents="none"` e modo preview para evitar gestos aninhados e recursão — eliminando a área vazia no meio do movimento.
+- **Dependências:** TF.7, TF.8, TF.9
+- **Critérios de Aceitação:** Swipe troca de aba mostrando o conteúdo real da vizinha durante o movimento; scroll vertical continua funcionando; abas extremas resistem ao arrasto; nenhum crash de `PanGestureHandler`; `tsc`, `lint` e `jest` verdes.
+- **Branch Sugerida:** `feature/swipe-pager-transition`
 
