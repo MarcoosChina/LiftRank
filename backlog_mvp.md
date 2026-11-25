@@ -234,10 +234,10 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** Nenhuma mensagem de sucesso falsa na interface; fluxo acessível a partir do login (quando aplicável); textos explícitos sobre armazenamento local; `tsc`, `lint` e `jest` verdes.
 - **Branch Sugerida:** `fix/auth-recuperacao-senha`
 
-### - [ ] **T7.3: Remover Código Morto de Sincronização Cloud**
+### - [x] **T7.3: Remover Código Morto de Sincronização Cloud**
 
 - **Prioridade:** Medium
-- **Status:** pending
+- **Status:** completed
 - **Descrição:** `src/db/sync.ts` define `syncLocalDataToCloud` apontando para `https://api.liftrank.app/v1/sync` e nunca é importado por nenhuma tela ou hook. Remover o arquivo e o endpoint fictício para não sugerir transferência de dados ao declarar o *Data safety* na Google Play e para eliminar manutenção desnecessária.
 - **Dependências:** T1.3
 - **Critérios de Aceitação:** `src/db/sync.ts` removido; nenhum import quebrado; nenhuma referência a `api.liftrank.app` no código; `tsc`, `lint` e `jest` verdes.
