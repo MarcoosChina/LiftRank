@@ -1,5 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,18 +9,43 @@ import { PrimaryButton } from '@/components/primary-button';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { resetPassword } from '@/db/repo';
 import { useTheme } from '@/hooks/use-theme';
 import { Spacing } from '@/constants/theme';
 
 export default function ForgotPasswordScreen() {
+  const db = useSQLiteContext();
   const theme = useTheme();
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  function handleReset() {
-    if (!email) {
-      setError('Informe seu e-mail.');
+  async function handleReset() {
+    if (loading) {
+      return;
+    }
+    if (!email || !password || !confirm) {
+      setError('Preencha todos os campos.');
+      return;
+    }
+    if (password.length < 6) {
+      setError('A senha precisa ter ao menos 6 caracteres.');
+      return;
+    }
+    if (password !== confirm) {
+      setError('As senhas não conferem.');
+      return;
+    }
+
+    setLoading(true);
+    const res = await resetPassword(db, email, password);
+    setLoading(false);
+
+    if (!res.success) {
+      setError(res.error ?? 'Não foi possível redefinir a senha.');
       return;
     }
     setError('');
@@ -52,14 +78,15 @@ export default function ForgotPasswordScreen() {
               {success ? (
                 <View style={{ gap: Spacing.three }}>
                   <ThemedText type="small" style={{ color: theme.accent, lineHeight: 20 }}>
-                    Enviamos instruções de recuperação para <ThemedText type="smallBold">{email}</ThemedText>. Verifique sua caixa de entrada.
+                    Senha redefinida neste dispositivo. Entre com a nova senha para acessar sua conta.
                   </ThemedText>
                   <PrimaryButton label="VOLTAR AO LOGIN" onPress={() => router.replace('./login')} />
                 </View>
               ) : (
                 <>
                   <ThemedText type="small" style={{ color: theme.textSecondary, lineHeight: 20 }}>
-                    Digite o e-mail cadastrado e enviaremos um link para você redefinir sua senha.
+                    Sua conta fica apenas neste dispositivo, então não há envio de e-mail. Confirme o
+                    e-mail cadastrado e defina uma nova senha.
                   </ThemedText>
 
                   {Boolean(error) && (
@@ -81,7 +108,35 @@ export default function ForgotPasswordScreen() {
                     />
                   </View>
 
-                  <PrimaryButton label="ENVIAR INSTRUÇÕES" onPress={handleReset} />
+                  <View style={styles.inputGroup}>
+                    <ThemedText type="small" style={styles.label}>
+                      Nova senha
+                    </ThemedText>
+                    <TextField
+                      placeholder="Mínimo 6 caracteres"
+                      value={password}
+                      onChangeText={setPassword}
+                      secureTextEntry
+                    />
+                  </View>
+
+                  <View style={styles.inputGroup}>
+                    <ThemedText type="small" style={styles.label}>
+                      Confirmar nova senha
+                    </ThemedText>
+                    <TextField
+                      placeholder="Repita a nova senha"
+                      value={confirm}
+                      onChangeText={setConfirm}
+                      secureTextEntry
+                    />
+                  </View>
+
+                  <PrimaryButton
+                    label={loading ? 'REDEFININDO...' : 'REDEFINIR SENHA'}
+                    onPress={handleReset}
+                    disabled={loading}
+                  />
 
                   <Pressable
                     style={{ alignSelf: 'center', marginTop: 8 }}

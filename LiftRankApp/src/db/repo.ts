@@ -545,6 +545,34 @@ export async function loginUser(
   }
 }
 
+export async function resetPassword(
+  db: SQLiteDatabase,
+  email: string,
+  newPassword: string,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const user = await db.getFirstAsync<{ id: number }>(
+      'SELECT id FROM users WHERE email = ? COLLATE NOCASE',
+      email.trim().toLowerCase(),
+    );
+    if (!user) {
+      return { success: false, error: 'Nenhuma conta encontrada com este e-mail.' };
+    }
+    const { hash, salt, algo } = await hashPassword(newPassword);
+    await db.runAsync(
+      `UPDATE users SET password_hash = ?, password_salt = ?, password_algo = ?, password = ''
+       WHERE id = ?`,
+      hash,
+      salt,
+      algo,
+      user.id,
+    );
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e?.message ?? 'Erro ao redefinir a senha.' };
+  }
+}
+
 export async function getMaxWeightForExercise(db: SQLiteDatabase, exerciseId: number, userId = 1): Promise<number> {
   const result = await db.getFirstAsync<{ maxWeight: number | null }>(
     `SELECT MAX(s.weight) AS maxWeight FROM sets s

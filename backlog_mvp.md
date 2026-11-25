@@ -225,11 +225,11 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** Nenhuma senha em texto puro persistida após o login/migração; `loginUser` valida via hash + salt; usuários antigos continuam entrando sem resetar senha; teste unitário cobrindo `hashPassword`/`verifyPassword` (senha correta, incorreta e salt diferente gerando hash diferente); `tsc`, `lint` e `jest` verdes.
 - **Branch Sugerida:** `fix/auth-senha-hash`
 
-### - [ ] **T7.2: Recuperação de Senha Real ou Remoção do Fluxo Falso**
+### - [x] **T7.2: Recuperação de Senha Real ou Remoção do Fluxo Falso**
 
 - **Prioridade:** High
-- **Status:** pending
-- **Descrição:** `forgot-password.tsx` exibe “Enviamos instruções de recuperação para …” sem enviar nada, pois não existe backend. Escolher e implementar uma das opções: (a) remover a tela e o link “Esqueceu a senha?” do login; ou (b) implementar recuperação local honesta (ex.: confirmação de e-mail + data de criação da conta para definir nova senha, ou ação explícita de “redefinir dados locais” com aviso de perda do histórico). Em qualquer caso, os textos devem deixar claro que a conta é local ao dispositivo.
+- **Status:** completed
+- **Descrição:** `forgot-password.tsx` exibia “Enviamos instruções de recuperação para …” sem enviar nada, pois não existe backend. Implementada a opção (b): recuperação local honesta. A tela agora explica que a conta fica apenas no dispositivo (sem envio de e-mail) e permite redefinir a senha confirmando o e-mail cadastrado + nova senha + confirmação (mínimo 6 caracteres), chamando `resetPassword` em `repo.ts`, que grava hash/salt/algo e limpa a coluna legada `password`. O texto de sucesso passou a ser “Senha redefinida neste dispositivo. Entre com a nova senha para acessar sua conta.” — nada de mensagem falsa de e-mail enviado.
 - **Dependências:** T7.1
 - **Critérios de Aceitação:** Nenhuma mensagem de sucesso falsa na interface; fluxo acessível a partir do login (quando aplicável); textos explícitos sobre armazenamento local; `tsc`, `lint` e `jest` verdes.
 - **Branch Sugerida:** `fix/auth-recuperacao-senha`
