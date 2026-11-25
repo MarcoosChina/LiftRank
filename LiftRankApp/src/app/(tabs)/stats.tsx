@@ -25,7 +25,6 @@ import {
 import { formatNumber, useQuery } from '@/hooks/use-query';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useAuthStore } from '@/store/auth-store';
-import { SwipeableTabs } from '@/components/swipeable-tabs';
 import { ARCADE_COLORS, Spacing } from '@/constants/theme';
 
 const ICO_STATS = require('../../../assets/images/icones/ico-stats.png');
@@ -181,204 +180,202 @@ export default function StatsScreen() {
   }
 
   return (
-    <SwipeableTabs>
-      <ThemedView style={[styles.flex, { backgroundColor: ARCADE_COLORS.bgApp }]}>
-      <SafeAreaView style={styles.flex}>
-        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <View>
-            <View style={styles.titleRow}>
-              <Image
-                source={ICO_STATS}
-                style={{ width: 24, height: 24, tintColor: ARCADE_COLORS.primary }}
-              />
-              <ThemedText type="title" style={{ color: ARCADE_COLORS.text }}>
-                Stats
-              </ThemedText>
-              <View style={styles.badge}>
-                <ThemedText type="code" style={styles.badgeText}>
-                  [CHARACTER SHEET]
-                </ThemedText>
-              </View>
-            </View>
-            <ThemedText type="small" style={styles.subtitle}>
-              Sua evolução de herói em números
+    <ThemedView style={[styles.flex, { backgroundColor: ARCADE_COLORS.bgApp }]}>
+    <SafeAreaView style={styles.flex}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <View>
+          <View style={styles.titleRow}>
+            <Image
+              source={ICO_STATS}
+              style={{ width: 24, height: 24, tintColor: ARCADE_COLORS.primary }}
+            />
+            <ThemedText type="title" style={{ color: ARCADE_COLORS.text }}>
+              Stats
             </ThemedText>
+            <View style={styles.badge}>
+              <ThemedText type="code" style={styles.badgeText}>
+                [CHARACTER SHEET]
+              </ThemedText>
+            </View>
           </View>
+          <ThemedText type="small" style={styles.subtitle}>
+            Sua evolução de herói em números
+          </ThemedText>
+        </View>
 
-          <Segmented<Period>
-            options={PERIOD_OPTIONS}
-            value={period}
-            onChange={setPeriod}
-            tint={ARCADE_COLORS.primary}
+        <Segmented<Period>
+          options={PERIOD_OPTIONS}
+          value={period}
+          onChange={setPeriod}
+          tint={ARCADE_COLORS.primary}
+        />
+
+        <View style={styles.statRow}>
+          <StatCard
+            label="Volume total"
+            value={stats.data?.volume ?? 0}
+            unit="kg"
+            style={styles.statCard}
           />
+          <StatCard
+            label="Reps totais"
+            value={stats.data?.reps ?? 0}
+            unit="reps"
+            style={styles.statCard}
+          />
+        </View>
+        <View style={styles.statRow}>
+          <StatCard
+            label="Cardio"
+            value={stats.data?.cardioMinutes ?? 0}
+            unit="min"
+            style={styles.statCard}
+          />
+          <StatCard
+            label="Treinos"
+            value={stats.data?.sessions ?? 0}
+            unit=""
+            style={styles.statCard}
+          />
+        </View>
 
-          <View style={styles.statRow}>
-            <StatCard
-              label="Volume total"
-              value={stats.data?.volume ?? 0}
-              unit="kg"
-              style={styles.statCard}
-            />
-            <StatCard
-              label="Reps totais"
-              value={stats.data?.reps ?? 0}
-              unit="reps"
-              style={styles.statCard}
-            />
-          </View>
-          <View style={styles.statRow}>
-            <StatCard
-              label="Cardio"
-              value={stats.data?.cardioMinutes ?? 0}
-              unit="min"
-              style={styles.statCard}
-            />
-            <StatCard
+        <View style={styles.section}>
+          <ThemedText type="smallBold" style={styles.sectionTitle}>
+            RESUMO DA SEMANA
+          </ThemedText>
+          <View style={styles.miniRow}>
+            <MiniStat
+              icon={PXL_HALTERES}
               label="Treinos"
-              value={stats.data?.sessions ?? 0}
-              unit=""
-              style={styles.statCard}
+              value={formatNumber(weeklySummary?.workouts ?? 0)}
+              color={ARCADE_COLORS.info}
+            />
+            <MiniStat
+              icon={PXL_TROFEU}
+              label="Consistência"
+              value={`${weeklySummary?.consistency ?? 0}%`}
+              color={ARCADE_COLORS.success}
+            />
+            <MiniStat
+              icon={PXL_SETA_FORCA}
+              label="Força"
+              value={
+                strengthDelta === null
+                  ? '—'
+                  : `${strengthDelta > 0 ? '+' : ''}${strengthDelta}%`
+              }
+              color={strengthColor}
             />
           </View>
+        </View>
 
-          <View style={styles.section}>
-            <ThemedText type="smallBold" style={styles.sectionTitle}>
-              RESUMO DA SEMANA
+        <ThemedView style={[styles.card, styles.chartCard]}>
+          <View style={styles.cardHeader}>
+            <ThemedText type="smallBold" style={styles.cardTitle}>
+              EVOLUÇÃO DE VOLUME
             </ThemedText>
-            <View style={styles.miniRow}>
-              <MiniStat
-                icon={PXL_HALTERES}
-                label="Treinos"
-                value={formatNumber(weeklySummary?.workouts ?? 0)}
-                color={ARCADE_COLORS.info}
-              />
-              <MiniStat
-                icon={PXL_TROFEU}
-                label="Consistência"
-                value={`${weeklySummary?.consistency ?? 0}%`}
-                color={ARCADE_COLORS.success}
-              />
-              <MiniStat
-                icon={PXL_SETA_FORCA}
-                label="Força"
-                value={
-                  strengthDelta === null
-                    ? '—'
-                    : `${strengthDelta > 0 ? '+' : ''}${strengthDelta}%`
-                }
-                color={strengthColor}
-              />
-            </View>
-          </View>
-
-          <ThemedView style={[styles.card, styles.chartCard]}>
-            <View style={styles.cardHeader}>
-              <ThemedText type="smallBold" style={styles.cardTitle}>
-                EVOLUÇÃO DE VOLUME
-              </ThemedText>
-              {strengthDelta !== null && (
-                <ThemedText type="code" style={[styles.delta, { color: strengthColor }]}>
-                  {`${strengthDelta >= 0 ? '↑' : '↓'} ${Math.abs(strengthDelta)}%`}
-                </ThemedText>
-              )}
-            </View>
-            <ThemedText type="small" style={styles.cardHint}>
-              Últimos {CHART_DAYS} dias · volume em kg
-            </ThemedText>
-            <LineChart data={volumePoints} />
-          </ThemedView>
-
-          {/* Exercise Progression Chart (TF.2) */}
-          <ThemedView style={[styles.card, styles.chartCard]}>
-            <View style={styles.cardHeader}>
-              <ThemedText type="smallBold" style={styles.cardTitle}>
-                PROGRESSÃO DE CARGA
-              </ThemedText>
-              <ThemedText type="code" style={styles.delta} numberOfLines={1}>
-                {activeExercise?.name?.toUpperCase() ?? '—'}
-              </ThemedText>
-            </View>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.chipsRow}>
-              {strengthExercises.map((exercise) => (
-                <Chip
-                  key={exercise.id}
-                  label={exercise.name}
-                  selected={activeExercise?.id === exercise.id}
-                  onPress={() => setSelectedProgExerciseId(exercise.id)}
-                  tint={ARCADE_COLORS.primary}
-                />
-              ))}
-            </ScrollView>
-
-            <LineChart
-              data={progressionPoints}
-              emptyMessage="Sem registros de carga para este exercício."
-            />
-          </ThemedView>
-
-          <View style={styles.section}>
-            <ThemedText type="smallBold" style={styles.sectionTitle}>
-              POR EXERCÍCIO
-            </ThemedText>
-            {(stats.data?.perExercise ?? []).length === 0 && (
-              <ThemedText type="small" style={styles.emptyText}>
-                Sem dados neste período.
+            {strengthDelta !== null && (
+              <ThemedText type="code" style={[styles.delta, { color: strengthColor }]}>
+                {`${strengthDelta >= 0 ? '↑' : '↓'} ${Math.abs(strengthDelta)}%`}
               </ThemedText>
             )}
-            {(stats.data?.perExercise ?? []).map((exercise, index) => (
-              <View key={exercise.name} style={styles.rankingRow}>
-                <ThemedText type="smallBold" style={styles.rankNumber}>
-                  {index + 1}
+          </View>
+          <ThemedText type="small" style={styles.cardHint}>
+            Últimos {CHART_DAYS} dias · volume em kg
+          </ThemedText>
+          <LineChart data={volumePoints} />
+        </ThemedView>
+
+        {/* Exercise Progression Chart (TF.2) */}
+        <ThemedView style={[styles.card, styles.chartCard]}>
+          <View style={styles.cardHeader}>
+            <ThemedText type="smallBold" style={styles.cardTitle}>
+              PROGRESSÃO DE CARGA
+            </ThemedText>
+            <ThemedText type="code" style={styles.delta} numberOfLines={1}>
+              {activeExercise?.name?.toUpperCase() ?? '—'}
+            </ThemedText>
+          </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.chipsRow}>
+            {strengthExercises.map((exercise) => (
+              <Chip
+                key={exercise.id}
+                label={exercise.name}
+                selected={activeExercise?.id === exercise.id}
+                onPress={() => setSelectedProgExerciseId(exercise.id)}
+                tint={ARCADE_COLORS.primary}
+              />
+            ))}
+          </ScrollView>
+
+          <LineChart
+            data={progressionPoints}
+            emptyMessage="Sem registros de carga para este exercício."
+          />
+        </ThemedView>
+
+        <View style={styles.section}>
+          <ThemedText type="smallBold" style={styles.sectionTitle}>
+            POR EXERCÍCIO
+          </ThemedText>
+          {(stats.data?.perExercise ?? []).length === 0 && (
+            <ThemedText type="small" style={styles.emptyText}>
+              Sem dados neste período.
+            </ThemedText>
+          )}
+          {(stats.data?.perExercise ?? []).map((exercise, index) => (
+            <View key={exercise.name} style={styles.rankingRow}>
+              <ThemedText type="smallBold" style={styles.rankNumber}>
+                {index + 1}
+              </ThemedText>
+              <View style={styles.rankInfo}>
+                <ThemedText type="default" style={{ color: ARCADE_COLORS.text }}>
+                  {exercise.name}
                 </ThemedText>
-                <View style={styles.rankInfo}>
-                  <ThemedText type="default" style={{ color: ARCADE_COLORS.text }}>
-                    {exercise.name}
-                  </ThemedText>
-                  <ThemedText type="small" style={styles.rankSubtitle}>
-                    {exercise.series} séries · máx{' '}
-                    {formatNumber(
-                      exercise.maxWeight,
-                      exercise.maxWeight % 1 === 0 ? 0 : 1,
-                    )}{' '}
-                    kg
-                  </ThemedText>
-                </View>
-                <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.text }}>
-                  {formatNumber(exercise.volume)} kg
+                <ThemedText type="small" style={styles.rankSubtitle}>
+                  {exercise.series} séries · máx{' '}
+                  {formatNumber(
+                    exercise.maxWeight,
+                    exercise.maxWeight % 1 === 0 ? 0 : 1,
+                  )}{' '}
+                  kg
                 </ThemedText>
               </View>
-            ))}
-          </View>
+              <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.text }}>
+                {formatNumber(exercise.volume)} kg
+              </ThemedText>
+            </View>
+          ))}
+        </View>
 
-          <Pressable style={styles.secondaryButton} onPress={handleExportBackup}>
-            <ThemedText type="smallBold" style={styles.secondaryButtonText}>
-              Exportar Backup (JSON)
-            </ThemedText>
-          </Pressable>
+        <Pressable style={styles.secondaryButton} onPress={handleExportBackup}>
+          <ThemedText type="smallBold" style={styles.secondaryButtonText}>
+            Exportar Backup (JSON)
+          </ThemedText>
+        </Pressable>
 
-          <Pressable style={styles.secondaryButton} onPress={handleExportCsv}>
-            <ThemedText type="smallBold" style={styles.secondaryButtonText}>
-              Exportar Histórico (CSV)
-            </ThemedText>
-          </Pressable>
+        <Pressable style={styles.secondaryButton} onPress={handleExportCsv}>
+          <ThemedText type="smallBold" style={styles.secondaryButtonText}>
+            Exportar Histórico (CSV)
+          </ThemedText>
+        </Pressable>
 
-          <Pressable
-            style={styles.secondaryButton}
-            onPress={() => {
-              useAuthStore.getState().clearSession();
-              router.replace('/(auth)/login');
-            }}>
-            <ThemedText type="smallBold" style={[styles.secondaryButtonText, styles.dangerText]}>
-              Sair da Conta (Logout)
-            </ThemedText>
-          </Pressable>
-        </ScrollView>
-      </SafeAreaView>
+        <Pressable
+          style={styles.secondaryButton}
+          onPress={() => {
+            useAuthStore.getState().clearSession();
+            router.replace('/(auth)/login');
+          }}>
+          <ThemedText type="smallBold" style={[styles.secondaryButtonText, styles.dangerText]}>
+            Sair da Conta (Logout)
+          </ThemedText>
+        </Pressable>
+      </ScrollView>
+    </SafeAreaView>
     </ThemedView>
-    </SwipeableTabs>
   );
 }
 

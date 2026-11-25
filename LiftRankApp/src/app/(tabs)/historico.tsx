@@ -18,7 +18,6 @@ import { formatNumber, useQuery } from '@/hooks/use-query';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useAuthStore } from '@/store/auth-store';
 import { useTheme } from '@/hooks/use-theme';
-import { SwipeableTabs } from '@/components/swipeable-tabs';
 import { ARCADE_COLORS, Fonts, Spacing } from '@/constants/theme';
 
 const ICO_HISTORICO = require('../../../assets/images/icones/ico-historico.png');
@@ -68,163 +67,161 @@ export default function HistoricoScreen() {
   }, [expandedId, sessionDetail]);
 
   return (
-    <SwipeableTabs>
-      <ThemedView style={[styles.flex, { backgroundColor: '#0E0B1E' }]}>
-      <SafeAreaView style={styles.flex}>
-        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Image
-                source={ICO_HISTORICO}
-                style={{ width: 24, height: 24, tintColor: ARCADE_COLORS.primary }}
-              />
-              <ThemedText type="title" style={{ color: ARCADE_COLORS.textPrimary }}>Histórico</ThemedText>
-              <View style={{ backgroundColor: ARCADE_COLORS.bgCard, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: ARCADE_COLORS.primary }}>
-                <ThemedText type="code" style={{ color: ARCADE_COLORS.primary, fontSize: 10 }}>[ADVENTURE LOG]</ThemedText>
-              </View>
+    <ThemedView style={[styles.flex, { backgroundColor: '#0E0B1E' }]}>
+    <SafeAreaView style={styles.flex}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Image
+              source={ICO_HISTORICO}
+              style={{ width: 24, height: 24, tintColor: ARCADE_COLORS.primary }}
+            />
+            <ThemedText type="title" style={{ color: ARCADE_COLORS.textPrimary }}>Histórico</ThemedText>
+            <View style={{ backgroundColor: ARCADE_COLORS.bgCard, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, borderWidth: 1, borderColor: ARCADE_COLORS.primary }}>
+              <ThemedText type="code" style={{ color: ARCADE_COLORS.primary, fontSize: 10 }}>[ADVENTURE LOG]</ThemedText>
             </View>
-            <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary, marginTop: 2 }}>
-              {sessions.data?.length ?? 0} jornadas concluídas
-            </ThemedText>
           </View>
-
-          {(sessions.data ?? []).length === 0 && (
-            <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary }}>
-              Nada por aqui ainda. Registre séries na aba Hoje.
-            </ThemedText>
-          )}
-
-          {(sessions.data ?? []).map((session) => {
-            const expanded = expandedId === session.id;
-            const d = strToDate(session.date);
-            const progressPercent = Math.min(100, Math.round(((session.reps ?? 0) / Math.max(session.volume ?? 1, 1)) * 100));
-            return (
-              <ThemedView key={session.id} style={[styles.sessionCard, { backgroundColor: ARCADE_COLORS.bgCard, borderColor: ARCADE_COLORS.border }]}>
-                <Pressable
-                  onPress={() => toggleExpand(session.id)}>
-                  <View style={styles.sessionHeader}>
-                    <View style={styles.sessionDate}>
-                      <ThemedText type="subtitle" style={[styles.dayNumber, { color: ARCADE_COLORS.textPrimary }]}>
-                        {format(d, 'dd')}
-                      </ThemedText>
-                      <View>
-                        <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.textPrimary }}>{format(d, 'MMMM', { locale: ptBR })}</ThemedText>
-                        <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary }}>
-                          {format(d, 'EEEE', { locale: ptBR })}
-                        </ThemedText>
-                      </View>
-                    </View>
-                    <View style={styles.sessionStats}>
-                      <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.textPrimary }}>{formatNumber(session.volume)} kg</ThemedText>
-                      <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary }}>
-                        {formatNumber(session.reps)} reps · {formatNumber(session.cardio_minutes, session.cardio_minutes % 1 === 0 ? 0 : 1)} min cardio
-                      </ThemedText>
-                      <ThemedText type="code" style={{ color: ARCADE_COLORS.success, fontSize: 10, marginTop: 4 }}>
-                        {progressPercent}% PROGRESSO
-                      </ThemedText>
-                    </View>
-                  </View>
-                </Pressable>
-
-                {expanded && (
-                  <View style={[styles.detail, { borderTopColor: ARCADE_COLORS.border }]}>
-                    {loadingDetail && (
-                      <ActivityIndicator color={theme.accent} style={{ marginVertical: 8 }} />
-                    )}
-                    {!loadingDetail && grouped && (
-                      <>
-                        {grouped.byExercise.map(([name, info]) => (
-                          <View key={name} style={styles.exerciseBlock}>
-                            <View style={styles.exerciseRow}>
-                              <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.textPrimary }}>{name}</ThemedText>
-                              <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary }}>
-                                {info.series} séries · {formatNumber(info.volume)} kg
-                              </ThemedText>
-                            </View>
-                            <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary }}>
-                              {info.rows.join('  ·  ')}
-                            </ThemedText>
-                            <ThemedView type="backgroundElement" style={[styles.progressTrack, { borderColor: ARCADE_COLORS.border }]}>
-                              <ThemedView type="backgroundElement" style={[styles.progressFill, { width: `${Math.min(100, Math.round((info.volume / session.volume) * 100))}%` }]} />
-                            </ThemedView>
-                          </View>
-                        ))}
-                        {grouped.cardio.map((c) => (
-                          <View key={c.name} style={styles.exerciseRow}>
-                            <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.textPrimary }}>⏱ {c.name}</ThemedText>
-                            <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary }}>
-                              {formatNumber(c.minutes, c.minutes % 1 === 0 ? 0 : 1)} min
-                            </ThemedText>
-                          </View>
-                        ))}
-                      </>
-                    )}
-                    <Pressable
-                      hitSlop={6}
-                      onPress={() => {
-                        setConfirmDelete({ id: session.id, date: session.date });
-                      }}>
-                      <ThemedText type="smallBold" style={{ color: theme.danger }}>
-                        Apagar treino
-                      </ThemedText>
-                    </Pressable>
-                  </View>
-                )}
-              </ThemedView>
-            );
-          })}
-        </ScrollView>
-      </SafeAreaView>
-
-      <Modal visible={confirmDelete !== null} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <Pressable style={styles.modalBackdrop} onPress={() => setConfirmDelete(null)} />
-          <ThemedView type="backgroundElement" style={styles.modalCard}>
-            <ThemedText type="subtitle" style={styles.modalTitle}>
-              Apagar treino?
-            </ThemedText>
-            <ThemedText type="small" style={styles.modalMessage}>
-              O treino de{' '}
-              <ThemedText type="smallBold">
-                {confirmDelete ? format(strToDate(confirmDelete.date), "d 'de' MMMM 'de' yyyy", { locale: ptBR }) : ''}
-              </ThemedText>{' '}
-              será apagado permanentemente, junto com todas as séries e cardio registrados.
-            </ThemedText>
-            <View style={styles.modalButtons}>
-              <Pressable
-                style={styles.modalButton}
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  setConfirmDelete(null);
-                }}>
-                <ThemedView type="backgroundSelected" style={styles.cancelButton}>
-                  <ThemedText type="smallBold">Cancelar</ThemedText>
-                </ThemedView>
-              </Pressable>
-              <Pressable
-                style={styles.modalButton}
-                onPress={() => {
-                  if (!confirmDelete) return;
-                  deleteSession(db, confirmDelete.id).then(() => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-                    setExpandedId(null);
-                    setSessionDetail(null);
-                    setConfirmDelete(null);
-                    sessions.reload();
-                  });
-                }}>
-                <ThemedView style={[styles.deleteButton, { backgroundColor: theme.danger }]}>
-                  <ThemedText type="smallBold" style={{ color: theme.accentInk, letterSpacing: 2 }}>
-                    APAGAR
-                  </ThemedText>
-                </ThemedView>
-              </Pressable>
-            </View>
-          </ThemedView>
+          <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary, marginTop: 2 }}>
+            {sessions.data?.length ?? 0} jornadas concluídas
+          </ThemedText>
         </View>
-      </Modal>
-      </ThemedView>
-    </SwipeableTabs>
+
+        {(sessions.data ?? []).length === 0 && (
+          <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary }}>
+            Nada por aqui ainda. Registre séries na aba Hoje.
+          </ThemedText>
+        )}
+
+        {(sessions.data ?? []).map((session) => {
+          const expanded = expandedId === session.id;
+          const d = strToDate(session.date);
+          const progressPercent = Math.min(100, Math.round(((session.reps ?? 0) / Math.max(session.volume ?? 1, 1)) * 100));
+          return (
+            <ThemedView key={session.id} style={[styles.sessionCard, { backgroundColor: ARCADE_COLORS.bgCard, borderColor: ARCADE_COLORS.border }]}>
+              <Pressable
+                onPress={() => toggleExpand(session.id)}>
+                <View style={styles.sessionHeader}>
+                  <View style={styles.sessionDate}>
+                    <ThemedText type="subtitle" style={[styles.dayNumber, { color: ARCADE_COLORS.textPrimary }]}>
+                      {format(d, 'dd')}
+                    </ThemedText>
+                    <View>
+                      <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.textPrimary }}>{format(d, 'MMMM', { locale: ptBR })}</ThemedText>
+                      <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary }}>
+                        {format(d, 'EEEE', { locale: ptBR })}
+                      </ThemedText>
+                    </View>
+                  </View>
+                  <View style={styles.sessionStats}>
+                    <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.textPrimary }}>{formatNumber(session.volume)} kg</ThemedText>
+                    <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary }}>
+                      {formatNumber(session.reps)} reps · {formatNumber(session.cardio_minutes, session.cardio_minutes % 1 === 0 ? 0 : 1)} min cardio
+                    </ThemedText>
+                    <ThemedText type="code" style={{ color: ARCADE_COLORS.success, fontSize: 10, marginTop: 4 }}>
+                      {progressPercent}% PROGRESSO
+                    </ThemedText>
+                  </View>
+                </View>
+              </Pressable>
+
+              {expanded && (
+                <View style={[styles.detail, { borderTopColor: ARCADE_COLORS.border }]}>
+                  {loadingDetail && (
+                    <ActivityIndicator color={theme.accent} style={{ marginVertical: 8 }} />
+                  )}
+                  {!loadingDetail && grouped && (
+                    <>
+                      {grouped.byExercise.map(([name, info]) => (
+                        <View key={name} style={styles.exerciseBlock}>
+                          <View style={styles.exerciseRow}>
+                            <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.textPrimary }}>{name}</ThemedText>
+                            <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary }}>
+                              {info.series} séries · {formatNumber(info.volume)} kg
+                            </ThemedText>
+                          </View>
+                          <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary }}>
+                            {info.rows.join('  ·  ')}
+                          </ThemedText>
+                          <ThemedView type="backgroundElement" style={[styles.progressTrack, { borderColor: ARCADE_COLORS.border }]}>
+                            <ThemedView type="backgroundElement" style={[styles.progressFill, { width: `${Math.min(100, Math.round((info.volume / session.volume) * 100))}%` }]} />
+                          </ThemedView>
+                        </View>
+                      ))}
+                      {grouped.cardio.map((c) => (
+                        <View key={c.name} style={styles.exerciseRow}>
+                          <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.textPrimary }}>⏱ {c.name}</ThemedText>
+                          <ThemedText type="small" style={{ color: ARCADE_COLORS.textSecondary }}>
+                            {formatNumber(c.minutes, c.minutes % 1 === 0 ? 0 : 1)} min
+                          </ThemedText>
+                        </View>
+                      ))}
+                    </>
+                  )}
+                  <Pressable
+                    hitSlop={6}
+                    onPress={() => {
+                      setConfirmDelete({ id: session.id, date: session.date });
+                    }}>
+                    <ThemedText type="smallBold" style={{ color: theme.danger }}>
+                      Apagar treino
+                    </ThemedText>
+                  </Pressable>
+                </View>
+              )}
+            </ThemedView>
+          );
+        })}
+      </ScrollView>
+    </SafeAreaView>
+
+    <Modal visible={confirmDelete !== null} transparent animationType="fade">
+      <View style={styles.modalOverlay}>
+        <Pressable style={styles.modalBackdrop} onPress={() => setConfirmDelete(null)} />
+        <ThemedView type="backgroundElement" style={styles.modalCard}>
+          <ThemedText type="subtitle" style={styles.modalTitle}>
+            Apagar treino?
+          </ThemedText>
+          <ThemedText type="small" style={styles.modalMessage}>
+            O treino de{' '}
+            <ThemedText type="smallBold">
+              {confirmDelete ? format(strToDate(confirmDelete.date), "d 'de' MMMM 'de' yyyy", { locale: ptBR }) : ''}
+            </ThemedText>{' '}
+            será apagado permanentemente, junto com todas as séries e cardio registrados.
+          </ThemedText>
+          <View style={styles.modalButtons}>
+            <Pressable
+              style={styles.modalButton}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setConfirmDelete(null);
+              }}>
+              <ThemedView type="backgroundSelected" style={styles.cancelButton}>
+                <ThemedText type="smallBold">Cancelar</ThemedText>
+              </ThemedView>
+            </Pressable>
+            <Pressable
+              style={styles.modalButton}
+              onPress={() => {
+                if (!confirmDelete) return;
+                deleteSession(db, confirmDelete.id).then(() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+                  setExpandedId(null);
+                  setSessionDetail(null);
+                  setConfirmDelete(null);
+                  sessions.reload();
+                });
+              }}>
+              <ThemedView style={[styles.deleteButton, { backgroundColor: theme.danger }]}>
+                <ThemedText type="smallBold" style={{ color: theme.accentInk, letterSpacing: 2 }}>
+                  APAGAR
+                </ThemedText>
+              </ThemedView>
+            </Pressable>
+          </View>
+        </ThemedView>
+      </View>
+    </Modal>
+    </ThemedView>
   );
 }
 

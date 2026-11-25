@@ -17,7 +17,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Chip } from '@/components/chip';
 import { PrimaryButton } from '@/components/primary-button';
-import { SwipeableTabs } from '@/components/swipeable-tabs';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -299,334 +298,332 @@ export default function PlanoScreen() {
   });
 
   return (
-    <SwipeableTabs>
-      <ThemedView style={[styles.flex, { backgroundColor: ARCADE_COLORS.bgApp }]}>
-        <SafeAreaView style={styles.flex}>
-          <ScrollView
-            contentContainerStyle={styles.content}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled">
-            <View>
-              <View style={styles.headerRow}>
-                <Image source={ICO_PLANO} style={styles.headerIcon} />
-                <ThemedText type="subtitle" style={styles.headerTitle}>
-                  Meu Plano
-                </ThemedText>
-                <View style={styles.headerBadge}>
-                  <ThemedText type="code" style={styles.headerBadgeText}>
-                    [QUEST LOG]
-                  </ThemedText>
-                </View>
-              </View>
-              <ThemedText type="small" style={styles.subtitle}>
-                Missões e treinos da semana
+    <ThemedView style={[styles.flex, { backgroundColor: ARCADE_COLORS.bgApp }]}>
+      <SafeAreaView style={styles.flex}>
+        <ScrollView
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled">
+          <View>
+            <View style={styles.headerRow}>
+              <Image source={ICO_PLANO} style={styles.headerIcon} />
+              <ThemedText type="subtitle" style={styles.headerTitle}>
+                Meu Plano
               </ThemedText>
+              <View style={styles.headerBadge}>
+                <ThemedText type="code" style={styles.headerBadgeText}>
+                  [QUEST LOG]
+                </ThemedText>
+              </View>
             </View>
+            <ThemedText type="small" style={styles.subtitle}>
+              Missões e treinos da semana
+            </ThemedText>
+          </View>
 
-            {/* Banner de conquista (skill.md §5.7) */}
-            <View
-              style={[
-                styles.banner,
-                { height: compact ? 80 : 92 },
-              ]}>
-              <Image source={BANNER_PLANO} style={styles.bannerImage} resizeMode="cover" />
-            </View>
+          {/* Banner de conquista (skill.md §5.7) */}
+          <View
+            style={[
+              styles.banner,
+              { height: compact ? 80 : 92 },
+            ]}>
+            <Image source={BANNER_PLANO} style={styles.bannerImage} resizeMode="cover" />
+          </View>
 
-            {/* Dias da semana em linha, ocupando a largura disponível */}
-            <View style={styles.daysRow}>
-              {DAYS.map((day) => {
-                const isSelected = day.weekday === selectedWeekday;
-                const isTodayChip = day.weekday === todayWeekday;
-                const hasPending = Boolean(changesByWeekday[day.weekday]);
-                return (
-                  <Pressable
-                    key={day.weekday}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: isSelected }}
-                    accessibilityLabel={`${day.label}${hasPending ? ', alterações não salvas' : ''}`}
-                    hitSlop={{ top: 6, bottom: 6 }}
-                    onPress={() => setSelectedWeekday(day.weekday)}
-                    style={styles.dayChipSlot}>
-                    {({ pressed }) => (
-                      <View
+          {/* Dias da semana em linha, ocupando a largura disponível */}
+          <View style={styles.daysRow}>
+            {DAYS.map((day) => {
+              const isSelected = day.weekday === selectedWeekday;
+              const isTodayChip = day.weekday === todayWeekday;
+              const hasPending = Boolean(changesByWeekday[day.weekday]);
+              return (
+                <Pressable
+                  key={day.weekday}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: isSelected }}
+                  accessibilityLabel={`${day.label}${hasPending ? ', alterações não salvas' : ''}`}
+                  hitSlop={{ top: 6, bottom: 6 }}
+                  onPress={() => setSelectedWeekday(day.weekday)}
+                  style={styles.dayChipSlot}>
+                  {({ pressed }) => (
+                    <View
+                      style={[
+                        styles.dayChip,
+                        compact && styles.dayChipCompact,
+                        {
+                          backgroundColor: isSelected
+                            ? ARCADE_COLORS.primary
+                            : ARCADE_COLORS.bgCard,
+                          borderColor: isSelected
+                            ? ARCADE_COLORS.primary
+                            : isTodayChip
+                              ? ARCADE_COLORS.accent
+                              : 'transparent',
+                          opacity: pressed ? 0.75 : 1,
+                        },
+                      ]}>
+                      <ThemedText
+                        type="smallBold"
+                        numberOfLines={1}
+                        adjustsFontSizeToFit
+                        minimumFontScale={0.75}
                         style={[
-                          styles.dayChip,
-                          compact && styles.dayChipCompact,
+                          styles.dayChipLabel,
                           {
-                            backgroundColor: isSelected
-                              ? ARCADE_COLORS.primary
-                              : ARCADE_COLORS.bgCard,
-                            borderColor: isSelected
-                              ? ARCADE_COLORS.primary
-                              : isTodayChip
-                                ? ARCADE_COLORS.accent
-                                : 'transparent',
-                            opacity: pressed ? 0.75 : 1,
+                            fontSize: compact ? 11 : 12,
+                            color: isSelected ? '#FFFFFF' : ARCADE_COLORS.textSecondary,
                           },
                         ]}>
-                        <ThemedText
-                          type="smallBold"
-                          numberOfLines={1}
-                          adjustsFontSizeToFit
-                          minimumFontScale={0.75}
-                          style={[
-                            styles.dayChipLabel,
-                            {
-                              fontSize: compact ? 11 : 12,
-                              color: isSelected ? '#FFFFFF' : ARCADE_COLORS.textSecondary,
-                            },
-                          ]}>
-                          {day.short}
-                        </ThemedText>
-                        <View
-                          style={[
-                            styles.pendingDot,
-                            {
-                              opacity: hasPending ? 1 : 0,
-                              backgroundColor: isSelected
-                                ? ARCADE_COLORS.accent
-                                : ARCADE_COLORS.primary,
-                            },
-                          ]}
-                        />
-                      </View>
-                    )}
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            {/* Treino do dia selecionado */}
-            <ThemedView style={[styles.dayCard, compact && styles.dayCardCompact]}>
-              <View style={styles.cardHeader}>
-                <Image source={PXL_HALTERES} style={styles.cardIcon} resizeMode="contain" />
-                <View style={styles.cardHeaderText}>
-                  <ThemedText
-                    type="subtitle"
-                    numberOfLines={1}
-                    adjustsFontSizeToFit
-                    minimumFontScale={0.8}
-                    style={[styles.cardTitle, compact && styles.cardTitleCompact]}>
-                    Treino de {selectedDay.label}
-                  </ThemedText>
-                  <ThemedText type="small" style={styles.cardSubtitle}>
-                    {selectedDraft.length === 0
-                      ? 'Descanso'
-                      : `${selectedDraft.length} exercício${selectedDraft.length > 1 ? 's' : ''}`}
-                    {isToday ? ' · Hoje' : ''}
-                  </ThemedText>
-                </View>
-              </View>
-
-              {selectedDraft.length === 0 ? (
-                <ThemedText type="small" style={styles.emptyText}>
-                  Dia livre. Toque em “+ Adicionar Exercício” para montar este treino.
-                </ThemedText>
-              ) : (
-                <View style={styles.exerciseList}>
-                  {selectedDraft.map((item) => {
-                    const done = isToday && Boolean(doneExerciseIds?.has(item.exercise_id));
-                    return (
+                        {day.short}
+                      </ThemedText>
                       <View
-                        key={`${item.planId ?? 'new'}-${item.exercise_id}`}
                         style={[
-                          styles.exerciseRow,
-                          compact && styles.exerciseRowCompact,
-                        ]}>
-                        <View style={styles.exerciseInfo}>
-                          <ThemedText
-                            type="smallBold"
-                            numberOfLines={1}
-                            style={styles.exerciseName}>
-                            {item.kind === 'cardio' ? '⏱ ' : ''}
-                            {item.name}
-                          </ThemedText>
-                          <ThemedText
-                            type="code"
-                            style={[
-                              styles.exerciseKind,
-                              { color: item.planId === null ? ARCADE_COLORS.accent : ARCADE_COLORS.textSecondary },
-                            ]}>
-                            {item.planId === null ? 'NOVO · ' : ''}
-                            {item.kind === 'cardio' ? 'CARDIO' : 'MUSCULAÇÃO'}
-                          </ThemedText>
-                        </View>
-
-                        <Pressable
-                          hitSlop={10}
-                          accessibilityRole="button"
-                          accessibilityLabel={`Remover ${item.name}`}
-                          onPress={() => requestRemove(selectedWeekday, item)}
-                          style={styles.removeButton}>
-                          <ThemedText type="smallBold" style={styles.removeIcon}>
-                            ✕
-                          </ThemedText>
-                        </Pressable>
-
-                        <View
-                          style={[
-                            styles.doneCircle,
-                            {
-                              borderColor: done
-                                ? ARCADE_COLORS.success
-                                : ARCADE_COLORS.border,
-                              backgroundColor: done ? ARCADE_COLORS.success : 'transparent',
-                            },
-                          ]}>
-                          {done ? (
-                            <ThemedText type="code" style={styles.doneCheck}>
-                              ✓
-                            </ThemedText>
-                          ) : null}
-                        </View>
-                      </View>
-                    );
-                  })}
-                </View>
-              )}
-
-              <Pressable
-                accessibilityRole="button"
-                onPress={() => {
-                  setSearchQuery('');
-                  setPickerDay(selectedDay);
-                }}
-                style={({ pressed }) => [styles.addButton, { opacity: pressed ? 0.65 : 1 }]}>
-                <ThemedText type="smallBold" style={styles.addButtonLabel}>
-                  + Adicionar Exercício
-                </ThemedText>
-              </Pressable>
-            </ThemedView>
-          </ScrollView>
-
-          {pendingUndo ? (
-            <View style={styles.undoBar} accessibilityLiveRegion="polite">
-              <ThemedText type="small" numberOfLines={1} style={styles.undoText}>
-                “{pendingUndo.item.name}” removido
-              </ThemedText>
-              <Pressable
-                hitSlop={8}
-                accessibilityRole="button"
-                accessibilityLabel={`Desfazer remoção de ${pendingUndo.item.name}`}
-                onPress={undoRemove}>
-                <ThemedText type="smallBold" style={styles.undoAction}>
-                  DESFAZER
-                </ThemedText>
-              </Pressable>
-            </View>
-          ) : null}
-
-          {dirtyWeekdays.length > 0 ? (
-            <View style={styles.footer}>
-              <PrimaryButton
-                label={saving ? 'SALVANDO...' : 'SALVAR ALTERAÇÕES'}
-                onPress={saveDrafts}
-                disabled={saving}
-                tone="primary"
-              />
-            </View>
-          ) : null}
-        </SafeAreaView>
-
-        <Modal visible={pickerDay !== null} animationType="slide" transparent>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            style={styles.modalOverlay}>
-            <Pressable style={styles.modalBackdrop} onPress={() => setPickerDay(null)} />
-            <ThemedView style={styles.modalSheet}>
-              <View style={styles.modalHeader}>
-                <ThemedText type="subtitle" style={styles.modalTitle}>
-                  {pickerDay?.label ?? ''}
-                </ThemedText>
-                <Pressable hitSlop={10} onPress={() => setPickerDay(null)}>
-                  <ThemedText type="smallBold" style={styles.modalClose}>
-                    Fechar
-                  </ThemedText>
+                          styles.pendingDot,
+                          {
+                            opacity: hasPending ? 1 : 0,
+                            backgroundColor: isSelected
+                              ? ARCADE_COLORS.accent
+                              : ARCADE_COLORS.primary,
+                          },
+                        ]}
+                      />
+                    </View>
+                  )}
                 </Pressable>
+              );
+            })}
+          </View>
+
+          {/* Treino do dia selecionado */}
+          <ThemedView style={[styles.dayCard, compact && styles.dayCardCompact]}>
+            <View style={styles.cardHeader}>
+              <Image source={PXL_HALTERES} style={styles.cardIcon} resizeMode="contain" />
+              <View style={styles.cardHeaderText}>
+                <ThemedText
+                  type="subtitle"
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.8}
+                  style={[styles.cardTitle, compact && styles.cardTitleCompact]}>
+                  Treino de {selectedDay.label}
+                </ThemedText>
+                <ThemedText type="small" style={styles.cardSubtitle}>
+                  {selectedDraft.length === 0
+                    ? 'Descanso'
+                    : `${selectedDraft.length} exercício${selectedDraft.length > 1 ? 's' : ''}`}
+                  {isToday ? ' · Hoje' : ''}
+                </ThemedText>
               </View>
+            </View>
 
-              <View style={styles.kindRow}>
-                <Chip
-                  label="Musculação"
-                  selected={pickerKind === 'strength'}
-                  onPress={() => {
-                    setPickerKind('strength');
-                    setSearchQuery('');
-                  }}
-                  style={pickerKind === 'strength' ? styles.chipSelected : undefined}
-                />
-                <Chip
-                  label="Cardio"
-                  selected={pickerKind === 'cardio'}
-                  onPress={() => {
-                    setPickerKind('cardio');
-                    setSearchQuery('');
-                  }}
-                  style={pickerKind === 'cardio' ? styles.chipSelected : undefined}
-                />
-              </View>
-
-              <TextField
-                placeholder="Buscar exercício..."
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-              />
-
-              <ScrollView style={styles.exercisePicker} keyboardShouldPersistTaps="handled">
-                {filteredExercises.length === 0 ? (
-                  <ThemedText type="small" style={styles.pickerEmpty}>
-                    Nenhum exercício encontrado. Crie um abaixo.
-                  </ThemedText>
-                ) : (
-                  filteredExercises.map((exercise) => {
-                    const inDraft = pickerDraft.some(
-                      (item) => item.exercise_id === exercise.id,
-                    );
-                    return (
-                      <Pressable
-                        key={exercise.id}
-                        accessibilityRole="button"
-                        accessibilityState={{ selected: inDraft }}
-                        style={styles.exerciseRow}
-                        onPress={() => pickerDay && toggleExercise(pickerDay.weekday, exercise)}>
-                        <ThemedText
-                          type="default"
-                          numberOfLines={1}
-                          style={styles.pickerExerciseName}>
-                          {exercise.name}
-                        </ThemedText>
+            {selectedDraft.length === 0 ? (
+              <ThemedText type="small" style={styles.emptyText}>
+                Dia livre. Toque em “+ Adicionar Exercício” para montar este treino.
+              </ThemedText>
+            ) : (
+              <View style={styles.exerciseList}>
+                {selectedDraft.map((item) => {
+                  const done = isToday && Boolean(doneExerciseIds?.has(item.exercise_id));
+                  return (
+                    <View
+                      key={`${item.planId ?? 'new'}-${item.exercise_id}`}
+                      style={[
+                        styles.exerciseRow,
+                        compact && styles.exerciseRowCompact,
+                      ]}>
+                      <View style={styles.exerciseInfo}>
                         <ThemedText
                           type="smallBold"
-                          style={{
-                            color: inDraft ? ARCADE_COLORS.success : ARCADE_COLORS.accent,
-                          }}>
-                          {inDraft ? '✓' : '+'}
+                          numberOfLines={1}
+                          style={styles.exerciseName}>
+                          {item.kind === 'cardio' ? '⏱ ' : ''}
+                          {item.name}
+                        </ThemedText>
+                        <ThemedText
+                          type="code"
+                          style={[
+                            styles.exerciseKind,
+                            { color: item.planId === null ? ARCADE_COLORS.accent : ARCADE_COLORS.textSecondary },
+                          ]}>
+                          {item.planId === null ? 'NOVO · ' : ''}
+                          {item.kind === 'cardio' ? 'CARDIO' : 'MUSCULAÇÃO'}
+                        </ThemedText>
+                      </View>
+
+                      <Pressable
+                        hitSlop={10}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Remover ${item.name}`}
+                        onPress={() => requestRemove(selectedWeekday, item)}
+                        style={styles.removeButton}>
+                        <ThemedText type="smallBold" style={styles.removeIcon}>
+                          ✕
                         </ThemedText>
                       </Pressable>
-                    );
-                  })
-                )}
-              </ScrollView>
 
-              <View style={styles.newExerciseRow}>
-                <TextField
-                  style={styles.newExerciseInput}
-                  value={newExerciseName}
-                  onChangeText={setNewExerciseName}
-                  placeholder="Novo exercício..."
-                  onSubmitEditing={addNewExercise}
-                />
-                <Pressable hitSlop={6} onPress={addNewExercise}>
-                  <ThemedText type="smallBold" style={styles.newExerciseAction}>
-                    Criar
-                  </ThemedText>
-                </Pressable>
+                      <View
+                        style={[
+                          styles.doneCircle,
+                          {
+                            borderColor: done
+                              ? ARCADE_COLORS.success
+                              : ARCADE_COLORS.border,
+                            backgroundColor: done ? ARCADE_COLORS.success : 'transparent',
+                          },
+                        ]}>
+                        {done ? (
+                          <ThemedText type="code" style={styles.doneCheck}>
+                            ✓
+                          </ThemedText>
+                        ) : null}
+                      </View>
+                    </View>
+                  );
+                })}
               </View>
-            </ThemedView>
-          </KeyboardAvoidingView>
-        </Modal>
-      </ThemedView>
-    </SwipeableTabs>
+            )}
+
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => {
+                setSearchQuery('');
+                setPickerDay(selectedDay);
+              }}
+              style={({ pressed }) => [styles.addButton, { opacity: pressed ? 0.65 : 1 }]}>
+              <ThemedText type="smallBold" style={styles.addButtonLabel}>
+                + Adicionar Exercício
+              </ThemedText>
+            </Pressable>
+          </ThemedView>
+        </ScrollView>
+
+        {pendingUndo ? (
+          <View style={styles.undoBar} accessibilityLiveRegion="polite">
+            <ThemedText type="small" numberOfLines={1} style={styles.undoText}>
+              “{pendingUndo.item.name}” removido
+            </ThemedText>
+            <Pressable
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel={`Desfazer remoção de ${pendingUndo.item.name}`}
+              onPress={undoRemove}>
+              <ThemedText type="smallBold" style={styles.undoAction}>
+                DESFAZER
+              </ThemedText>
+            </Pressable>
+          </View>
+        ) : null}
+
+        {dirtyWeekdays.length > 0 ? (
+          <View style={styles.footer}>
+            <PrimaryButton
+              label={saving ? 'SALVANDO...' : 'SALVAR ALTERAÇÕES'}
+              onPress={saveDrafts}
+              disabled={saving}
+              tone="primary"
+            />
+          </View>
+        ) : null}
+      </SafeAreaView>
+
+      <Modal visible={pickerDay !== null} animationType="slide" transparent>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.modalOverlay}>
+          <Pressable style={styles.modalBackdrop} onPress={() => setPickerDay(null)} />
+          <ThemedView style={styles.modalSheet}>
+            <View style={styles.modalHeader}>
+              <ThemedText type="subtitle" style={styles.modalTitle}>
+                {pickerDay?.label ?? ''}
+              </ThemedText>
+              <Pressable hitSlop={10} onPress={() => setPickerDay(null)}>
+                <ThemedText type="smallBold" style={styles.modalClose}>
+                  Fechar
+                </ThemedText>
+              </Pressable>
+            </View>
+
+            <View style={styles.kindRow}>
+              <Chip
+                label="Musculação"
+                selected={pickerKind === 'strength'}
+                onPress={() => {
+                  setPickerKind('strength');
+                  setSearchQuery('');
+                }}
+                style={pickerKind === 'strength' ? styles.chipSelected : undefined}
+              />
+              <Chip
+                label="Cardio"
+                selected={pickerKind === 'cardio'}
+                onPress={() => {
+                  setPickerKind('cardio');
+                  setSearchQuery('');
+                }}
+                style={pickerKind === 'cardio' ? styles.chipSelected : undefined}
+              />
+            </View>
+
+            <TextField
+              placeholder="Buscar exercício..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+
+            <ScrollView style={styles.exercisePicker} keyboardShouldPersistTaps="handled">
+              {filteredExercises.length === 0 ? (
+                <ThemedText type="small" style={styles.pickerEmpty}>
+                  Nenhum exercício encontrado. Crie um abaixo.
+                </ThemedText>
+              ) : (
+                filteredExercises.map((exercise) => {
+                  const inDraft = pickerDraft.some(
+                    (item) => item.exercise_id === exercise.id,
+                  );
+                  return (
+                    <Pressable
+                      key={exercise.id}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: inDraft }}
+                      style={styles.exerciseRow}
+                      onPress={() => pickerDay && toggleExercise(pickerDay.weekday, exercise)}>
+                      <ThemedText
+                        type="default"
+                        numberOfLines={1}
+                        style={styles.pickerExerciseName}>
+                        {exercise.name}
+                      </ThemedText>
+                      <ThemedText
+                        type="smallBold"
+                        style={{
+                          color: inDraft ? ARCADE_COLORS.success : ARCADE_COLORS.accent,
+                        }}>
+                        {inDraft ? '✓' : '+'}
+                      </ThemedText>
+                    </Pressable>
+                  );
+                })
+              )}
+            </ScrollView>
+
+            <View style={styles.newExerciseRow}>
+              <TextField
+                style={styles.newExerciseInput}
+                value={newExerciseName}
+                onChangeText={setNewExerciseName}
+                placeholder="Novo exercício..."
+                onSubmitEditing={addNewExercise}
+              />
+              <Pressable hitSlop={6} onPress={addNewExercise}>
+                <ThemedText type="smallBold" style={styles.newExerciseAction}>
+                  Criar
+                </ThemedText>
+              </Pressable>
+            </View>
+          </ThemedView>
+        </KeyboardAvoidingView>
+      </Modal>
+    </ThemedView>
   );
 }
 

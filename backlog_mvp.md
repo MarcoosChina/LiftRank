@@ -190,6 +190,15 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** Banner mantém proporção e altura estável em telas de tamanhos diferentes, sem cortar nem esticar o conteúdo.
 - **Branch Sugerida:** `bugfix/banner-plano-altura`
 
+### - [x] **BF.3: Swipe entre Abas Exibia Preview com Estado Zerado**
+
+- **Prioridade:** High
+- **Status:** completed
+- **Descrição:** Corrigir o “salto” ao voltar para uma aba já rolada/interagida. O pager customizado (`swipeable-tabs.tsx`) montava a aba vizinha como uma **instância separada** do componente (`TAB_SCREENS`), que iniciava com `ScrollView` no topo e `useState` padrão; ao soltar o dedo, `router.navigate` trocava para a instância real preservada, causando o flash de milissegundos. Substituído o navegador por `<TopTabs>` de `expo-router/js-top-tabs` (`react-native-tab-view` + `react-native-pager-view`), em que cada aba é montada **uma única vez** e o arrasto move a própria tela — scroll, formulários, cards expandidos e timer aparecem corretos desde o primeiro frame. Removidos `swipeable-tabs.tsx`, `tabs-context.tsx` e os wrappers `<SwipeableTabs>` das quatro telas; tab bar customizada preservada (agora com `MaterialTopTabBarProps`).
+- **Dependências:** TF.15
+- **Critérios de Aceitação:** Swipe mostra a aba vizinha real durante o arrasto; scroll e estado de interação aparecem corretos sem piscar; tab bar continua trocando de aba; `useQuery` recarrega apenas na aba focada; `tsc`, `lint`, `jest` e `expo export` verdes.
+- **Branch Sugerida:** `feature/swipe-pager-instancia-unica`
+
 ### - [ ] **TF.4: Login Social com Google (OAuth)**
 
 - **Prioridade:** Medium

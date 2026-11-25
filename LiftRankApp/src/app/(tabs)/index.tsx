@@ -36,7 +36,6 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useAuthStore } from '@/store/auth-store';
 import { useTheme } from '@/hooks/use-theme';
 import { ARCADE_COLORS, Fonts, Spacing } from '@/constants/theme';
-import { SwipeableTabs } from '@/components/swipeable-tabs';
 
 type Kind = 'strength' | 'cardio';
 
@@ -239,417 +238,415 @@ export default function HojeScreen() {
   }
 
   return (
-    <SwipeableTabs>
-      <ThemedView style={styles.flex}>
-      <SafeAreaView style={styles.flex}>
-        <ScrollView
-          ref={scrollRef}
-          contentContainerStyle={styles.content}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}>
-          <View style={styles.header}>
-            <View style={styles.headerRow}>
-              <ThemedText style={styles.wordmark}>
-                <ThemedText style={{ color: '#FFFFFF' }}>Lift</ThemedText>
-                <ThemedText style={{ color: ARCADE_COLORS.accent }}>Rank</ThemedText>
-              </ThemedText>
-              <Pressable onPress={openSettings} hitSlop={8}>
-                <Image
-                  source={ICO_ENGRENAGEM}
-                  style={{ width: 22, height: 22, tintColor: theme.textSecondary }}
-                />
-              </Pressable>
-            </View>
-            <ThemedText type="small" style={styles.date}>
-              {format(new Date(), "EEEE, d 'de' MMMM", { locale: ptBR })}
+    <ThemedView style={styles.flex}>
+    <SafeAreaView style={styles.flex}>
+      <ScrollView
+        ref={scrollRef}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <View style={styles.headerRow}>
+            <ThemedText style={styles.wordmark}>
+              <ThemedText style={{ color: '#FFFFFF' }}>Lift</ThemedText>
+              <ThemedText style={{ color: ARCADE_COLORS.accent }}>Rank</ThemedText>
             </ThemedText>
+            <Pressable onPress={openSettings} hitSlop={8}>
+              <Image
+                source={ICO_ENGRENAGEM}
+                style={{ width: 22, height: 22, tintColor: theme.textSecondary }}
+              />
+            </Pressable>
           </View>
+          <ThemedText type="small" style={styles.date}>
+            {format(new Date(), "EEEE, d 'de' MMMM", { locale: ptBR })}
+          </ThemedText>
+        </View>
 
-          <PlayerHud
-            totalVolume={stats.data?.volume ?? 0}
-            workoutCount={(sessions.data ?? []).length}
-            streak={(sessions.data ?? []).length}
-          />
+        <PlayerHud
+          totalVolume={stats.data?.volume ?? 0}
+          workoutCount={(sessions.data ?? []).length}
+          streak={(sessions.data ?? []).length}
+        />
 
-          {restSeconds !== null && (
-            <ThemedView
-              type="backgroundElement"
-              style={[
-                styles.timerCard,
-                {
-                  backgroundColor: ARCADE_COLORS.bgCardBlue,
-                  borderColor: ARCADE_COLORS.accent,
-                  borderWidth: 1,
-                },
-              ]}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <View>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                    <Image
-                      source={ICO_CRONOMETRO}
-                      style={{ width: 14, height: 14, tintColor: ARCADE_COLORS.accent }}
-                    />
-                    <ThemedText type="small" style={{ color: theme.textSecondary }}>
-                      TEMPO DE DESCANSO
-                    </ThemedText>
-                  </View>
-                  <ThemedText
-                    type="title"
-                    style={{
-                      color: ARCADE_COLORS.accent,
-                      fontSize: 30,
-                      fontFamily: Fonts.monoBold,
-                      textShadowColor: ARCADE_COLORS.accent,
-                      textShadowOffset: { width: 0, height: 0 },
-                      textShadowRadius: 10,
-                    }}>
-                    {formatTime(restSeconds)}
+        {restSeconds !== null && (
+          <ThemedView
+            type="backgroundElement"
+            style={[
+              styles.timerCard,
+              {
+                backgroundColor: ARCADE_COLORS.bgCardBlue,
+                borderColor: ARCADE_COLORS.accent,
+                borderWidth: 1,
+              },
+            ]}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Image
+                    source={ICO_CRONOMETRO}
+                    style={{ width: 14, height: 14, tintColor: ARCADE_COLORS.accent }}
+                  />
+                  <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                    TEMPO DE DESCANSO
                   </ThemedText>
                 </View>
-                <View style={{ flexDirection: 'row', gap: Spacing.two }}>
-                  <Pressable
-                    style={styles.timerBtn}
-                    onPress={() => setRestSeconds((s) => (s ?? 0) + 30)}>
-                    <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.accent }}>
-                      +30s
-                    </ThemedText>
-                  </Pressable>
-                  <Pressable
-                    style={styles.timerBtn}
-                    onPress={() => setRestSeconds(null)}>
-                    <ThemedText type="smallBold" style={{ color: theme.danger }}>Pular</ThemedText>
-                  </Pressable>
-                </View>
-              </View>
-              <View style={{ flexDirection: 'row', gap: Spacing.two, marginTop: 10 }}>
-                {[60, 90, 120].map((sec) => (
-                  <Chip
-                    key={sec}
-                    label={`${sec}s`}
-                    selected={restDuration === sec}
-                    tint={theme.primary}
-                    onPress={() => {
-                      setRestDuration(sec);
-                      setRestSeconds(sec);
-                    }}
-                  />
-                ))}
-              </View>
-            </ThemedView>
-          )}
-
-          {isNewPr && (
-            <ThemedView type="backgroundElement" style={[styles.prCard, { borderColor: '#FFD700', borderWidth: 1 }]}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                }}>
-                <Image source={PXL_TROFEU} style={{ width: 18, height: 18 }} />
-                <ThemedText type="smallBold" style={{ color: '#FFD700', letterSpacing: 1 }}>
-                  NOVO RECORDE PESSOAL (PR) ALCANÇADO!
+                <ThemedText
+                  type="title"
+                  style={{
+                    color: ARCADE_COLORS.accent,
+                    fontSize: 30,
+                    fontFamily: Fonts.monoBold,
+                    textShadowColor: ARCADE_COLORS.accent,
+                    textShadowOffset: { width: 0, height: 0 },
+                    textShadowRadius: 10,
+                  }}>
+                  {formatTime(restSeconds)}
                 </ThemedText>
-                <Image source={PXL_TROFEU} style={{ width: 18, height: 18 }} />
               </View>
-            </ThemedView>
-          )}
-
-          <View style={{ gap: Spacing.two }}>
-            <View style={styles.sectionHeader}>
-              <ThemedText type="small" style={{ color: theme.textSecondary, letterSpacing: 1 }}>
-                SEU PROGRESSO
-              </ThemedText>
-              <Link href="/stats" asChild>
-                <Pressable hitSlop={6}>
-                  <ThemedText type="small" style={{ color: ARCADE_COLORS.info }}>
-                    Ver detalhes →
+              <View style={{ flexDirection: 'row', gap: Spacing.two }}>
+                <Pressable
+                  style={styles.timerBtn}
+                  onPress={() => setRestSeconds((s) => (s ?? 0) + 30)}>
+                  <ThemedText type="smallBold" style={{ color: ARCADE_COLORS.accent }}>
+                    +30s
                   </ThemedText>
                 </Pressable>
-              </Link>
-            </View>
-            <View style={styles.summaryRow}>
-              <StatCard icon={PXL_HALTERES} label="Treinos" value={quickMetrics.workouts} unit="" />
-              <StatCard icon={PXL_TROFEU} label="Consistência" value={quickMetrics.consistency} unit="%" />
-              <StatCard
-                icon={PXL_SETA_FORCA}
-                label="Força"
-                value={quickMetrics.strength}
-                unit="%"
-                valueColor={
-                  quickMetrics.strength > 0
-                    ? ARCADE_COLORS.success
-                    : quickMetrics.strength < 0
-                      ? ARCADE_COLORS.danger
-                      : undefined
-                }
-              />
-            </View>
-          </View>
-
-          {hasPlan && (
-            <ThemedView
-              style={{
-                backgroundColor: ARCADE_COLORS.bgCardBlue,
-                padding: Spacing.three,
-                borderRadius: 16,
-                gap: Spacing.two,
-                borderWidth: 1,
-                borderColor: ARCADE_COLORS.border,
-              }}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}>
-                <View style={{ flex: 1, gap: 2 }}>
-                  <ThemedText type="small" style={{ color: theme.textSecondary }}>
-                    TREINO DE HOJE
-                  </ThemedText>
-                  <ThemedText type="subtitle" style={{ color: '#FFFFFF' }}>
-                    {planToday.data?.[0]?.name ?? 'Treino do dia'}
-                  </ThemedText>
-                  <ThemedText type="small" style={{ color: theme.textSecondary }}>
-                    {planProgress.done} / {planProgress.total} exercícios
-                  </ThemedText>
-                </View>
-                <ThemedText type="title" style={{ color: theme.textSecondary, fontSize: 28 }}>
-                  ›
-                </ThemedText>
+                <Pressable
+                  style={styles.timerBtn}
+                  onPress={() => setRestSeconds(null)}>
+                  <ThemedText type="smallBold" style={{ color: theme.danger }}>Pular</ThemedText>
+                </Pressable>
               </View>
-              <PrimaryButton label="▶ CONTINUAR TREINO" tone="gold" onPress={handleContinueWorkout} />
-            </ThemedView>
-          )}
-
-          {!hasPlan && (
-            <Link href="/plano" asChild>
-              <Pressable>
-                <ThemedView type="backgroundElement" style={styles.hint}>
-                  <ThemedText type="small" style={{ color: theme.textSecondary }}>
-                    Nenhum treino planejado para hoje.{' '}
-                    <ThemedText type="smallBold" style={{ color: theme.accent }}>
-                      Montar plano
-                    </ThemedText>
-                  </ThemedText>
-                </ThemedView>
-              </Pressable>
-            </Link>
-          )}
-
-          {/* Cartão "Sua Evolução" (skill.md §5.6) */}
-          <ThemedView
-            style={{
-              backgroundColor: ARCADE_COLORS.bgCard,
-              borderWidth: 1,
-              borderColor: ARCADE_COLORS.border,
-              borderRadius: 16,
-              padding: Spacing.three,
-              gap: Spacing.two,
-            }}>
-            <ThemedText type="small" style={{ color: theme.textSecondary, letterSpacing: 1 }}>
-              SUA EVOLUÇÃO
-            </ThemedText>
-            <View
-              style={{ flexDirection: 'row', alignItems: 'flex-end', gap: Spacing.three }}>
-              <View style={{ alignItems: 'center' }}>
-                <MascoteAvatar size={44} />
-                {/* plataforma pixel */}
-                <View
-                  style={{
-                    width: 56,
-                    height: 8,
-                    backgroundColor: '#3A2A7A',
-                    borderRadius: 2,
-                    marginTop: 3,
+            </View>
+            <View style={{ flexDirection: 'row', gap: Spacing.two, marginTop: 10 }}>
+              {[60, 90, 120].map((sec) => (
+                <Chip
+                  key={sec}
+                  label={`${sec}s`}
+                  selected={restDuration === sec}
+                  tint={theme.primary}
+                  onPress={() => {
+                    setRestDuration(sec);
+                    setRestSeconds(sec);
                   }}
                 />
-              </View>
-              <Image source={PXL_SETA_CIMA} style={{ width: 30, height: 30 }} />
-              <View style={{ flex: 1 }} />
-              {/* selo dourado */}
-              <View
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 22,
-                  backgroundColor: '#26201B',
-                  borderWidth: 1,
-                  borderColor: '#FFD700',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Image source={PXL_MEDALHA} style={{ width: 26, height: 26 }} />
-              </View>
+              ))}
             </View>
-            {/* caixa translúcida: próximo nível */}
+          </ThemedView>
+        )}
+
+        {isNewPr && (
+          <ThemedView type="backgroundElement" style={[styles.prCard, { borderColor: '#FFD700', borderWidth: 1 }]}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+              }}>
+              <Image source={PXL_TROFEU} style={{ width: 18, height: 18 }} />
+              <ThemedText type="smallBold" style={{ color: '#FFD700', letterSpacing: 1 }}>
+                NOVO RECORDE PESSOAL (PR) ALCANÇADO!
+              </ThemedText>
+              <Image source={PXL_TROFEU} style={{ width: 18, height: 18 }} />
+            </View>
+          </ThemedView>
+        )}
+
+        <View style={{ gap: Spacing.two }}>
+          <View style={styles.sectionHeader}>
+            <ThemedText type="small" style={{ color: theme.textSecondary, letterSpacing: 1 }}>
+              SEU PROGRESSO
+            </ThemedText>
+            <Link href="/stats" asChild>
+              <Pressable hitSlop={6}>
+                <ThemedText type="small" style={{ color: ARCADE_COLORS.info }}>
+                  Ver detalhes →
+                </ThemedText>
+              </Pressable>
+            </Link>
+          </View>
+          <View style={styles.summaryRow}>
+            <StatCard icon={PXL_HALTERES} label="Treinos" value={quickMetrics.workouts} unit="" />
+            <StatCard icon={PXL_TROFEU} label="Consistência" value={quickMetrics.consistency} unit="%" />
+            <StatCard
+              icon={PXL_SETA_FORCA}
+              label="Força"
+              value={quickMetrics.strength}
+              unit="%"
+              valueColor={
+                quickMetrics.strength > 0
+                  ? ARCADE_COLORS.success
+                  : quickMetrics.strength < 0
+                    ? ARCADE_COLORS.danger
+                    : undefined
+              }
+            />
+          </View>
+        </View>
+
+        {hasPlan && (
+          <ThemedView
+            style={{
+              backgroundColor: ARCADE_COLORS.bgCardBlue,
+              padding: Spacing.three,
+              borderRadius: 16,
+              gap: Spacing.two,
+              borderWidth: 1,
+              borderColor: ARCADE_COLORS.border,
+            }}>
             <View
               style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                borderRadius: 10,
-                paddingHorizontal: Spacing.three,
-                paddingVertical: 10,
               }}>
-              <ThemedText type="small" style={{ color: theme.textSecondary }}>
-                PRÓXIMO NÍVEL · Nível {playerLevel.level}
-              </ThemedText>
-              <ThemedText type="smallBold" style={{ color: '#FFD700' }}>
-                {playerLevel.xpRemaining} XP
+              <View style={{ flex: 1, gap: 2 }}>
+                <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                  TREINO DE HOJE
+                </ThemedText>
+                <ThemedText type="subtitle" style={{ color: '#FFFFFF' }}>
+                  {planToday.data?.[0]?.name ?? 'Treino do dia'}
+                </ThemedText>
+                <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                  {planProgress.done} / {planProgress.total} exercícios
+                </ThemedText>
+              </View>
+              <ThemedText type="title" style={{ color: theme.textSecondary, fontSize: 28 }}>
+                ›
               </ThemedText>
             </View>
+            <PrimaryButton label="▶ CONTINUAR TREINO" tone="gold" onPress={handleContinueWorkout} />
           </ThemedView>
+        )}
 
-          <Segmented<Kind>
-            options={[
-              { value: 'strength', label: 'Força' },
-              { value: 'cardio', label: 'Cardio' },
-            ]}
-            value={kind}
-            onChange={(k) => {
-              setKind(k);
-              setSelectedId(null);
-              Keyboard.dismiss();
-            }}
-            tint={theme.primary}
-          />
+        {!hasPlan && (
+          <Link href="/plano" asChild>
+            <Pressable>
+              <ThemedView type="backgroundElement" style={styles.hint}>
+                <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                  Nenhum treino planejado para hoje.{' '}
+                  <ThemedText type="smallBold" style={{ color: theme.accent }}>
+                    Montar plano
+                  </ThemedText>
+                </ThemedText>
+              </ThemedView>
+            </Pressable>
+          </Link>
+        )}
 
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.chipsRow}>
-            {visible.map((exercise) => (
-              <Chip
-                key={exercise.id}
-                label={exercise.name}
-                selected={selected?.id === exercise.id}
-                onPress={() => selectExercise(exercise.id)}
-                tint={theme.primary}
+        {/* Cartão "Sua Evolução" (skill.md §5.6) */}
+        <ThemedView
+          style={{
+            backgroundColor: ARCADE_COLORS.bgCard,
+            borderWidth: 1,
+            borderColor: ARCADE_COLORS.border,
+            borderRadius: 16,
+            padding: Spacing.three,
+            gap: Spacing.two,
+          }}>
+          <ThemedText type="small" style={{ color: theme.textSecondary, letterSpacing: 1 }}>
+            SUA EVOLUÇÃO
+          </ThemedText>
+          <View
+            style={{ flexDirection: 'row', alignItems: 'flex-end', gap: Spacing.three }}>
+            <View style={{ alignItems: 'center' }}>
+              <MascoteAvatar size={44} />
+              {/* plataforma pixel */}
+              <View
+                style={{
+                  width: 56,
+                  height: 8,
+                  backgroundColor: '#3A2A7A',
+                  borderRadius: 2,
+                  marginTop: 3,
+                }}
               />
-            ))}
-          </ScrollView>
+            </View>
+            <Image source={PXL_SETA_CIMA} style={{ width: 30, height: 30 }} />
+            <View style={{ flex: 1 }} />
+            {/* selo dourado */}
+            <View
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 22,
+                backgroundColor: '#26201B',
+                borderWidth: 1,
+                borderColor: '#FFD700',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <Image source={PXL_MEDALHA} style={{ width: 26, height: 26 }} />
+            </View>
+          </View>
+          {/* caixa translúcida: próximo nível */}
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+              borderRadius: 10,
+              paddingHorizontal: Spacing.three,
+              paddingVertical: 10,
+            }}>
+            <ThemedText type="small" style={{ color: theme.textSecondary }}>
+              PRÓXIMO NÍVEL · Nível {playerLevel.level}
+            </ThemedText>
+            <ThemedText type="smallBold" style={{ color: '#FFD700' }}>
+              {playerLevel.xpRemaining} XP
+            </ThemedText>
+          </View>
+        </ThemedView>
 
-          {kind === 'strength' && (
-            <ThemedView type="backgroundElement" style={styles.card}>
-              <ThemedText type="subtitle">{selected?.name ?? 'Sem exercício'}</ThemedText>
-              <View style={styles.inputsRow}>
-                <View style={styles.inputGroup}>
-                  <ThemedText type="small" style={styles.inputLabel}>
-                    Peso (kg)
-                  </ThemedText>
-                  <TextField
-                    value={weightText}
-                    onChangeText={setWeightText}
-                    keyboardType="decimal-pad"
-                    placeholder="0"
-                  />
-                </View>
-                <View style={styles.inputGroup}>
-                  <ThemedText type="small" style={styles.inputLabel}>
-                    Reps
-                  </ThemedText>
-                  <TextField
-                    value={repsText}
-                    onChangeText={setRepsText}
-                    keyboardType="number-pad"
-                    placeholder="0"
-                  />
-                </View>
-              </View>
-              <PrimaryButton label="REGISTRAR SÉRIE" onPress={registerSet} tone="gold" />
-              <View style={styles.setsList}>
-                {setsByExercise.length === 0 && (
-                  <ThemedText type="small" style={{ color: theme.textSecondary }}>
-                    Nenhuma série registrada hoje.
-                  </ThemedText>
-                )}
-                {setsByExercise.map((set, index) => (
-                  <View key={set.id} style={styles.setRow}>
-                    <ThemedText type="smallBold" style={{ color: theme.textSecondary, width: 24 }}>
-                      {index + 1}
-                    </ThemedText>
-                    <ThemedText type="default" style={styles.setWeight}>
-                      {formatNumber(set.weight, set.weight % 1 === 0 ? 0 : 1)} kg ×{' '}
-                      {set.reps}
-                    </ThemedText>
-                    <ThemedText type="small" style={{ color: theme.textSecondary, flex: 1, textAlign: 'right' }}>
-                      {formatNumber(set.weight * set.reps)} kg
-                    </ThemedText>
-                    <Pressable hitSlop={12} onPress={() => { deleteSet(db, set.id).then(() => sets.reload()); }}>
-                      <ThemedText type="smallBold" style={{ color: theme.danger }}>
-                        ✕
-                      </ThemedText>
-                    </Pressable>
-                  </View>
-                ))}
-              </View>
-            </ThemedView>
-          )}
+        <Segmented<Kind>
+          options={[
+            { value: 'strength', label: 'Força' },
+            { value: 'cardio', label: 'Cardio' },
+          ]}
+          value={kind}
+          onChange={(k) => {
+            setKind(k);
+            setSelectedId(null);
+            Keyboard.dismiss();
+          }}
+          tint={theme.primary}
+        />
 
-          {kind === 'cardio' && (
-            <ThemedView type="backgroundElement" style={styles.card}>
-              <ThemedText type="subtitle">{selected?.name ?? 'Sem exercício'}</ThemedText>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.chipsRow}>
+          {visible.map((exercise) => (
+            <Chip
+              key={exercise.id}
+              label={exercise.name}
+              selected={selected?.id === exercise.id}
+              onPress={() => selectExercise(exercise.id)}
+              tint={theme.primary}
+            />
+          ))}
+        </ScrollView>
+
+        {kind === 'strength' && (
+          <ThemedView type="backgroundElement" style={styles.card}>
+            <ThemedText type="subtitle">{selected?.name ?? 'Sem exercício'}</ThemedText>
+            <View style={styles.inputsRow}>
               <View style={styles.inputGroup}>
                 <ThemedText type="small" style={styles.inputLabel}>
-                  Duração (min)
+                  Peso (kg)
                 </ThemedText>
                 <TextField
-                  value={minutesText}
-                  onChangeText={setMinutesText}
+                  value={weightText}
+                  onChangeText={setWeightText}
                   keyboardType="decimal-pad"
                   placeholder="0"
                 />
               </View>
-              <PrimaryButton label="REGISTRAR CARDIO" onPress={registerCardio} tone="gold" />
-              <View style={styles.setsList}>
-                {(cardio.data ?? []).length === 0 && (
-                  <ThemedText type="small" style={{ color: theme.textSecondary }}>
-                    Nenhum cardio registrado hoje.
-                  </ThemedText>
-                )}
-                {(cardio.data ?? []).map((entry) => (
-                  <View key={entry.id} style={styles.setRow}>
-                    <ThemedText type="default" style={{ flex: 1 }}>
-                      {entry.exercise_name}
-                    </ThemedText>
-                    <ThemedText type="smallBold">{formatNumber(entry.minutes, entry.minutes % 1 === 0 ? 0 : 1)} min</ThemedText>
-                    <Pressable hitSlop={12} onPress={() => { deleteCardio(db, entry.id).then(() => cardio.reload()); }}>
-                      <ThemedText type="smallBold" style={{ color: theme.danger }}>
-                        ✕
-                      </ThemedText>
-                    </Pressable>
-                  </View>
-                ))}
-              </View>
-            </ThemedView>
-          )}
-
-          {hasPlan && (
-            <View style={styles.planSection}>
-              <ThemedText type="smallBold" style={styles.sectionTitle}>
-                PLANO DE HOJE
-              </ThemedText>
-              <View style={styles.planChips}>
-                {(planToday.data ?? []).map((p) => (
-                  <Chip
-                    key={p.id}
-                    label={`${p.kind === 'cardio' ? '⏱ ' : ''}${p.name}`}
-                    onPress={() => {
-                      setKind(p.kind);
-                      setSelectedId(p.exercise_id);
-                    }}
-                  />
-                ))}
+              <View style={styles.inputGroup}>
+                <ThemedText type="small" style={styles.inputLabel}>
+                  Reps
+                </ThemedText>
+                <TextField
+                  value={repsText}
+                  onChangeText={setRepsText}
+                  keyboardType="number-pad"
+                  placeholder="0"
+                />
               </View>
             </View>
-          )}
-        </ScrollView>
-      </SafeAreaView>
+            <PrimaryButton label="REGISTRAR SÉRIE" onPress={registerSet} tone="gold" />
+            <View style={styles.setsList}>
+              {setsByExercise.length === 0 && (
+                <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                  Nenhuma série registrada hoje.
+                </ThemedText>
+              )}
+              {setsByExercise.map((set, index) => (
+                <View key={set.id} style={styles.setRow}>
+                  <ThemedText type="smallBold" style={{ color: theme.textSecondary, width: 24 }}>
+                    {index + 1}
+                  </ThemedText>
+                  <ThemedText type="default" style={styles.setWeight}>
+                    {formatNumber(set.weight, set.weight % 1 === 0 ? 0 : 1)} kg ×{' '}
+                    {set.reps}
+                  </ThemedText>
+                  <ThemedText type="small" style={{ color: theme.textSecondary, flex: 1, textAlign: 'right' }}>
+                    {formatNumber(set.weight * set.reps)} kg
+                  </ThemedText>
+                  <Pressable hitSlop={12} onPress={() => { deleteSet(db, set.id).then(() => sets.reload()); }}>
+                    <ThemedText type="smallBold" style={{ color: theme.danger }}>
+                      ✕
+                    </ThemedText>
+                  </Pressable>
+                </View>
+              ))}
+            </View>
+          </ThemedView>
+        )}
+
+        {kind === 'cardio' && (
+          <ThemedView type="backgroundElement" style={styles.card}>
+            <ThemedText type="subtitle">{selected?.name ?? 'Sem exercício'}</ThemedText>
+            <View style={styles.inputGroup}>
+              <ThemedText type="small" style={styles.inputLabel}>
+                Duração (min)
+              </ThemedText>
+              <TextField
+                value={minutesText}
+                onChangeText={setMinutesText}
+                keyboardType="decimal-pad"
+                placeholder="0"
+              />
+            </View>
+            <PrimaryButton label="REGISTRAR CARDIO" onPress={registerCardio} tone="gold" />
+            <View style={styles.setsList}>
+              {(cardio.data ?? []).length === 0 && (
+                <ThemedText type="small" style={{ color: theme.textSecondary }}>
+                  Nenhum cardio registrado hoje.
+                </ThemedText>
+              )}
+              {(cardio.data ?? []).map((entry) => (
+                <View key={entry.id} style={styles.setRow}>
+                  <ThemedText type="default" style={{ flex: 1 }}>
+                    {entry.exercise_name}
+                  </ThemedText>
+                  <ThemedText type="smallBold">{formatNumber(entry.minutes, entry.minutes % 1 === 0 ? 0 : 1)} min</ThemedText>
+                  <Pressable hitSlop={12} onPress={() => { deleteCardio(db, entry.id).then(() => cardio.reload()); }}>
+                    <ThemedText type="smallBold" style={{ color: theme.danger }}>
+                      ✕
+                    </ThemedText>
+                  </Pressable>
+                </View>
+              ))}
+            </View>
+          </ThemedView>
+        )}
+
+        {hasPlan && (
+          <View style={styles.planSection}>
+            <ThemedText type="smallBold" style={styles.sectionTitle}>
+              PLANO DE HOJE
+            </ThemedText>
+            <View style={styles.planChips}>
+              {(planToday.data ?? []).map((p) => (
+                <Chip
+                  key={p.id}
+                  label={`${p.kind === 'cardio' ? '⏱ ' : ''}${p.name}`}
+                  onPress={() => {
+                    setKind(p.kind);
+                    setSelectedId(p.exercise_id);
+                  }}
+                />
+              ))}
+            </View>
+          </View>
+        )}
+      </ScrollView>
+    </SafeAreaView>
     </ThemedView>
-    </SwipeableTabs>
   );
 }
 
