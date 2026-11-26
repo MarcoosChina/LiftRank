@@ -243,13 +243,19 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** `src/db/sync.ts` removido; nenhum import quebrado; nenhuma referência a `api.liftrank.app` no código; `tsc`, `lint` e `jest` verdes.
 - **Branch Sugerida:** `chore/remover-sync-morta`
 
-### - [ ] **T7.4: Definir Modelo de Conta e Acesso para Revisão da Play**
+### - [x] **T7.4: Definir Modelo de Conta e Acesso para Revisão da Play**
 
 - **Prioridade:** High
-- **Status:** pending
-- **Descrição:** Hoje o app abre direto em `(tabs)` sem exigir login (não há gating no `_layout` raiz) e a tela de login oferece “Convidado”. Formalizar a decisão: (a) conta **opcional** com “continuar como convidado” como padrão — dispensa credenciais de teste no Console; ou (b) login **obrigatório** — exige redirect no layout raiz e credenciais de teste no campo “App access” da Play Console. Ajustar o que for necessário para a opção escolhida (persistência de sessão, textos do login/logout, entrada de convidado) e registrar a decisão no backlog.
+- **Status:** completed
+- **Descrição:** Decisão registrada: conta **opcional** com convidado como padrão — dispensa credenciais de teste no Console da Play. Implementado:
+  - `src/store/auth-store.ts`: sessão persistida com `zustand/middleware/persist` sobre `expo-sqlite/kv-store` (`liftrank:auth-session`), sobrevivendo a reload do app.
+  - Convidado agora é `userId: null` (sem perfil fake id 1 salvo como sessão); o botão "Entrar sem conta" faz `clearSession()`.
+  - `src/app/(auth)/login.tsx`: subtítulo sem "sincronizar" (não existe mais sync), aviso de "conta apenas neste dispositivo", link "Esqueceu a senha?" agora leva ao fluxo real de redefinição (T7.2).
+  - `src/app/(auth)/signup.tsx`: aviso de "conta apenas neste dispositivo".
+  - `src/app/(tabs)/stats.tsx` e `src/app/(tabs)/index.tsx`: botão de settings adapta — "Sair da Conta (Logout)" quando logado, "Entrar ou criar conta" quando convidado.
+  - Nenhuma tela bloqueia o uso sem conta; o app continua abrindo direto em `(tabs)`.
 - **Dependências:** T2.1, T2.2
-- **Critérios de Aceitação:** Decisão registrada explicitamente no backlog; se opcional, nenhuma tela bloqueia o uso sem conta e o convidado funciona; se obrigatório, redirect implementado, sessão sobrevive a reload e credenciais de teste documentadas; `tsc`, `lint` e `jest` verdes.
+- **Critérios de Aceitação:** Decisão registrada explicitamente no backlog; opcional, nenhuma tela bloqueia o uso sem conta e o convidado funciona; sessão persiste a reload; `tsc`, `lint` e `jest` verdes.
 - **Branch Sugerida:** `chore/modelo-de-conta`
 
 ---

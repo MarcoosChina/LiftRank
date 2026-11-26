@@ -116,6 +116,10 @@ export default function SignupScreen() {
                   </Pressable>
                 </Link>
               </View>
+
+              <ThemedText type="small" style={{ color: theme.textSecondary, textAlign: 'center' }}>
+                Sua conta fica apenas neste dispositivo. Sem nuvem, sem envio de dados.
+              </ThemedText>
             </ThemedView>
           </ScrollView>
         </KeyboardAvoidingView>

@@ -363,16 +363,26 @@ export default function StatsScreen() {
           </ThemedText>
         </Pressable>
 
-        <Pressable
-          style={styles.secondaryButton}
-          onPress={() => {
-            useAuthStore.getState().clearSession();
-            router.replace('/(auth)/login');
-          }}>
-          <ThemedText type="smallBold" style={[styles.secondaryButtonText, styles.dangerText]}>
-            Sair da Conta (Logout)
-          </ThemedText>
-        </Pressable>
+        {userId !== null ? (
+          <Pressable
+            style={styles.secondaryButton}
+            onPress={() => {
+              useAuthStore.getState().clearSession();
+              router.replace('/(auth)/login');
+            }}>
+            <ThemedText type="smallBold" style={[styles.secondaryButtonText, styles.dangerText]}>
+              Sair da Conta (Logout)
+            </ThemedText>
+          </Pressable>
+        ) : (
+          <Pressable
+            style={styles.secondaryButton}
+            onPress={() => router.replace('/(auth)/login')}>
+            <ThemedText type="smallBold" style={styles.secondaryButtonText}>
+              Entrar ou criar conta
+            </ThemedText>
+          </Pressable>
+        )}
       </ScrollView>
     </SafeAreaView>
     </ThemedView>

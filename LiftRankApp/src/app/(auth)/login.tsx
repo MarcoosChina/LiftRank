@@ -52,7 +52,7 @@ export default function LoginScreen() {
                 LiftRank
               </ThemedText>
               <ThemedText type="small" style={{ color: theme.textSecondary }}>
-                Entre para sincronizar e acompanhar seus treinos
+                Acompanhe seus treinos e evolua na academia
               </ThemedText>
             </View>
 
@@ -117,13 +117,17 @@ export default function LoginScreen() {
             <Pressable
               style={styles.guestButton}
               onPress={() => {
-                useAuthStore.getState().setSession({ id: 1, name: 'Convidado', email: 'guest@liftrank.app' });
+                useAuthStore.getState().clearSession();
                 router.replace('/(tabs)');
               }}>
               <ThemedText type="smallBold" style={{ color: theme.textSecondary, textAlign: 'center' }}>
                 Entrar sem conta (Modo Local)
               </ThemedText>
             </Pressable>
+
+            <ThemedText type="small" style={{ color: theme.textSecondary, textAlign: 'center' }}>
+              Sua conta fica apenas neste dispositivo. Sem nuvem, sem envio de dados.
+            </ThemedText>
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>

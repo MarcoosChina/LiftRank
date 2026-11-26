@@ -172,13 +172,16 @@ export default function HojeScreen() {
 
   /** Cabeçalho (skill.md §5.2): engrenagem com ações da conta. */
   function openSettings() {
+    const isLoggedIn = userId !== null;
     Alert.alert('Configurações', 'O que você deseja fazer?', [
       { text: 'Cancelar', style: 'cancel' },
       {
-        text: 'Sair da Conta',
-        style: 'destructive',
+        text: isLoggedIn ? 'Sair da Conta' : 'Entrar ou criar conta',
+        style: isLoggedIn ? 'destructive' : 'default',
         onPress: () => {
-          useAuthStore.getState().clearSession();
+          if (isLoggedIn) {
+            useAuthStore.getState().clearSession();
+          }
           router.replace('/(auth)/login');
         },
       },
