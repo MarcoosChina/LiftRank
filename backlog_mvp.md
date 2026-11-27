@@ -213,6 +213,15 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** exercício adicionado em conta nova permanece após salvar e reabrir; salvar vários dias de uma vez grava todos; falha de gravação nunca descarta o rascunho; convidado adiciona/remove/salva normalmente; `tsc`, `lint` e `jest` verdes.
 - **Branch Sugerida:** `fix/plano-salvamento`
 
+### - [x] **BF.5: Popup de Remover Exercício sem Estilo do App**
+
+- **Prioridade:** Medium
+- **Status:** completed
+- **Descrição:** A confirmação de remover exercício na aba Plano usava o `Alert.alert` nativo do sistema, destoando do popup de “Apagar treino” da aba Histórico. Criado o componente compartilhado `src/components/confirm-dialog.tsx` com o visual do app (card centralizado `backgroundElement`, raio 18, título em caixa alta, mensagem cinza e botões Cancelar / ação destrutiva em vermelho com brilho). O Histórico passou a usar o mesmo componente (sem mudança visual) e os estilos duplicados foram removidos; o Plano ganhou o diálogo com o nome do exercício e o dia em negrito, botão **REMOVER**, fechamento por toque fora e pelo botão voltar do Android.
+- **Dependências:** T3.1, T4.1
+- **Critérios de Aceitação:** Popup do Plano visualmente idêntico ao do Histórico; cancelar mantém o exercício; confirmar remove e mantém a barra “DESFAZER”; `tsc`, `lint` e `jest` verdes.
+- **Branch Sugerida:** `feat/confirm-dialog-plano`
+
 ### - [ ] **TF.4: Login Social com Google (OAuth)**
 
 - **Prioridade:** Medium

@@ -16,6 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Chip } from '@/components/chip';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import { PrimaryButton } from '@/components/primary-button';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
@@ -83,6 +84,10 @@ export default function PlanoScreen() {
   const [draftOverrides, setDraftOverrides] = useState<Record<number, DraftExercise[]>>({});
   const [saving, setSaving] = useState(false);
   const [pendingUndo, setPendingUndo] = useState<PendingUndo | null>(null);
+  const [confirmRemove, setConfirmRemove] = useState<{
+    weekday: number;
+    item: DraftExercise;
+  } | null>(null);
 
   const [pickerDay, setPickerDay] = useState<DayDef | null>(null);
   const [newExerciseName, setNewExerciseName] = useState('');
@@ -198,25 +203,10 @@ export default function PlanoScreen() {
     [planLoaded, draftByDay, savedByDay],
   );
 
-  /** Confirma antes de remover, evitando exclusões acidentais. */
-  const requestRemove = useCallback(
-    (weekday: number, item: DraftExercise) => {
-      const day = DAYS.find((entry) => entry.weekday === weekday);
-      Alert.alert(
-        'Remover exercício?',
-        `“${item.name}” será removido do treino de ${day?.label ?? 'hoje'}.`,
-        [
-          { text: 'Cancelar', style: 'cancel' },
-          {
-            text: 'Remover',
-            style: 'destructive',
-            onPress: () => removeExercise(weekday, item),
-          },
-        ],
-      );
-    },
-    [removeExercise],
-  );
+  /** Abre o diálogo estilizado de confirmação antes de remover. */
+  const requestRemove = useCallback((weekday: number, item: DraftExercise) => {
+    setConfirmRemove({ weekday, item });
+  }, []);
 
   const undoRemove = useCallback(() => {
     if (!pendingUndo) return;
@@ -651,6 +641,31 @@ export default function PlanoScreen() {
           </ThemedView>
         </KeyboardAvoidingView>
       </Modal>
+
+      <ConfirmDialog
+        visible={confirmRemove !== null}
+        title="Remover exercício?"
+        message={
+          confirmRemove ? (
+            <>
+              “<ThemedText type="smallBold">{confirmRemove.item.name}</ThemedText>” será
+              removido do treino de{' '}
+              <ThemedText type="smallBold">
+                {DAYS.find((day) => day.weekday === confirmRemove.weekday)?.label ?? 'hoje'}
+              </ThemedText>
+              .
+            </>
+          ) : null
+        }
+        confirmLabel="REMOVER"
+        onCancel={() => setConfirmRemove(null)}
+        onConfirm={() => {
+          if (!confirmRemove) return;
+          const pending = confirmRemove;
+          setConfirmRemove(null);
+          removeExercise(pending.weekday, pending.item);
+        }}
+      />
     </ThemedView>
   );
 }

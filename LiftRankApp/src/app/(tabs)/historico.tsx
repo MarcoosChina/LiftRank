@@ -1,5 +1,5 @@
 import * as Haptics from 'expo-haptics';
-import { ActivityIndicator, Image, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMemo, useState } from 'react';
 import { format } from 'date-fns';
@@ -7,6 +7,7 @@ import { ptBR } from 'date-fns/locale';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { ConfirmDialog } from '@/components/confirm-dialog';
 import {
   deleteSession,
   getSessionDetail,
@@ -174,53 +175,36 @@ export default function HistoricoScreen() {
       </ScrollView>
     </SafeAreaView>
 
-    <Modal visible={confirmDelete !== null} transparent animationType="fade">
-      <View style={styles.modalOverlay}>
-        <Pressable style={styles.modalBackdrop} onPress={() => setConfirmDelete(null)} />
-        <ThemedView type="backgroundElement" style={styles.modalCard}>
-          <ThemedText type="subtitle" style={styles.modalTitle}>
-            Apagar treino?
-          </ThemedText>
-          <ThemedText type="small" style={styles.modalMessage}>
-            O treino de{' '}
-            <ThemedText type="smallBold">
-              {confirmDelete ? format(strToDate(confirmDelete.date), "d 'de' MMMM 'de' yyyy", { locale: ptBR }) : ''}
-            </ThemedText>{' '}
-            será apagado permanentemente, junto com todas as séries e cardio registrados.
-          </ThemedText>
-          <View style={styles.modalButtons}>
-            <Pressable
-              style={styles.modalButton}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                setConfirmDelete(null);
-              }}>
-              <ThemedView type="backgroundSelected" style={styles.cancelButton}>
-                <ThemedText type="smallBold">Cancelar</ThemedText>
-              </ThemedView>
-            </Pressable>
-            <Pressable
-              style={styles.modalButton}
-              onPress={() => {
-                if (!confirmDelete) return;
-                deleteSession(db, confirmDelete.id).then(() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-                  setExpandedId(null);
-                  setSessionDetail(null);
-                  setConfirmDelete(null);
-                  sessions.reload();
-                });
-              }}>
-              <ThemedView style={[styles.deleteButton, { backgroundColor: theme.danger }]}>
-                <ThemedText type="smallBold" style={{ color: theme.accentInk, letterSpacing: 2 }}>
-                  APAGAR
-                </ThemedText>
-              </ThemedView>
-            </Pressable>
-          </View>
-        </ThemedView>
-      </View>
-    </Modal>
+    <ConfirmDialog
+      visible={confirmDelete !== null}
+      title="Apagar treino?"
+      message={
+        <>
+          O treino de{' '}
+          <ThemedText type="smallBold">
+            {confirmDelete
+              ? format(strToDate(confirmDelete.date), "d 'de' MMMM 'de' yyyy", { locale: ptBR })
+              : ''}
+          </ThemedText>{' '}
+          será apagado permanentemente, junto com todas as séries e cardio registrados.
+        </>
+      }
+      confirmLabel="APAGAR"
+      onCancel={() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        setConfirmDelete(null);
+      }}
+      onConfirm={() => {
+        if (!confirmDelete) return;
+        deleteSession(db, confirmDelete.id).then(() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+          setExpandedId(null);
+          setSessionDetail(null);
+          setConfirmDelete(null);
+          sessions.reload();
+        });
+      }}
+    />
     </ThemedView>
   );
 }
@@ -288,56 +272,5 @@ const styles = StyleSheet.create({
     height: 4,
     backgroundColor: ARCADE_COLORS.success,
     borderRadius: 2,
-  },
-  modalOverlay: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: Spacing.four,
-  },
-  modalBackdrop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-  },
-  modalCard: {
-    width: '100%',
-    maxWidth: 360,
-    borderRadius: 18,
-    padding: Spacing.four,
-    gap: Spacing.three,
-  },
-  modalTitle: {
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  modalMessage: {
-    color: '#A89C8F',
-    lineHeight: 21,
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    gap: Spacing.two,
-  },
-  modalButton: {
-    flex: 1,
-  },
-  cancelButton: {
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  deleteButton: {
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-    shadowColor: '#FF4D4D',
-    shadowOpacity: 0.35,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 5,
   },
 });
