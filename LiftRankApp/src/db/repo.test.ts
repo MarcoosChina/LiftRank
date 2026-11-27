@@ -1,4 +1,10 @@
-import { computeWeeklySummary, planDiff, strToDate, todayStr } from './repo';
+import {
+  computeWeeklySummary,
+  findUnsavedWeekdays,
+  planDiff,
+  strToDate,
+  todayStr,
+} from './repo';
 
 describe('Repo utility functions', () => {
   it('should format date correctly to string YYYY-MM-DD', () => {
@@ -122,5 +128,64 @@ describe('planDiff', () => {
       removedPlanIds: [],
       addedExerciseIds: [30],
     });
+  });
+});
+
+describe('findUnsavedWeekdays', () => {
+  it('não acusa dias gravados corretamente, mesmo fora de ordem', () => {
+    expect(
+      findUnsavedWeekdays(
+        [{ weekday: 1, exerciseIds: [10, 20] }],
+        [{ weekday: 1, exerciseIds: [20, 10] }],
+      ),
+    ).toEqual([]);
+  });
+
+  it('acusa dia em que um exercício não foi gravado', () => {
+    expect(
+      findUnsavedWeekdays(
+        [{ weekday: 1, exerciseIds: [10, 20] }],
+        [{ weekday: 1, exerciseIds: [10] }],
+      ),
+    ).toEqual([1]);
+  });
+
+  it('acusa dia ausente na leitura de volta', () => {
+    expect(findUnsavedWeekdays([{ weekday: 3, exerciseIds: [7] }], [])).toEqual([3]);
+  });
+
+  it('acusa exercício extra gravado no dia', () => {
+    expect(
+      findUnsavedWeekdays(
+        [{ weekday: 0, exerciseIds: [5] }],
+        [{ weekday: 0, exerciseIds: [5, 6] }],
+      ),
+    ).toEqual([0]);
+  });
+
+  it('ignora ids repetidos no estado esperado', () => {
+    expect(
+      findUnsavedWeekdays(
+        [{ weekday: 2, exerciseIds: [1, 1, 2] }],
+        [{ weekday: 2, exerciseIds: [1, 2] }],
+      ),
+    ).toEqual([]);
+  });
+
+  it('reporta apenas os dias divergentes', () => {
+    expect(
+      findUnsavedWeekdays(
+        [
+          { weekday: 1, exerciseIds: [1] },
+          { weekday: 2, exerciseIds: [2] },
+          { weekday: 3, exerciseIds: [3] },
+        ],
+        [
+          { weekday: 1, exerciseIds: [1] },
+          { weekday: 2, exerciseIds: [] },
+          { weekday: 3, exerciseIds: [3, 4] },
+        ],
+      ),
+    ).toEqual([2, 3]);
   });
 });

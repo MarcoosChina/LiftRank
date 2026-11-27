@@ -7,38 +7,35 @@ export function useQuery<T>(fn: () => Promise<T>): {
 } {
   const [data, setData] = useState<T | null>(null);
   const fnRef = useRef(fn);
+  /** Identifica a requisição mais recente: respostas antigas são descartadas. */
+  const latestRequest = useRef(0);
+
+  const run = useCallback(async () => {
+    const requestId = ++latestRequest.current;
+    const result = await fnRef.current();
+    if (requestId === latestRequest.current) {
+      setData(result);
+    }
+  }, []);
+
+  const runInBackground = useCallback(() => {
+    run().catch((error) => {
+      if (__DEV__) console.warn('[useQuery] falha ao recarregar', error);
+    });
+  }, [run]);
 
   useEffect(() => {
     fnRef.current = fn;
-  }, [fn]);
-
-  useEffect(() => {
-    let alive = true;
-    fn().then((result) => {
-      if (alive) setData(result);
-    });
-    return () => {
-      alive = false;
-    };
-  }, [fn]);
+    runInBackground();
+  }, [fn, runInBackground]);
 
   useFocusEffect(
     useCallback(() => {
-      let alive = true;
-      fnRef.current().then((result) => {
-        if (alive) setData(result);
-      });
-      return () => {
-        alive = false;
-      };
-    }, []),
+      runInBackground();
+    }, [runInBackground]),
   );
 
-  const reload = useCallback(() => {
-    return fnRef.current().then(setData);
-  }, []);
-
-  return { data, reload };
+  return { data, reload: run };
 }
 
 export function formatNumber(value: number, decimals = 0) {

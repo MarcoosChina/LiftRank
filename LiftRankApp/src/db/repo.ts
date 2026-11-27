@@ -107,13 +107,19 @@ export async function getPlan(db: SQLiteDatabase, weekday: number, userId = 1): 
   );
 }
 
-export async function addToPlan(db: SQLiteDatabase, weekday: number, exerciseId: number, userId = 1) {
-  await db.runAsync(
+export async function addToPlan(
+  db: SQLiteDatabase,
+  weekday: number,
+  exerciseId: number,
+  userId = 1,
+): Promise<boolean> {
+  const result = await db.runAsync(
     'INSERT OR IGNORE INTO plan (user_id, weekday, exercise_id) VALUES (?, ?, ?)',
     userId,
     weekday,
     exerciseId,
   );
+  return result.changes > 0;
 }
 
 export async function removeFromPlan(db: SQLiteDatabase, planId: number) {
@@ -164,6 +170,33 @@ export interface PlanDayChanges {
   changes: PlanChanges;
 }
 
+export interface PlanDaySnapshot {
+  weekday: number;
+  exerciseIds: number[];
+}
+
+/**
+ * Compara o estado esperado com o que realmente ficou gravado no banco.
+ * Retorna os dias divergentes — útil para não descartar mudanças em silêncio.
+ */
+export function findUnsavedWeekdays(
+  expected: PlanDaySnapshot[],
+  actual: PlanDaySnapshot[],
+): number[] {
+  const actualByDay = new Map(
+    actual.map((day) => [day.weekday, new Set(day.exerciseIds)]),
+  );
+
+  return expected
+    .filter((day) => {
+      const saved = actualByDay.get(day.weekday);
+      const expectedIds = new Set(day.exerciseIds);
+      if (!saved || saved.size !== expectedIds.size) return true;
+      return [...expectedIds].some((exerciseId) => !saved.has(exerciseId));
+    })
+    .map((day) => day.weekday);
+}
+
 /** Aplica as mudanças de vários dias em uma única transação. */
 export async function savePlanChanges(
   db: SQLiteDatabase,
@@ -177,13 +210,50 @@ export async function savePlanChanges(
   if (pending.length === 0) return;
 
   await db.withExclusiveTransactionAsync(async (txn) => {
+    const expected: PlanDaySnapshot[] = [];
+
     for (const { weekday, changes } of pending) {
+      const before = await txn.getAllAsync<{ id: number; exercise_id: number }>(
+        'SELECT id, exercise_id FROM plan WHERE user_id = ? AND weekday = ?',
+        userId,
+        weekday,
+      );
+      const expectedIds = new Set(before.map((row) => row.exercise_id));
+      for (const planId of changes.removedPlanIds) {
+        const row = before.find((entry) => entry.id === planId);
+        if (row) expectedIds.delete(row.exercise_id);
+      }
+      for (const exerciseId of changes.addedExerciseIds) {
+        expectedIds.add(exerciseId);
+      }
+
       for (const planId of changes.removedPlanIds) {
         await removeFromPlan(txn, planId);
       }
       for (const exerciseId of changes.addedExerciseIds) {
         await addToPlan(txn, weekday, exerciseId, userId);
       }
+
+      expected.push({ weekday, exerciseIds: [...expectedIds] });
+    }
+
+    // Confere dentro da transação: se alguma constraint antiga bloquear um
+    // INSERT, a transação inteira é desfeita e o rascunho permanece na tela.
+    const actual: PlanDaySnapshot[] = [];
+    for (const { weekday } of pending) {
+      const rows = await txn.getAllAsync<{ exercise_id: number }>(
+        'SELECT exercise_id FROM plan WHERE user_id = ? AND weekday = ?',
+        userId,
+        weekday,
+      );
+      actual.push({ weekday, exerciseIds: rows.map((row) => row.exercise_id) });
+    }
+
+    const failed = findUnsavedWeekdays(expected, actual);
+    if (failed.length > 0) {
+      throw new Error(
+        `O plano não foi gravado por completo (dias: ${failed.join(', ')}).`,
+      );
     }
   });
 }

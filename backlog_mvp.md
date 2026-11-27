@@ -199,6 +199,20 @@ Este documento define o backlog priorizado para o desenvolvimento, testes e publ
 - **Critérios de Aceitação:** Swipe mostra a aba vizinha real durante o arrasto; scroll e estado de interação aparecem corretos sem piscar; tab bar continua trocando de aba; `useQuery` recarrega apenas na aba focada; `tsc`, `lint`, `jest` e `expo export` verdes.
 - **Branch Sugerida:** `feature/swipe-pager-instancia-unica`
 
+### - [x] **BF.4: Alterações do Plano Descartadas ao Salvar**
+
+- **Prioridade:** Critical
+- **Status:** completed
+- **Descrição:** Ao adicionar exercícios e tocar em “SALVAR ALTERAÇÕES”, parte das mudanças sumia — especialmente em conta nova criada no mesmo aparelho. Causa raiz: bancos criados antes do multi-usuário (T2.3) mantêm `UNIQUE (weekday, exercise_id)` em `plan` e `UNIQUE (date)` em `sessions`, porque a migração v3 só adicionou `user_id` via `ALTER TABLE`. Como essas constraints ignoram o usuário, o `INSERT OR IGNORE` do `addToPlan` descartava em silêncio exercícios que já existiam no plano do usuário 1 (dados legados do modo convidado), e a tela limpava o rascunho após o reload. Correções:
+    - **Migração v5** (`src/db/migrate.ts`): reconstrói `plan` e `sessions` preservando ids/dados, com `UNIQUE(user_id, weekday, exercise_id)` e `UNIQUE(user_id, date)`; FK off + transação, com diagnóstico de schema em `__DEV__`.
+    - **Escrita verificável** (`src/db/repo.ts`): `savePlanChanges` relê os dias gravados dentro da transação e lança erro se algo não bateu (`findUnsavedWeekdays`); o rascunho permanece na tela e o usuário vê “Não foi possível salvar”.
+    - **Reload fora de ordem** (`src/hooks/use-query.ts`): contador de geração impede que uma resposta antiga sobrescreva dados recém-salvos.
+    - **Edição antes do load** (`src/app/(tabs)/plano.tsx`): bloqueia adicionar/remover enquanto `planDays` não carregou (evitava apagar o dia inteiro) e mostra “Carregando plano...”.
+    - **Convidado confirmado**: não sofria a perda silenciosa (usa `user_id = 1`, dono das linhas legadas), mas é beneficiado pela v5 e continua funcionando.
+- **Dependências:** T2.3, T3.1
+- **Critérios de Aceitação:** exercício adicionado em conta nova permanece após salvar e reabrir; salvar vários dias de uma vez grava todos; falha de gravação nunca descarta o rascunho; convidado adiciona/remove/salva normalmente; `tsc`, `lint` e `jest` verdes.
+- **Branch Sugerida:** `fix/plano-salvamento`
+
 ### - [ ] **TF.4: Login Social com Google (OAuth)**
 
 - **Prioridade:** Medium

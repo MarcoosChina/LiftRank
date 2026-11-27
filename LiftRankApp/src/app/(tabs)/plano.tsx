@@ -113,6 +113,11 @@ export default function PlanoScreen() {
   const { data: planDays, reload: reloadPlan } = planByDay;
   const { data: exerciseList, reload: reloadExercises } = exercises;
   const { data: doneExerciseIds } = doneToday;
+  /**
+   * Enquanto o plano inicial não carregou, `savedByDay` está vazio: editar
+   * nesse instante faria o rascunho parecer que apagou todos os exercícios.
+   */
+  const planLoaded = planDays !== null;
 
   /** Plano salvo, já no formato do rascunho. */
   const savedByDay = useMemo(() => {
@@ -152,6 +157,7 @@ export default function PlanoScreen() {
 
   const toggleExercise = useCallback(
     (weekday: number, exercise: Exercise) => {
+      if (!planLoaded) return;
       setDraftOverrides((prev) => {
         const current = prev[weekday] ?? savedByDay[weekday] ?? [];
         const exists = current.some((item) => item.exercise_id === exercise.id);
@@ -170,11 +176,12 @@ export default function PlanoScreen() {
       });
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     },
-    [savedByDay],
+    [planLoaded, savedByDay],
   );
 
   const removeExercise = useCallback(
     (weekday: number, item: DraftExercise) => {
+      if (!planLoaded) return;
       const current = draftByDay[weekday] ?? [];
       const index = current.findIndex((entry) => entry.exercise_id === item.exercise_id);
       if (index === -1) return;
@@ -188,7 +195,7 @@ export default function PlanoScreen() {
       setPendingUndo({ weekday, item: current[index], index });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     },
-    [draftByDay, savedByDay],
+    [planLoaded, draftByDay, savedByDay],
   );
 
   /** Confirma antes de remover, evitando exclusões acidentais. */
@@ -240,7 +247,7 @@ export default function PlanoScreen() {
   );
 
   const saveDrafts = useCallback(async () => {
-    if (saving || dirtyWeekdays.length === 0) return;
+    if (!planLoaded || saving || dirtyWeekdays.length === 0) return;
     setSaving(true);
     try {
       await savePlanChanges(
@@ -260,13 +267,25 @@ export default function PlanoScreen() {
       });
       setPendingUndo(null);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    } catch {
+    } catch (error) {
+      if (__DEV__) console.warn('[plano] falha ao salvar alterações', error);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      Alert.alert('Não foi possível salvar', 'Tente novamente em alguns instantes.');
+      Alert.alert(
+        'Não foi possível salvar',
+        'Suas alterações continuam aqui. Tente novamente em alguns instantes.',
+      );
     } finally {
       setSaving(false);
     }
-  }, [saving, dirtyWeekdays, changesByWeekday, db, userId, reloadPlan]);
+  }, [
+    planLoaded,
+    saving,
+    dirtyWeekdays,
+    changesByWeekday,
+    db,
+    userId,
+    reloadPlan,
+  ]);
 
   const addNewExercise = useCallback(async () => {
     if (!pickerDay) return;
@@ -416,7 +435,11 @@ export default function PlanoScreen() {
               </View>
             </View>
 
-            {selectedDraft.length === 0 ? (
+            {!planLoaded ? (
+              <ThemedText type="small" style={styles.emptyText}>
+                Carregando plano...
+              </ThemedText>
+            ) : selectedDraft.length === 0 ? (
               <ThemedText type="small" style={styles.emptyText}>
                 Dia livre. Toque em “+ Adicionar Exercício” para montar este treino.
               </ThemedText>
@@ -485,11 +508,16 @@ export default function PlanoScreen() {
 
             <Pressable
               accessibilityRole="button"
+              accessibilityState={{ disabled: !planLoaded }}
+              disabled={!planLoaded}
               onPress={() => {
                 setSearchQuery('');
                 setPickerDay(selectedDay);
               }}
-              style={({ pressed }) => [styles.addButton, { opacity: pressed ? 0.65 : 1 }]}>
+              style={({ pressed }) => [
+                styles.addButton,
+                { opacity: !planLoaded ? 0.45 : pressed ? 0.65 : 1 },
+              ]}>
               <ThemedText type="smallBold" style={styles.addButtonLabel}>
                 + Adicionar Exercício
               </ThemedText>
